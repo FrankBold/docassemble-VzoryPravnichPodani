@@ -18,6 +18,7 @@ objects:
   - Podatel: Person.using(nazev="podatele")
   - Adresat: organization
   - Podnet: Thing
+  - Obec: organization
 ---
 # Dočasné
 code: |
@@ -37,14 +38,12 @@ fields:
     choices:
         - Samostatná: samo
         - Přenesená: prenesena
-  - Pod jaký kraj obec spadá?: kraj
-    code: |
-      krajskeUrady
+  - Název obce: Obec.name.text
 ---
 code: |
   krajskeUrady = [
                 {'praha': "Praha"},
-                {'morava': "Moravskoslezský},
+                {'morava': "Moravskoslezský""},
                 {'ustecky': "Ústecký"}
   ]
 ---
@@ -62,6 +61,7 @@ fields:
 question: |
   Chcete přiložit přílohy?
 yesno: Podani.prilohy
+---
 # Odeslání souborů
 id: souboryKeStazeni
 progress: 100
@@ -71,7 +71,7 @@ subquestion: |
   Vše potřebné Vám zašleme na e-mail spolu s informacemi k dalšímu postupu.
 
   % if user_has_privilege('admin'):
-  ${ zip_file(Soubory, filename="Podklady_Spolek.zip") }
+  ${ url_of(vzor) }
   % endif
 fields:
   - Váš e-mail: email
