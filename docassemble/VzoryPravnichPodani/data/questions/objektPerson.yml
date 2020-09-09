@@ -1,3 +1,6 @@
+modules:
+  - .overovac
+---
 generic object: Person
 question: |
   Indetifikační údaje x.nazev
@@ -70,3 +73,15 @@ script: |
       return false;
     });
   </script>
+---
+event: vyberFirmy
+code: |
+  vystupNovy = overit("", zvolena_firma)
+  x.name.text = vystupNovy.firma
+  x.ICO = vystupNovy.ico
+  x.address = vystupNovy.sidlo
+---
+event: myaction
+code: |
+  vystup = overitXml(action_argument('ico').strip('"'), action_argument('firma').strip('"'))
+  json_response(dict(test=vystup))

@@ -16,9 +16,9 @@ modules:
 ---
 objects:
   - Podatel: Person.using(nazev="podatele")
-  - Adresat: organization
-  - Podnet: Thing
-  - Obec: organization
+  - Adresat: Organization
+  - Podani: Thing
+  - Obec: Organization
 ---
 # Dočasné
 code: |
@@ -41,18 +41,14 @@ fields:
   - Název obce: Obec.name.text
 ---
 code: |
-  krajskeUrady = [
-                {'praha': "Praha"},
-                {'morava': "Moravskoslezský""},
-                {'ustecky': "Ústecký"}
-  ]
+  krajskeUrady = [{'praha': "Praha"},{'morava': "Moravskoslezský"},{'ustecky': "Ústecký"}]
 ---
 # Předmět podnětu
 question: |
   Předmět podnětu
 fields:
-  - Předmět podnětu: Podnet.predmet
-  - Popis problémového jednání: Podnet.jednani
+  - Předmět podnětu: Podani.predmet
+  - Popis problémového jednání: Podani.jednani
     datatype: area
   - Znáte konkrétní ustanovení zákona, které má být porušeno?: Podani.ustanoveni
     datatype: yesnoradio
@@ -71,7 +67,7 @@ subquestion: |
   Vše potřebné Vám zašleme na e-mail spolu s informacemi k dalšímu postupu.
 
   % if user_has_privilege('admin'):
-  ${ url_of(vzor) }
+  [Stáhnout](${ vzor.url_for() })
   % endif
 fields:
   - Váš e-mail: email
