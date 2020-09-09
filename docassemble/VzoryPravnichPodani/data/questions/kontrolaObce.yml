@@ -1,4 +1,139 @@
 metadata:
   title: Podnět k provedení kontroly obce
   short title: Kontrola obce
+  description: Průvodce přípravou podnětu k provedení kontroly obce.
+  authors:
+    - name: Michal Kuk
+      organization: Frank Bold Society
+  revision_date: 2020-09-09
 ---
+include:
+  - t_mail.yml
+  - objektPerson.yml
+---
+modules:
+  - .integrace
+---
+objects:
+  - Podatel: Person.using(nazev="podatele")
+  - Adresat: organization
+  - Podnet: Thing
+---
+# Dočasné
+code: |
+  Adresat.name.text = "Krajský úřad"
+  Adresat.ico = "ICO"
+  Adresat.address = "Adresa"
+---
+# Otázky
+# Působnost předmětu kontroly
+question: |
+  Určení kontrolního orgánu
+subquestion: |
+  K posouzení, kdo bude orgánem vykonávajícím kontrolu je rozhodující, co mám být zkontrolováno. Konkrétně zda předmět kontroly spadá do samostatné či přenesené působnosti obce.
+fields:
+  - Působnost: pusobnost
+    input type: radio
+    choices:
+        - Samostatná: samo
+        - Přenesená: prenesena
+  - Pod jaký kraj obec spadá?: kraj
+    code: |
+      krajskeUrady
+---
+code: |
+  krajskeUrady = [
+                {'praha': "Praha"},
+                {'morava': "Moravskoslezský},
+                {'ustecky': "Ústecký"}
+  ]
+---
+# Předmět podnětu
+question: |
+  Předmět podnětu
+fields:
+  - Předmět podnětu: Podnet.predmet
+  - Popis problémového jednání: Podnet.jednani
+    datatype: area
+  - Znáte konkrétní ustanovení zákona, které má být porušeno?: Podani.ustanoveni
+    datatype: yesnoradio
+---
+# Prilohy
+question: |
+  Chcete přiložit přílohy?
+yesno: Podani.prilohy
+# Odeslání souborů
+id: souboryKeStazeni
+progress: 100
+question: |
+  Vaš vzor je připraven
+subquestion: |
+  Vše potřebné Vám zašleme na e-mail spolu s informacemi k dalšímu postupu.
+
+  % if user_has_privilege('admin'):
+  ${ zip_file(Soubory, filename="Podklady_Spolek.zip") }
+  % endif
+fields:
+  - Váš e-mail: email
+    datatype: email
+  - newsletter: newsletter
+    datatype: yesnoradio
+---
+# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
+event: odeslatEmail
+sets: vseHotovo
+code: |
+  emailOdeslan = send_email(email, template=t_vzor, attachments=vzor)
+  if newsletter:
+    ecomail = addEcomail(email)
+  if emailOdeslan:
+    vseHotovo = True
+  else:
+    neodeslano
+---
+# Výstup
+mandatory: True
+id: final_screen
+need: vseHotovo
+question: |
+  Úspěšně odesláno!
+subquestion: |
+  Děkujeme, že jste využili náš nástroj. Kdyby Vám dokumenty na e-mail nedorazily, napiště na [servis@frankbold.org](mailto:servis@frankbold.org) a napravíme to.
+
+  Tento nástroj je zdarma díky podpoře donorů. Pomozte nám též.
+
+  Komplexnější služby nabízí Frank Bold Advokáti
+action buttons:
+  - label: Podpořím darem
+    action: https://frankbold.org/podporte-nas
+    color: dark
+    icon: hand-holding-heart
+    placement: before
+  - label: Navštívit web advokátů
+    action: C2B07C
+    color: light
+    icon: external-link-alt
+    placement: before
+buttons:
+  - Ukončit průvodce: leave
+    url: https://frankbold.org/
+css: |
+  <style>
+  .btn-dark {
+    background-color: #D70B3B;
+    border-color: #D70B3B;
+    }
+  .btn-light {
+    color: white;
+    background-color: #C2B07C;
+    border-color: #C2B07C;
+    }
+  </style>
+---
+attachment:
+  name: Podnět k provedení kontroly obce
+  filename: Podnet ke kontrole
+  variable name: vzor
+  docx template file: PodnetKontolaObce.docx
+  valid formats:
+    - docx

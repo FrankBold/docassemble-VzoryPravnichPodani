@@ -1,0 +1,72 @@
+generic object: Person
+question: |
+  Indetifikační údaje x.nazev
+fields:
+  - Typ osoby: x.forma
+    input type: radio
+    choices:
+      - Právnická osoba: PO
+      - Fyzická osoba: FO
+  - Jméno a příjmení: x.name.text
+    show if:
+      variable: x.forma
+      is: FO
+  - Trvalé bydliště: x.address
+    show if:
+      variable: x.forma
+      is: FO
+  - Datum narození: x.birthday
+    datatype: date
+    show if:
+      variable: x.forma
+      is: FO
+  - Název organizace: x.name.text
+    show if:
+      variable: x.forma
+      is: PO
+  - Sídlo: x.address
+    show if:
+      variable: x.forma
+      is: PO
+  - IČO: x.ic
+    datatype: integer
+    minlength: 8
+    maxlength: 8
+    show if:
+      variable: x.forma
+      is: PO
+    hint: 12345678
+    note: |
+      <button id="run" class="btn btn-primary">Doplnit údaje z OR</button>
+  - note: |
+      **Zástupce společnosti**
+    show if:
+      variable: x.forma
+      is: PO
+  - Vaše jméno: x.zastupceName
+    required: False
+    show if:
+      variable: x.forma
+      is: PO
+  - Vaše funkce v organizaci: x.zastupceFunkce
+    required: False
+    show if:
+      variable: x.forma
+      is: PO
+script: |
+  <script type="application/javascript" charset="utf-8">
+    $("#run").click(function(){
+      action_call('myaction', {firma: val('x.name.text'), ico: val('x.ICO')}, function(data){
+        if (typeof data.test.firma !== 'undefined') {
+        setField("x.name.text", data.test.firma);
+        setField("x.ic", data.test.ico);
+        setField("x.address", data.test.sidlo);
+        } else if (typeof data.test == 'object') {
+          action_perform('vyberFirmy')
+        } else {
+        flash(data.test, "danger")
+        }
+      });
+      return false;
+    });
+  </script>
