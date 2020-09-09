@@ -43,9 +43,9 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.VzoryPravnichPodani',
-      version='0.0.1',
+      version='0.0.2',
       description=('Interaktivní varianty vzorů právních podání'),
-      long_description='# docassemble.VzoryPravnichPodani\n\nInteraktivní varianty vzorů právních podání\n\n## Author\n\nSystem Administrator, admin@admin.com\n\n',
+      long_description='# docassemble.VzoryPravnichPodani\r\n\r\nInteraktivní varianty vzorů právních podání\r\n\r\n## Author\r\n\r\nSystem Administrator, admin@admin.com\r\n\r\n',
       long_description_content_type='text/markdown',
       author='Frank Bold',
       author_email='servis@frankbold.org',
