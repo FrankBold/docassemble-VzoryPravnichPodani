@@ -139,10 +139,6 @@ subquestion: |
 fields:
   - Váš e-mail: email
     datatype: email
-  - Přihlásit k newsletteru Občan 2.0: newsletter
-    datatype: yesnoradio
-    note: |
-      Zasíláme právní aktuality a rady spolu s informacemi o činnosti organizace.
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
@@ -201,7 +197,7 @@ css: |
   </style>
 script: |
   <script>
-    $("#newsletter").click(function(){action_call('ecomailNewsletter'); console.log("Hello"); return false;})
+    $("#newsletter").click(function(){action_call('ecomailNewsletter'); $('#newsletter').text('Přihlášeno').addClass('btn-primary').removeClass('btn-secondary'); return false;})
   </script>
 ---
 attachment:
