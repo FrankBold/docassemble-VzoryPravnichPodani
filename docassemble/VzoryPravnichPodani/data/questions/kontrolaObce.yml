@@ -13,18 +13,13 @@ include:
 ---
 modules:
   - .integrace
+  - .overovac
 ---
 objects:
   - Podatel: Person.using(nazev="podatele")
   - Adresat: Organization
   - Podani: Thing
   - Obec: Organization
----
-# Dočasné
-code: |
-  Adresat.name.text = "Krajský úřad"
-  Adresat.ico = "ICO"
-  Adresat.address = "Adresa"
 ---
 # Otázky
 # Působnost předmětu kontroly
@@ -39,9 +34,21 @@ fields:
         - Samostatná: samo
         - Přenesená: prenesena
   - Název obce: Obec.name.text
+  - Kraj: kraj
+    code: |
+      icoKraju
 ---
+# IČO Krajů
 code: |
-  krajskeUrady = [{'praha': "Praha"},{'morava': "Moravskoslezský"},{'ustecky': "Ústecký"}]
+  icoKraju = {"70890650": "Jihočeský", "70888337": "Jihomoravský", "70891168": "Karlovarský", "70889546": "Královehradecký", "70891508": "Liberecký", "70890692": "Moravskoslezský", "60609460": "Olomoucký", "70892822": "Pardubický", "70890366": "Plzeňský", "00064581": "Praha", "70891095": "Středočeský", "70892156": "Ústecký", "70890749": "Vysočina", "70891320": "Zlínský"}
+---
+# Získání údajů o kraji
+code: |
+  vystup = overitUrad(kraj)
+  Adresat.name.text = vystup['Nazev'] +" - Krajský úřad"
+  Adresat.ico = vystup['ICO']
+  Adresat.address = vystup['AdresaUradu']['UliceNazev'] +" "+ vystup['AdresaUradu']['CisloDomovni'] +"/"+ vystup['AdresaUradu']['CisloOrientacni'] +", "+ vystup['AdresaUradu']['PSC'] +" "+ vystup['AdresaUradu']['ObecNazev']
+  Adresat.idds = vystup['IdDS']
 ---
 # Předmět podnětu
 question: |
@@ -55,8 +62,16 @@ fields:
 ---
 # Prilohy
 question: |
-  Chcete přiložit přílohy?
-yesno: Podani.prilohy
+  Odeslání podnětu
+fields:
+  - Jak budete podnět odesílat?: Podani.forma
+    input type: radio
+    choices:
+      - Poštou: posta
+      - Datovou schránkou: datovka
+      - E-mailem (s ověřeným el. podpisem): email
+  - Chcete přikládat přílohy: Podani.prilohy
+    datatype: yesnoradio
 ---
 # Odeslání souborů
 id: souboryKeStazeni
