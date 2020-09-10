@@ -51,8 +51,10 @@ fields:
     show if:
       variable: pusobnost
       is: prenesena
-help: |
-  ${ obsahClanku("263") }
+help:
+  label: Jak poznám působnost?
+  content: |
+    ${ obsahClanku("263") }
 ---
 # IČO Krajů
 code: |
@@ -66,6 +68,7 @@ code: |
   Adresat.psc = vystup['AdresaUradu']['PSC']
   Adresat.obec = vystup['AdresaUradu']['ObecNazev']
   Adresat.idds = vystup['IdDS']
+  Adresat.email = vystup['Email']['Polozka'][0]['Email']
 ---
 # Předmět podnětu
 question: |
@@ -74,8 +77,9 @@ fields:
   - Předmět podnětu: Podani.predmet
   - Popis problémového jednání: Podani.jednani
     datatype: area
-  - Znáte konkrétní ustanovení zákona, které má být porušeno?: Podani.ustanoveni
+  - Znáte konkrétní ustanovení zákona, které je porušováno?: Podani.ustanoveni
     datatype: yesnoradio
+    default: false
   - Porušované ustanovení: Podani.paragraf
     hint: |
       § ## zákona č. ###/#### Sb.
@@ -83,7 +87,7 @@ fields:
       variable: Podani.ustanoveni
       is: true
 action buttons:
-  - label: Vyplním později
+  - label: Vyplním později v dokumentu
     action: obsah_pozdeji
     color: danger
     icon: forward
@@ -134,8 +138,10 @@ subquestion: |
 fields:
   - Váš e-mail: email
     datatype: email
-  - newsletter: newsletter
+  - Přihlásit k newsletteru Občan 2.0: newsletter
     datatype: yesnoradio
+    note: |
+      Zasíláme právní aktuality a rady spolu s informacemi o činnosti organizace.
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
@@ -143,7 +149,7 @@ sets: vseHotovo
 code: |
   emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
   if newsletter:
-    ecomail = addEcomail(email)
+    ecomail = addEcomail(email, "12", "Podnět ke kontrole obce")
   if emailOdeslan:
     vseHotovo = True
   else:

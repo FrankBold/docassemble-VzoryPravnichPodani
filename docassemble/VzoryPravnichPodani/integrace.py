@@ -1,7 +1,7 @@
 import requests
 from docassemble.base.util import get_config
 
-def addEcomail (email):
+def addEcomail (email, id, vzor):
   ecomailKey = get_config('ecomailKey')
 
   header = {'key': ecomailKey,'Content-Type': 'application/json'}
@@ -11,7 +11,8 @@ def addEcomail (email):
   "subscriber_data": {
     "email": "'''+ email +'''",
     "tags": [
-      "Zakladac"
+      "'''+ vzor +'''",
+      "Vzor"
     ]
   },
   "trigger_autoresponders": true,
@@ -19,6 +20,6 @@ def addEcomail (email):
   "resubscribe": true
   }
   '''
-  r = requests.post('http://api2.ecomailapp.cz/lists/75/subscribe', headers=header, data=values)
+  r = requests.post('http://api2.ecomailapp.cz/lists/'+ id +'/subscribe', headers=header, data=values)
 
   return
