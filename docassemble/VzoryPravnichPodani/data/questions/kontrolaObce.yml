@@ -86,7 +86,7 @@ fields:
       Jednotlivé položky oddělte "enterem".
     show if:
       variable: Podani.prilohy
-      is: yes
+      is: true
 ---
 # Rozdělení příloh na seznam
 code: |
