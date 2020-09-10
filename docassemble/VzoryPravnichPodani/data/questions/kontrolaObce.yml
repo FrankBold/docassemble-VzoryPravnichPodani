@@ -125,12 +125,13 @@ code: |
   Podani.prilohySeznam = string_pole(prilohy)
 ---
 # Odeslání souborů
+need: vzor
 id: souboryKeStazeni
 progress: 100
 question: |
   Vaš vzor je připraven
 subquestion: |
-  Vše potřebné Vám zašleme na e-mail spolu s informacemi k dalšímu postupu.
+  Vzor Vám společné s manuálem pošleme na e-mail.
 
   % if user_has_privilege('admin'):
   [Stáhnout](${ vzor.url_for() })
