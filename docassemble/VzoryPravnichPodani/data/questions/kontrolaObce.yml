@@ -149,7 +149,7 @@ sets: vseHotovo
 code: |
   emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
   if newsletter:
-    ecomail = addEcomail(email, "12", "Podnět ke kontrole obce")
+    ecomail = addEcomail(email, "12", "Podnet ke kontrole obce")
   if emailOdeslan:
     vseHotovo = True
   else:
