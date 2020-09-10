@@ -148,13 +148,16 @@ fields:
 event: odeslatEmail
 sets: vseHotovo
 code: |
+  vzor
   emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
-  if newsletter:
-    ecomail = addEcomail(email, "12", "Podnet ke kontrole obce")
   if emailOdeslan:
     vseHotovo = True
   else:
     neodeslano
+---
+event: ecomailNewsletter
+code: |
+  ecomail = addEcomail(email, "12", "Podnet ke kontrole obce")
 ---
 # Výstup
 mandatory: True
@@ -164,6 +167,8 @@ question: |
   Úspěšně odesláno!
 subquestion: |
   Děkujeme, že jste využili náš nástroj. Kdyby Vám dokumenty na e-mail nedorazily, napiště na [servis@frankbold.org](mailto:servis@frankbold.org) a napravíme to.
+
+  Pokud od nás chcete dostávat pravidelné informace a právní rady, spolu s novinkami z činnosti organizace   ${ action_button_html("#", id_tag="newsletter", label="přihlaste e-mail k newsletteru Občan 2.0", color="secondary", size="sm") }
 
   Tento nástroj je zdarma díky podpoře donorů. Pomozte nám též.
 
@@ -194,6 +199,10 @@ css: |
     border-color: #C2B07C;
     }
   </style>
+script: |
+  <script>
+    $("#newsletter").click(function(){action_call('ecomailNewsletter'); console.log("Hello"); return false;})
+  </script>
 ---
 attachment:
   name: Podnět k provedení kontroly obce
