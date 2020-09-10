@@ -14,6 +14,7 @@ include:
 modules:
   - .integrace
   - .overovac
+  - .utility
 ---
 objects:
   - Podatel: Person.using(nazev="podatele")
@@ -46,8 +47,9 @@ code: |
 code: |
   vystup = overitUrad(kraj)
   Adresat.name.text = vystup['Nazev'] +" - Krajský úřad"
-  Adresat.ico = vystup['ICO']
-  Adresat.address = vystup['AdresaUradu']['UliceNazev'] +" "+ vystup['AdresaUradu']['CisloDomovni'] +"/"+ vystup['AdresaUradu']['CisloOrientacni'] +", "+ vystup['AdresaUradu']['PSC'] +" "+ vystup['AdresaUradu']['ObecNazev']
+  Adresat.ulice = vystup['AdresaUradu']['UliceNazev'] +" "+ vystup['AdresaUradu']['CisloDomovni'] +"/"+ vystup['AdresaUradu']['CisloOrientacni']
+  Adresat.psc = vystup['AdresaUradu']['PSC']
+  Adresat.obec = vystup['AdresaUradu']['ObecNazev']
   Adresat.idds = vystup['IdDS']
 ---
 # Předmět podnětu
@@ -59,6 +61,12 @@ fields:
     datatype: area
   - Znáte konkrétní ustanovení zákona, které má být porušeno?: Podani.ustanoveni
     datatype: yesnoradio
+  - Porušované ustanovení: Podani.paragraf
+    hint: |
+      § ## zákona č. ###/#### Sb.
+    show if:
+      variable: Podani.ustanoveni
+      is: true
 ---
 # Prilohy
 question: |
@@ -72,6 +80,17 @@ fields:
       - E-mailem (s ověřeným el. podpisem): email
   - Chcete přikládat přílohy: Podani.prilohy
     datatype: yesnoradio
+  - Seznam příloh: prilohy
+    datatype: area
+    hint: |
+      Jednotlivé položky oddělte "enterem".
+    show if:
+      variable: Podani.prilohy
+      is: yes
+---
+# Rozdělení příloh na seznam
+code: |
+  Podani.prilohySeznam = string_pole(prilohy)
 ---
 # Odeslání souborů
 id: souboryKeStazeni
