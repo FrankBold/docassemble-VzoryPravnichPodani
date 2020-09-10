@@ -7,6 +7,9 @@ metadata:
       organization: Frank Bold Society
   revision_date: 2020-09-09
 ---
+features:
+  question help button: True
+---
 include:
   - t_mail.yml
   - objektPerson.yml
@@ -21,6 +24,13 @@ objects:
   - Adresat: Organization
   - Podani: Thing
   - Obec: Organization
+  - Komentar: DAFileCollection
+---
+mandatory: True
+code: |
+  mutli_user = True
+  nabidkaFBA = False
+  nazev = "Podnět k provedení kontroly obce"
 ---
 # Otázky
 # Působnost předmětu kontroly
@@ -38,6 +48,11 @@ fields:
   - Kraj: kraj
     code: |
       icoKraju
+    show if:
+      variable: pusobnost
+      is: prenesena
+help: |
+  ${ obsahClanku("263") }
 ---
 # IČO Krajů
 code: |
@@ -67,6 +82,19 @@ fields:
     show if:
       variable: Podani.ustanoveni
       is: true
+action buttons:
+  - label: Vyplním později
+    action: obsah_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: obsah_pozdeji
+code: |
+  Podani.predmet = "[Předmět podání]"
+  Podani.jednani = "[Popis jednání]"
+  Podani.ustanoveni = True
+  Podani.paragraf = "[Porušené ustanovení]"
 ---
 # Prilohy
 question: |
@@ -113,7 +141,7 @@ fields:
 event: odeslatEmail
 sets: vseHotovo
 code: |
-  emailOdeslan = send_email(email, template=t_vzor, attachments=vzor)
+  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
   if newsletter:
     ecomail = addEcomail(email)
   if emailOdeslan:

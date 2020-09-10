@@ -1,4 +1,6 @@
 from docassemble.base.util import validation_error
+import requests
+from bs4 import BeautifulSoup
 
 def contains_spolek(x):
   x = x.lower()
@@ -15,3 +17,10 @@ def contains_spolek(x):
 def string_pole(x):
   x = x.split('\r\n')
   return x
+
+def obsahClanku(id):
+  URL = 'https://frankbold.org/node/'+ id +'/'
+  page = requests.get(URL)
+  soup = BeautifulSoup(page.content, 'html.parser')
+  polozky = soup.find('div', class_='content')
+  return polozky
