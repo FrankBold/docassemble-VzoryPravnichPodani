@@ -28,7 +28,7 @@ objects:
 ---
 mandatory: True
 code: |
-  mutli_user = True
+  multi_user = True
   nabidkaFBA = False
   nazev = "Podnět k provedení kontroly obce"
 ---
