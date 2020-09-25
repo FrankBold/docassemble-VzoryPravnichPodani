@@ -68,7 +68,10 @@ code: |
   Adresat.psc = vystup['AdresaUradu']['PSC']
   Adresat.obec = vystup['AdresaUradu']['ObecNazev']
   Adresat.idds = vystup['IdDS']
-  Adresat.email = vystup['Email']['Polozka'][0]['Email']
+  if isinstance(vystup['Email']['Polozka'], list):
+    Adresat.email = vystup['Email']['Polozka'][0]['Email']
+  else:
+    Adresat.email = vystup['Email']['Polozka']['Email']
 ---
 # Předmět podnětu
 question: |
