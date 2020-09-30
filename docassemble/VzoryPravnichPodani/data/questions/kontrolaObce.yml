@@ -34,6 +34,7 @@ code: |
 ---
 # Otázky
 # Působnost předmětu kontroly
+ga id: kontrolniOrgan
 question: |
   Určení kontrolního orgánu
 subquestion: |
@@ -74,6 +75,7 @@ code: |
     Adresat.email = vystup['Email']['Polozka']['Email']
 ---
 # Předmět podnětu
+ga id:  predmetPodnetu
 question: |
   Předmět podnětu
 fields:
@@ -104,6 +106,7 @@ code: |
   Podani.paragraf = "[Porušené ustanovení]"
 ---
 # Prilohy
+ga id: zpusobOdeslani
 question: |
   Odeslání podnětu
 fields:
@@ -135,6 +138,7 @@ question: |
   Vaš vzor je připraven
 subquestion: |
   Vzor Vám společné s manuálem pošleme na e-mail.
+  *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
 
   % if user_has_privilege('admin'):
   [Stáhnout](${ vzor.url_for() })
@@ -151,6 +155,7 @@ code: |
   emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
   if emailOdeslan:
     vseHotovo = True
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
   else:
     neodeslano
 ---
