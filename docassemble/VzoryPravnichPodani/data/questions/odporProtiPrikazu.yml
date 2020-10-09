@@ -64,7 +64,7 @@ fields:
 ---
 # Získání údajů o kraji
 code: |
-  vystup = overitUrad("IdDS", Adresat.idds)
+  vystup = overitUrad("IdDS", Adresat.idds.strip('"'))
   Adresat.name.text = vystup['Nazev']
   Adresat.ulice = vystup['AdresaUradu']['UliceNazev'] +" "+ vystup['AdresaUradu']['CisloDomovni'] +"/"+ vystup['AdresaUradu']['CisloOrientacni']
   Adresat.psc = vystup['AdresaUradu']['PSC']
