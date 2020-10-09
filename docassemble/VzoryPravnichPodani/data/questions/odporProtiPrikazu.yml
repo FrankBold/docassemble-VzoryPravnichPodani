@@ -93,11 +93,11 @@ question: |
 subquestion: |
   Odpor nemusí obsahovat žádné odůvodnění. Je možné jej však uvést. V každém případě budete mít možnost se ještě k předmětu řízení vyjádřit.
 fields:
-  - Chcete uvést odůvodnění?: Podani.oduvodneni.exist
+  - Chcete uvést odůvodnění?: oduvodnit
     datatype: yesnoradio
-  - Odůvodnění: Podani.oduvodneni.text
+  - Odůvodnění: Podani.oduvodneni
     datatype: area
-    show if: Podani.oduvodneni.exist
+    show if: oduvodnit
 action buttons:
   - label: Vyplním později v dokumentu
     action: obsah_pozdeji
@@ -107,7 +107,7 @@ action buttons:
 scan for variables: False
 event: obsah_pozdeji
 code: |
-  Podani.oduvodneni.text = "[Doplňte odůvodnění odporu (**není povinné**)]."
+  Podani.oduvodneni = "[Doplňte odůvodnění odporu (**není povinné**)]."
 ---
 # Prilohy
 ga id: zpusobOdeslani
