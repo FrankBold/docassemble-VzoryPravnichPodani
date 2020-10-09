@@ -1,11 +1,11 @@
 metadata:
-  title: Podnět k provedení kontroly obce
-  short title: Kontrola obce
-  description: Průvodce přípravou podnětu k provedení kontroly obce.
+  title: Odpor proti správnímu příkazu
+  short title: Odpor
+  description: Průvodce přípravou odporu proti správnímu příkazu.
   authors:
     - name: Michal Kuk
       organization: Frank Bold Society
-  revision_date: 2020-09-09
+  revision_date: 2020-10-09
 ---
 features:
   question help button: True
@@ -23,48 +23,49 @@ objects:
   - Podatel: Person.using(nazev="podatele")
   - Adresat: Organization
   - Podani: Thing
-  - Obec: Organization
+  - Prikaz: Thing
   - Komentar: DAFileCollection
 ---
 mandatory: True
 code: |
   multi_user = True
-  nabidkaFBA = False
-  nazev = "Podnět k provedení kontroly obce"
+  nabidkaFBA = True
+  nazev = "Odpor proti příkazu"
 ---
 # Otázky
-# Působnost předmětu kontroly
-ga id: kontrolniOrgan
+# Úřad, který příkaz vydal
+ga id: adresat
 question: |
-  Určení kontrolního orgánu
+  Orgán vedoucí řízení
 subquestion: |
-  K posouzení, kdo bude orgánem vykonávajícím kontrolu je rozhodující, co mám být zkontrolováno. Konkrétně zda předmět kontroly spadá do samostatné či přenesené působnosti obce.
+  Odpor proti příkazu ve správním řízení se podává k témuž orgánu, který příkaz vydal. Uveďte tedy orgán, který je u příkazu uveden.
 fields:
-  - Působnost: pusobnost
+  - Způsob zadání: rucne
     input type: radio
     choices:
-        - Samostatná: samo
-        - Přenesená: prenesena
-  - Název obce: Obec.name.text
-  - Kraj: kraj
-    code: |
-      icoKraju
+        - Vyplním ručně: True
+        - Dle ID datové schránky: False
+  - ID datové schránky: Adresat.idds
     show if:
-      variable: pusobnost
-      is: prenesena
-help:
-  label: Jak poznám působnost?
-  content: |
-    ${ obsahClanku("263") }
+      variable: rucne
+      is: False
 ---
-# IČO Krajů
-code: |
-  icoKraju = {"70890650": "Jihočeský", "70888337": "Jihomoravský", "70891168": "Karlovarský", "70889546": "Královehradecký", "70891508": "Liberecký", "70890692": "Moravskoslezský", "60609460": "Olomoucký", "70892822": "Pardubický", "70890366": "Plzeňský", "00064581": "Praha", "70891095": "Středočeský", "70892156": "Ústecký", "70890749": "Vysočina", "70891320": "Zlínský"}
+if: |
+  rucne
+question: |
+  Identifikační údaje orgánu
+fields:
+  - Název orgánu: Adresat.name.text
+  - Oddělení: Adresat.oddeleni
+    required: False
+  - Ulice a čp: Adresat.ulice
+  - Obec: Adresat.obec
+  - PSČ: Adresat.psc
 ---
 # Získání údajů o kraji
 code: |
-  vystup = overitUrad(kraj, "ICO")
-  Adresat.name.text = vystup['Nazev'] +" - Krajský úřad"
+  vystup = overitUrad(Adresat.idds, "IdDS")
+  Adresat.name.text = vystup['Nazev']
   Adresat.ulice = vystup['AdresaUradu']['UliceNazev'] +" "+ vystup['AdresaUradu']['CisloDomovni'] +"/"+ vystup['AdresaUradu']['CisloOrientacni']
   Adresat.psc = vystup['AdresaUradu']['PSC']
   Adresat.obec = vystup['AdresaUradu']['ObecNazev']
@@ -75,22 +76,28 @@ code: |
     Adresat.email = vystup['Email']['Polozka']['Email']
 ---
 # Předmět podnětu
-ga id:  predmetPodnetu
+ga id:  prikaz
 question: |
-  Předmět podnětu
+  Odporovaný příkaz
 fields:
-  - Předmět podnětu: Podani.predmet
-  - Popis problémového jednání: Podani.jednani
-    datatype: area
-  - Znáte konkrétní ustanovení zákona, které je porušováno?: Podani.ustanoveni
-    datatype: yesnoradio
-    default: false
-  - Porušované ustanovení: Podani.paragraf
-    hint: |
-      § ## zákona č. ###/#### Sb.
-    show if:
-      variable: Podani.ustanoveni
-      is: true
+  - Číslo jednací: Prikaz.cj
+  - Datum vydání: Prikaz.datumVydani
+    datatype: date
+  - Datum doručení: Prikaz.datumDoruceni
+    datatype: date
+---
+# Odůvodnění odporu
+ga id: oduvodneni
+question: |
+  Odůvodnění příkazu
+subquestion: |
+  Odpor nemusí obsahovat žádné odůvodnění. Je možné jej však uvést. V každém případě budete mít možnost se ještě k předmětu řízení vyjádřit.
+fields:
+  Chcete uvést odůvodnění?: Podani.oduvodneni.exist
+  datatype: yesnoradio
+  Odůvodnění: Podani.oduvodneni.text
+  datatype: area
+  show if: Podani.oduvodneni.exist
 action buttons:
   - label: Vyplním později v dokumentu
     action: obsah_pozdeji
@@ -100,10 +107,7 @@ action buttons:
 scan for variables: False
 event: obsah_pozdeji
 code: |
-  Podani.predmet = "[Předmět podání]"
-  Podani.jednani = "[Popis jednání]"
-  Podani.ustanoveni = True
-  Podani.paragraf = "[Porušené ustanovení]"
+  Podani.oduvodneni.text = "[Doplňte odůvodnění odporu (**není povinné**)]."
 ---
 # Prilohy
 ga id: zpusobOdeslani
@@ -152,7 +156,7 @@ event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
+  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odpor_proti_prikazu_Komentar.pdf')])
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
@@ -161,7 +165,7 @@ code: |
 ---
 event: ecomailNewsletter
 code: |
-  ecomail = addEcomail(email, "12", "Podnet ke kontrole obce")
+  ecomail = addEcomail(email, "12", "Odpor proti příkazu")
 ---
 # Výstup
 mandatory: True
@@ -209,9 +213,9 @@ script: |
   </script>
 ---
 attachment:
-  name: Podnět k provedení kontroly obce
-  filename: Podnet ke kontrole
+  name: Odpor proti příkazu
+  filename: Odpor proti prikazu
   variable name: vzor
-  docx template file: PodnetKontolaObce.docx
+  docx template file: OdporProtiPrikazu.docx
   valid formats:
     - docx

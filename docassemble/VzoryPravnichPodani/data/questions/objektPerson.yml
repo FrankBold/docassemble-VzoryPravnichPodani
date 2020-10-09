@@ -40,7 +40,7 @@ fields:
       is: PO
     hint: 12345678
     note: |
-      <button id="run" class="btn btn-primary">Doplnit údaje z OR</button>
+      <button id="doplnit" class="btn btn-primary">Doplnit údaje z OR</button>
   - note: |
       **Zástupce společnosti**
     show if:
@@ -58,8 +58,8 @@ fields:
       is: PO
 script: |
   <script type="application/javascript" charset="utf-8">
-    $("#run").click(function(){
-      action_call('myaction', {ico: val('x.ic')}, function(data){
+    $("#doplnit").click(function(){
+      action_call('doplnUdaje', {ico: val('x.ic')}, function(data){
         if (typeof data.test.firma !== 'undefined') {
         setField("x.name.text", data.test.firma);
         setField("x.ic", data.test.ico);
@@ -81,7 +81,7 @@ code: |
   x.ic = vystupNovy.ico
   x.address = vystupNovy.sidlo
 ---
-event: myaction
+event: doplnUdaje
 code: |
   vystup = overitXml(action_argument('ico').strip('"'))
   json_response(dict(test=vystup))
