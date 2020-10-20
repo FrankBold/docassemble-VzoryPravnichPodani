@@ -91,7 +91,7 @@ ga id: oduvodneni
 question: |
   Odůvodnění příkazu
 subquestion: |
-  Odpor nemusí obsahovat žádné odůvodnění. Je možné jej však uvést. V každém případě budete mít možnost se ještě k předmětu řízení vyjádřit.
+  Odpor nemusí obsahovat žádné odůvodnění, nicméně jej uvést můžete. V každém případě budete mít možnost se ještě k předmětu řízení vyjádřit.
 fields:
   - Chcete uvést odůvodnění?: oduvodnit
     datatype: yesnoradio
