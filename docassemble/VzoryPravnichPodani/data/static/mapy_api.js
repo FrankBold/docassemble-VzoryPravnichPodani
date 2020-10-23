@@ -33,6 +33,6 @@ function odpoved(geocoder) { /* Odpověď */
 function odpoved2(geocoder) {
   var results = geocoder.getResults();
   var adresa = results.label.split(", ");
-  setField("x.address", "Řekni Rumburk, Srabe")
+  setField("x.address", "Řekni Rumburk, Srabe");
   console.log(results)
 }

@@ -15,6 +15,7 @@ fields:
       variable: x.forma
       is: FO
   - Trvalé bydliště: x.address
+    hint: Adresa
     show if:
       variable: x.forma
       is: FO
