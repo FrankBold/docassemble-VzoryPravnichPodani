@@ -29,6 +29,7 @@ fields:
       variable: x.forma
       is: PO
   - Sídlo: x.address
+    hint: Sídlo
     show if:
       variable: x.forma
       is: PO
