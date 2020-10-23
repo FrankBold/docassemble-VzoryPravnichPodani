@@ -15,6 +15,13 @@ def overitUrad(dotaz, kriterium):
 
   return(vystup)
 
+def uradDleDatovky(idds):
+    xml = "<GetInfoRequest xmlns='http://seznam.gov.cz/ovm/ws/v1'><DataboxId>"+ idds +"</DataboxId></GetInfoRequest>"
+    headers = {'Content-Type': 'application/xml'}
+
+    data = requests.post('https://www.mojedatovaschranka.cz/sds/ws/call', data=xml, headers=headers)
+    data.encoding = 'utf-8'
+    return(xmltodict.parse(data.text)['GetInfoResponse']['Osoba'])
 
 def overitXml(ico):
   URL = 'https://wwwinfo.mfcr.cz/cgi-bin/ares/darv_std.cgi'
