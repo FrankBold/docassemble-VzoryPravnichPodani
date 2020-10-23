@@ -1,4 +1,0 @@
-mandatory: true
-question: otazka
-subquestion: |
-  ${ url_of('mapy_api.js') }
