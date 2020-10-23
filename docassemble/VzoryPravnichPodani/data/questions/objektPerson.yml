@@ -76,8 +76,8 @@ script: |
     });
   </script>
   <script src="https://api.mapy.cz/loader.js"></script>
-  <script src="/interview?i=docassemble.VzoryPravnichPodani/data/static/loader.js"></script>
-  <script src="/interview?i=docassemble.VzoryPravnichPodani/data/static/mapy_api.js"></script>
+  <script src="/interview?i=docassemble.VzoryPravnichPodani:data/static/loader.js"></script>
+  <script src="/interview?i=docassemble.VzoryPravnichPodani:data/static/mapy_api.js"></script>
 ---
 event: vyberFirmy
 code: |
