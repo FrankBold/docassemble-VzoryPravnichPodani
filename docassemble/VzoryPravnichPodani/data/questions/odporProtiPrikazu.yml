@@ -50,6 +50,7 @@ fields:
       variable: rucne
       is: False
 ---
+ga id: adresatRucne
 if: |
   rucne
 question: |
