@@ -48,7 +48,6 @@ function odpoved(geocoder) { /* Odpověď */
 function odpoved2(geocoder) {
   var results = geocoder.getResults();
   var adresa = results.label.split(", ");
-  setField("x.address", adresa)
-  setField("x.adresa", "rebarbora")
+  setField("x.address", adresa[0])
   console.log(results)
 }
