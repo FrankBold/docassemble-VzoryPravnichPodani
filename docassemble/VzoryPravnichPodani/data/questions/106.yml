@@ -1,0 +1,246 @@
+metadata:
+  title: Žádost o poskytnutí informací
+  short title: Infožádost
+  description: Průvodce přípravou a podáním žádosti o informace.
+  authors:
+    - name: Michal Kuk
+      organization: Frank Bold Society
+  revision_date: 2020-10-29
+---
+features:
+  question help button: True
+---
+include:
+  - t_mail.yml
+  - objektPerson.yml
+---
+modules:
+  - .integrace
+  - .overovac
+  - .utility
+---
+objects:
+  - Podatel: Person.using(nazev="podatele")
+  - Adresat: Organization
+  - Podani: Thing
+  - Komentar: DAFileCollection
+---
+mandatory: True
+code: |
+  multi_user = True
+  nabidkaFBA = True
+  nazev = "Odpor proti příkazu"
+---
+# Otázky
+# Úřad, který příkaz vydal
+ga id: povinnySubjekt
+question: |
+  Od koho informace požadujete.
+subquestion: |
+  K poskytnutí informací podle zákona o svobodném přístupu k informací jsou povinny pouze tak uvedené povinné subjekty. Pokud si nejste jisti, zda ten po kom informace chcete je povinnen je poskytnout, podívejte se do naší [nápovědy](${ url_of('help') }).
+fields:
+  - Způsob zadání: rucne
+    input type: radio
+    choices:
+        - Vyplním ručně: True
+        - Dle ID datové schránky: False
+  - ID datové schránky: Adresat.idds
+    show if:
+      variable: rucne
+      is: False
+---
+ga id: adresatRucne
+if: |
+  rucne
+question: |
+  Identifikační údaje povinného orgánu.
+fields:
+  - Název orgánu: Adresat.name.text
+  - Oddělení: Adresat.oddeleni
+    required: False
+  - Ulice a čp: Adresat.ulice
+  - Obec: Adresat.obec
+  - PSČ: Adresat.psc
+  - ID DS: Adresat.idds
+    show if:
+      code: |
+        Podani.forma == 'datovka'
+---
+# Získání údajů o kraji
+if: |
+  rucne == False
+code: |
+  vystup = uradDleDatovky(Adresat.idds)
+  Adresat.name.text = vystup['NazevOsoby']
+  Adresat.ulice = vystup['AdresaSidla']['UliceNazev'] +" "+ vystup['AdresaSidla']['CisloDomovni'] +"/"+ vystup['AdresaSidla']['CisloOrientacni']
+  Adresat.psc = vystup['AdresaSidla']['PostaKod']
+  Adresat.obec = vystup['AdresaSidla']['ObecNazev']
+  Adresat.idds = vystup['ISDS']
+---
+# Předmět podnětu
+ga id:  smlouva
+question: |
+  Předmět žádosti o informace
+subquestion: |
+  O jakou smlouvu Vám jde
+fields:
+  - Číslo smlouvy: Podani.smlouvaCislo
+    default: ${ cislosmlouvy }
+  - Datum uzavření smlouvy: Podani.smlouvaDatum
+    datatype: date
+---
+# Odůvodnění odporu
+ga id: oduvodneni
+question: |
+  Odůvodnění příkazu
+subquestion: |
+  Odpor nemusí obsahovat žádné odůvodnění, nicméně jej uvést můžete. V každém případě budete mít možnost se ještě k předmětu řízení vyjádřit.
+fields:
+  - Chcete uvést odůvodnění?: oduvodnit
+    datatype: yesnoradio
+  - Odůvodnění: Podani.oduvodneni
+    datatype: area
+    show if: oduvodnit
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: obsah_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: obsah_pozdeji
+code: |
+  Podani.oduvodneni = "[Doplňte odůvodnění odporu (**není povinné**)]."
+---
+# Způsob obdržení
+ga id: zpusobObdrzeni
+question: |
+  Jak chcete obdržet odpověď?
+fields:
+  - Odpověď chci: odpoved
+    input type: radio
+    choices:
+      na e-mail: email
+      poštou: posta
+      do datové schránky: datovka
+  - Váš e-mail: Podatel.email
+    datatype: email
+    show if:
+      variable: odpoved
+      is: email
+  - ID datové schránky: Podatel.idds
+    show if:
+      variable: odpoved
+      is: datovka
+---
+# Způsob odeslání
+ga id: zpusobOdeslani
+question: |
+  Odeslání podnětu
+fields:
+  - Jak budete podnět odesílat?: Podani.forma
+    input type: radio
+    choices:
+      - Poštou: posta
+      - Datovou schránkou: datovka
+      - E-mailem: email
+  - Chcete přikládat přílohy: Podani.prilohy
+    datatype: yesnoradio
+  - Seznam příloh: prilohy
+    datatype: area
+    hint: |
+      Jednotlivé položky oddělte "enterem".
+    show if:
+      variable: Podani.prilohy
+      is: true
+---
+# Rozdělení příloh na seznam
+code: |
+  Podani.prilohySeznam = string_pole(prilohy)
+---
+# Odeslání souborů
+need: vzor
+id: souboryKeStazeni
+progress: 100
+question: |
+  Vaš vzor je připraven
+subquestion: |
+  Vzor Vám společné s manuálem pošleme na e-mail.
+  *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
+
+  % if user_has_privilege('admin'):
+  [Stáhnout](${ vzor.url_for() })
+  % endif
+fields:
+  - Váš e-mail: email
+    datatype: email
+---
+# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
+event: odeslatEmail
+sets: vseHotovo
+code: |
+  vzor
+  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Zadost_o_informace_Komentar.pdf')])
+  if emailOdeslan:
+    vseHotovo = True
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+  else:
+    neodeslano
+---
+event: ecomailNewsletter
+code: |
+  ecomail = addEcomail(email, "12", "Žádost o informace")
+---
+# Výstup
+mandatory: True
+id: final_screen
+need: vseHotovo
+question: |
+  Úspěšně odesláno!
+subquestion: |
+  Děkujeme, že jste využili náš nástroj. Kdyby Vám dokumenty na e-mail nedorazily, napiště na [servis@frankbold.org](mailto:servis@frankbold.org) a napravíme to.
+
+  Pokud od nás chcete dostávat pravidelné informace a právní rady, spolu s novinkami z činnosti organizace   ${ action_button_html("#", id_tag="newsletter", label="přihlaste e-mail k newsletteru Občan 2.0", color="secondary", size="sm") }
+
+  <table class="table"><tr><td>
+  Tento nástroj je zdarma díky <strong>podpoře donorů</strong>. Pomozte nám též.
+
+    ${ action_button_html("https://bit.ly/31MGcY3", label="Podpořím darem", color="secondary", icon="hand-holding-heart", block="True") }
+  </td><td>
+    Pokud chcete, abychom založení spolku <strong>vyřídili za Vás, či potřebujete komplexnější pomoc šitou na míru</strong>, můžete využít placených služeb našich advokátů.
+
+    ${ action_button_html("https://bit.ly/2GFmUft", label="Navštívit web advokátů", color="light", icon="external-link-alt", block="True") }
+    </td></tr></table>
+buttons:
+  - Ukončit průvodce: leave
+    url: https://frankbold.org/
+css: |
+  <style>
+  .btn-dark {
+    background-color: #D70B3B;
+    border-color: #D70B3B;
+    }
+  .btn-light {
+    color: white;
+    background-color: #C2B07C;
+    border-color: #C2B07C;
+    }
+  .table tr {
+  background:none !important;
+  }
+  .table td {
+  width:50%;
+  }
+  </style>
+script: |
+  <script>
+    $("#newsletter").click(function(){action_call('ecomailNewsletter'); $('#newsletter').text('Přihlášeno').addClass('btn-primary').removeClass('btn-secondary'); return false;})
+  </script>
+---
+attachment:
+  name: Žádost o informace
+  filename: Zadost o informace
+  variable name: vzor
+  docx template file: 106.docx
+  valid formats:
+    - docx
