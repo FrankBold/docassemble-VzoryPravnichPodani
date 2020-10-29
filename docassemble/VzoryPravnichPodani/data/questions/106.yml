@@ -97,7 +97,6 @@ subquestion: |
   O jakou smlouvu Vám jde
 fields:
   - Číslo smlouvy: Podani.smlouvaCislo
-    default: ${ cislosmlouvy }
   - Datum uzavření smlouvy: Podani.smlouvaDatum
     datatype: date
 ---
@@ -115,11 +114,11 @@ fields:
   - Váš e-mail: Podatel.email
     datatype: email
     show if:
-      variable: odpoved
+      variable: Podani.odpoved
       is: email
   - ID datové schránky: Podatel.idds
     show if:
-      variable: odpoved
+      variable: Podani.odpoved
       is: datovka
 ---
 # Způsob odeslání
