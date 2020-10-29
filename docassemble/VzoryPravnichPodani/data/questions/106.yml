@@ -48,6 +48,15 @@ fields:
     show if:
       variable: rucne
       is: False
+  - help: |
+      V souladu s § 2 informačního zákona jsou
+
+      * státní orgány,
+      * územní samosprávné celky a jejich orgány a
+      * veřejné instituce a dále
+      * subjekty, kterým zákon svěřil rozhodování o právech, právem chráněných zájmech nebo povinnostech fyzických nebo právnických osob v oblasti veřejné správy v rozsahu této jejich rozhodovací činnosti (pro zjednodušení dále jen „úřad“)
+
+      povinny poskytovat podle tohoto zákona informace vztahující se k jejich působnosti, a to na základě ústní nebo písemné žádosti fyzických a právnických osob.
 ---
 ga id: adresatRucne
 if: |
@@ -88,29 +97,6 @@ fields:
     default: ${ cislosmlouvy }
   - Datum uzavření smlouvy: Podani.smlouvaDatum
     datatype: date
----
-# Odůvodnění odporu
-ga id: oduvodneni
-question: |
-  Odůvodnění příkazu
-subquestion: |
-  Odpor nemusí obsahovat žádné odůvodnění, nicméně jej uvést můžete. V každém případě budete mít možnost se ještě k předmětu řízení vyjádřit.
-fields:
-  - Chcete uvést odůvodnění?: oduvodnit
-    datatype: yesnoradio
-  - Odůvodnění: Podani.oduvodneni
-    datatype: area
-    show if: oduvodnit
-action buttons:
-  - label: Vyplním později v dokumentu
-    action: obsah_pozdeji
-    color: danger
-    icon: forward
----
-scan for variables: False
-event: obsah_pozdeji
-code: |
-  Podani.oduvodneni = "[Doplňte odůvodnění odporu (**není povinné**)]."
 ---
 # Způsob obdržení
 ga id: zpusobObdrzeni
