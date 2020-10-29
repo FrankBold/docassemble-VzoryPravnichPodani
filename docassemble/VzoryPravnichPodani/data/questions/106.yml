@@ -30,6 +30,7 @@ code: |
   multi_user = True
   nabidkaFBA = True
   nazev = "Odpor proti příkazu"
+  zdroj = "HS"
 ---
 # Otázky
 # Úřad, který příkaz vydal
@@ -48,7 +49,9 @@ fields:
     show if:
       variable: rucne
       is: False
-  - help: |
+help:
+  label: Kdo je povinný orgán?
+  content: |
       V souladu s § 2 informačního zákona jsou
 
       * státní orgány,
@@ -103,7 +106,7 @@ ga id: zpusobObdrzeni
 question: |
   Jak chcete obdržet odpověď?
 fields:
-  - Odpověď chci: odpoved
+  - Odpověď chci: Podani.odpoved
     input type: radio
     choices:
       na e-mail: email
