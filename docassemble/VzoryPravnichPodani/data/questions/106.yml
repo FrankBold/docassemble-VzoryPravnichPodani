@@ -29,7 +29,7 @@ mandatory: True
 code: |
   multi_user = True
   nabidkaFBA = True
-  nazev = "Odpor proti příkazu"
+  nazev = "Žádost o informace"
   zdroj = "HS"
 ---
 # Otázky
@@ -162,6 +162,10 @@ subquestion: |
 fields:
   - Váš e-mail: email
     datatype: email
+    default: |
+      % if defined('Podatel.email'):
+      ${ Podatel.email }
+      % endif
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
