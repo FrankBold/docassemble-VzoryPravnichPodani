@@ -1,3 +1,7 @@
+features:
+  debug: False
+  hide navbar: True
+---
 question: |
   E-mail:
 fields:
