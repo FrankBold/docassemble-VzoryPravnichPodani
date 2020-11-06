@@ -1,0 +1,15 @@
+question: |
+  E-mail:
+fields:
+  - no label: email
+    datatype: email
+---
+mandatory: True
+code: |
+  True
+---
+mandatory: True
+question: |
+  Odesláno
+subquestion: |
+  Úspěšně odesláno na e-mail: ${ email }
