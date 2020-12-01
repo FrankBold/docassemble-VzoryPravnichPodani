@@ -71,12 +71,12 @@ fields:
 if: |
   rucne == False
 code: |
-  vystup = uradDleDatovky(Adresat.idds)
-  Adresat.name.text = vystup['NazevOsoby']
-  Adresat.ulice = vystup['AdresaSidla']['UliceNazev'] +" "+ vystup['AdresaSidla']['CisloDomovni'] +"/"+ vystup['AdresaSidla']['CisloOrientacni']
-  Adresat.psc = vystup['AdresaSidla']['PostaKod']
-  Adresat.obec = vystup['AdresaSidla']['ObecNazev']
-  Adresat.idds = vystup['ISDS']
+  vystup_urad = uradDleDatovky(Adresat.idds)
+  Adresat.name.text = vystup_urad['NazevOsoby']
+  Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+  Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
+  Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
+  Adresat.idds = vystup_urad['ISDS']
 ---
 # Předmět podnětu
 ga id:  prikaz
@@ -88,15 +88,15 @@ fields:
     datatype: date
   - Datum vydání: Prikaz.datumVydani
     datatype: date
-  - html: |
+  - note: |
       [TARGET lhutaKontrola]
 check in: kontrolaLhuty
 ---
 event: kontrolaLhuty
 code: |
   if action_argument('Prikaz.datumDoruceni'):
-    vystup = lhuta(8,action_argument('Prikaz.datumDoruceni'))
-    if vystup[0] == True:
+    vystup_lhuta = lhuta(8,action_argument('Prikaz.datumDoruceni'))
+    if vystup_lhuta[0] == True:
       lhutaSplnena
     else:
       lhutaNesplnena
@@ -106,7 +106,7 @@ content: |
   <div class="alert alert-success">
   <strong>Jste ve lhůtě pro podání odporu.</strong>
 
-  Poslední den pro odeslání: ${ format_date(vystup[1], format='dd.MM.yyyy') }
+  Poslední den pro odeslání: ${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }
   </div>
 target: lhutaKontrola
 ---
@@ -115,7 +115,7 @@ content: |
   <div class="alert alert-danger">
   <strong>Lhůta pro podání odporu již uplynula.</strong><br>
 
-  Lhůta uplynula dne: ${ format_date(vystup[1], format='dd.MM.yyyy') }
+  Lhůta uplynula dne: ${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }
   </div>
 target: lhutaKontrola
 ---

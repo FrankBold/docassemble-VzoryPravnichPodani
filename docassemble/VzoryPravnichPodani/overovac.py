@@ -50,7 +50,6 @@ def overitXml(ico):
   return info
 
 def getholidays(year):
-    """Return a set public holidays in CZ as (day, month) tuples."""
 
     holidays = {
                 (1, 1),   #Novy rok

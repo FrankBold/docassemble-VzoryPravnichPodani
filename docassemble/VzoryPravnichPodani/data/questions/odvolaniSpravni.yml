@@ -95,7 +95,7 @@ fields:
     datatype: date
     note: |
       Datum uvedeno na rozhodnutí.
-  - html: |
+  - note: |
       [TARGET lhutaKontrola]
 check in: kontrolaLhuty
 ---
