@@ -77,12 +77,12 @@ fields:
 if: |
   rucne == False
 code: |
-  vystup = uradDleDatovky(Adresat.idds)
-  Adresat.name.text = vystup['NazevOsoby']
-  Adresat.ulice = vystup['AdresaSidla']['UliceNazev'] +" "+ vystup['AdresaSidla']['CisloDomovni'] +"/"+ vystup['AdresaSidla']['CisloOrientacni']
-  Adresat.psc = vystup['AdresaSidla']['PostaKod']
-  Adresat.obec = vystup['AdresaSidla']['ObecNazev']
-  Adresat.idds = vystup['ISDS']
+  vystup_urad = uradDleDatovky(Adresat.idds)
+  Adresat.name.text = vystup_urad['NazevOsoby']
+  Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+  Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
+  Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
+  Adresat.idds = vystup_urad['ISDS']
 ---
 # Předmět podnětu
 ga id:  rozhodnuti
