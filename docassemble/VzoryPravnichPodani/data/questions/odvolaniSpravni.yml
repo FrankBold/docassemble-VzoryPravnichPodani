@@ -46,7 +46,7 @@ fields:
     choices:
         - Vyplním orgán ručně: True
         - Dle ID datové schránky: False
-          note: |
+          help: |
             Identifikaci datové schránky často najdete na hlavičkovém papíru rozhodnutí.
   - Uvést nadřízený orgán?: nadrizeny
     datatype: yesnoradio
@@ -98,7 +98,6 @@ fields:
     datatype: date
     note: |
       Datum uvedeno na rozhodnutí.
-    datatype: date
   - note: |
         [TARGET lhutaKontrola]
 check in: kontrolaLhuty
@@ -115,9 +114,9 @@ code: |
 template: lhutaSplnena
 content: |
   <div class="alert alert-success">
-  <strong>Jste ve lhůtě pro podání odporu.</strong>
+  <strong>Jste ve lhůtě pro podání odporu.</strong><br>
 
-  Poslední den pro odeslání: ${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }
+  Poslední den pro odeslání: <strong>${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }</strong>
   </div>
 target: lhutaKontrola
 ---
@@ -126,16 +125,7 @@ content: |
   <div class="alert alert-danger">
   <strong>Lhůta pro podání odporu již uplynula.</strong><br>
 
-  Lhůta uplynula dne: ${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }
-  </div>
-target: lhutaKontrola
----
-template: lhutaNesplnena
-content: |
-  <div class="alert alert-danger">
-  <strong>Lhůta pro podání odvolání již uplynula.</strong><br>
-
-  Lhůta uplynula dne: <strong>${ format_date(vystup[1], format='dd.MM.yyyy') }</strong>
+  Lhůta uplynula dne: <strong>${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }</strong>
   </div>
 target: lhutaKontrola
 ---
@@ -175,6 +165,9 @@ fields:
   - Jak má být rozhodnutí změněno?: Podani.petitNavrh
     input type: area
     hint: aby výrok stanovil, že...
+    show if:
+      variable: Podani.petitTyp
+      is: zmena
 ---
 # Sestavení výsledného petitu
 sets: Podani.petit
