@@ -1,7 +1,7 @@
 metadata:
-  title: Odpor proti správnímu příkazu
-  short title: Odpor
-  description: Průvodce přípravou odporu proti správnímu příkazu.
+  title: Odvoláni proti správnímu rozhodnutí
+  short title: Správní odvolání
+  description: Průvodce vytvořením odvolání proti správnímu rozhodnutí.
   authors:
     - name: Michal Kuk
       organization: Frank Bold Society
@@ -22,8 +22,9 @@ modules:
 objects:
   - Podatel: Person.using(nazev="podatele")
   - Adresat: Organization
+  - Adresat.nadrizeny: Organization
   - Podani: Thing
-  - Prikaz: Thing
+  - Rozhodnuti: Thing
   - Komentar: DAFileCollection
 ---
 mandatory: True
@@ -38,13 +39,15 @@ ga id: adresat
 question: |
   Orgán vedoucí řízení
 subquestion: |
-  Odpor proti příkazu ve správním řízení se podává k témuž orgánu, který příkaz vydal. Uveďte tedy orgán, který je u příkazu uveden.
+  Odvolání proti rozhodnutí se podává u toho orgánu, který vydal rozhodnutí. Neposíláte jej tedy nadřízenému orgánu ale tomu, který rozhodovat.
 fields:
   - Způsob zadání: rucne
     input type: radio
     choices:
-        - Vyplním ručně: True
+        - Vyplním orgán ručně: True
         - Dle ID datové schránky: False
+          note: |
+            Identifikaci datové schránky často najdete na hlavičkovém papíru rozhodnutí.
   - ID datové schránky: Adresat.idds
     show if:
       variable: rucne
@@ -79,34 +82,56 @@ code: |
   Adresat.idds = vystup['ISDS']
 ---
 # Předmět podnětu
-ga id:  prikaz
+ga id:  rozhodnuti
 question: |
-  Odporovaný příkaz
+  Napadané rozhodnutí
 fields:
-  - Číslo jednací: Prikaz.cj
-  - Datum vydání: Prikaz.datumVydani
+  - Číslo jednací: Rozhodnuti.cj
+  - Datum doručení: Rozhodnuti.datumDoruceni
     datatype: date
-  - Datum doručení: Prikaz.datumDoruceni
+    note: |
+      Den, kdy Vám bylo rozhodnutí doručeno.
+  - Datum vydání: Rozhodnuti.datumVydani
     datatype: date
+    note: |
+      Datum uvedeno na rozhodnutí.
   - html: |
       [TARGET lhutaKontrola]
-check in: lhuta
+check in: kontrolaLhuty
 ---
-template: lhuta
+event: kontrolaLhuty
+code: |
+  if action_argument('datumDoruceni'):
+    vystup = lhuta(15,action_argument('datumDoruceni'))
+    if vystup[0] == True:
+      lhutaSplnena
+    else:
+      lhutaNesplnena
+---
+template: lhutaSplnena
 content: |
-    % if date_difference(starting=action_argument('Prikaz.datumDoruceni'),ending=today()) <= 8:
-      Lhůta je splněna!!!
-    % else:
-      Lhůta je prošvihnuta.... sorry
-    % endif
+  <div class="alert alert-success">
+  <strong>Jste ve lhůtě pro podání odvolání.</strong>
+
+  Poslední den pro odeslání: <strong>${ format_date(vystup[1], format='dd.MM.yyyy') }</strong>
+  </div>
+target: lhutaKontrola
+---
+template: lhutaNesplnena
+content: |
+  <div class="alert alert-danger">
+  <strong>Lhůta pro podání odvolání již uplynula.</strong><br>
+
+  Lhůta uplynula dne: <strong>${ format_date(vystup[1], format='dd.MM.yyyy') }</strong>
+  </div>
 target: lhutaKontrola
 ---
 # Odůvodnění odporu
 ga id: oduvodneni
 question: |
-  Odůvodnění příkazu
+  Odůvodnění odvolání
 subquestion: |
-  Odpor nemusí obsahovat žádné odůvodnění, nicméně jej uvést můžete. V každém případě budete mít možnost se ještě k předmětu řízení vyjádřit.
+  Odvolání je nutné odůvodnit. Pokud chcete a odůvodnění je krátké, můžete jej uvést rovnou zde. Jinak doporučujeme doplnit jej až do staženého wordového dokumentu.
 fields:
   - Chcete uvést odůvodnění?: oduvodnit
     datatype: yesnoradio
@@ -122,7 +147,7 @@ action buttons:
 scan for variables: False
 event: obsah_pozdeji
 code: |
-  Podani.oduvodneni = "[Doplňte odůvodnění odporu (**není povinné**)]."
+  Podani.oduvodneni = "[Doplňte odůvodnění odvolání]."
 ---
 # Prilohy
 ga id: zpusobOdeslani
@@ -132,7 +157,7 @@ fields:
   - Jak budete podnět odesílat?: Podani.forma
     input type: radio
     choices:
-      - Poštou: posta
+      - Poštou / Osobně: posta
       - Datovou schránkou: datovka
 #      - E-mailem (s ověřeným el. podpisem): email
   - Chcete přikládat přílohy: Podani.prilohy
@@ -156,7 +181,7 @@ progress: 100
 question: |
   Vaš vzor je připraven
 subquestion: |
-  Vzor Vám společné s manuálem pošleme na e-mail.
+  Vzor Vám společné s manuálem k jeho kontrole pošleme na e-mail.
   *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
 
   % if user_has_privilege('admin'):
@@ -171,7 +196,7 @@ event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odpor_proti_prikazu_Komentar.pdf')])
+  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odvolani_proti_rozhodnuti_ve_spravnim_rizeni_Komentar.pdf')])
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
@@ -180,7 +205,7 @@ code: |
 ---
 event: ecomailNewsletter
 code: |
-  ecomail = addEcomail(email, "12", "Odpor proti příkazu")
+  ecomail = addEcomail(email, "12", "Odvolání proti správnímu rozhodnutí")
 ---
 # Výstup
 mandatory: True
@@ -198,7 +223,7 @@ subquestion: |
 
     ${ action_button_html("https://bit.ly/31MGcY3", label="Podpořím darem", color="secondary", icon="hand-holding-heart", block="True") }
   </td><td>
-    Pokud chcete sepsat podání přímo na míru či v řízení zastupovat, můžete využít placených služeb našich advokátů.
+  Pokud chcete sepsat podání přímo na míru či v řízení zastupovat, můžete využít placených služeb našich advokátů.
 
     ${ action_button_html("https://bit.ly/2GFmUft", label="Navštívit web advokátů", color="light", icon="external-link-alt", block="True") }
     </td></tr></table>
@@ -229,9 +254,9 @@ script: |
   </script>
 ---
 attachment:
-  name: Odpor proti příkazu
-  filename: Odpor proti prikazu
+  name: Odvolání pro správnímu rozhodnuti
+  filename: Odvolani
   variable name: vzor
-  docx template file: OdporProtiPrikazu.docx
+  docx template file: Odvolani.docx
   valid formats:
     - docx
