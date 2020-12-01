@@ -101,8 +101,8 @@ check in: kontrolaLhuty
 ---
 event: kontrolaLhuty
 code: |
-  if action_argument('datumDoruceni'):
-    vystup = lhuta(15,action_argument('datumDoruceni'))
+  if action_argument('Rozhodnuti.datumDoruceni'):
+    vystup = lhuta(15,action_argument('Rozhodnuti.datumDoruceni'))
     if vystup[0] == True:
       lhutaSplnena
     else:

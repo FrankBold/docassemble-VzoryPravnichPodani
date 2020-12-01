@@ -84,21 +84,39 @@ question: |
   Odporovaný příkaz
 fields:
   - Číslo jednací: Prikaz.cj
-  - Datum vydání: Prikaz.datumVydani
-    datatype: date
   - Datum doručení: Prikaz.datumDoruceni
+    datatype: date
+  - Datum vydání: Prikaz.datumVydani
     datatype: date
   - html: |
       [TARGET lhutaKontrola]
-check in: lhuta
+check in: kontrolaLhuty
 ---
-template: lhuta
+event: kontrolaLhuty
+code: |
+  if action_argument('Prikaz.datumDoruceni'):
+    vystup = lhuta(8,action_argument('Prikaz.datumDoruceni'))
+    if vystup[0] == True:
+      lhutaSplnena
+    else:
+      lhutaNesplnena
+---
+template: lhutaSplnena
 content: |
-    % if date_difference(starting=action_argument('Prikaz.datumDoruceni'),ending=today()) <= 8:
-      Lhůta je splněna!!!
-    % else:
-      Lhůta je prošvihnuta.... sorry
-    % endif
+  <div class="alert alert-success">
+  <strong>Jste ve lhůtě pro podání odporu.</strong>
+
+  Poslední den pro odeslání: ${ format_date(vystup[1], format='dd.MM.yyyy') }
+  </div>
+target: lhutaKontrola
+---
+template: lhutaNesplnena
+content: |
+  <div class="alert alert-danger">
+  <strong>Lhůta pro podání odporu již uplynula.</strong><br>
+
+  Lhůta uplynula dne: ${ format_date(vystup[1], format='dd.MM.yyyy') }
+  </div>
 target: lhutaKontrola
 ---
 # Odůvodnění odporu
