@@ -48,6 +48,9 @@ fields:
         - Dle ID datové schránky: False
           note: |
             Identifikaci datové schránky často najdete na hlavičkovém papíru rozhodnutí.
+  - Uvést nadřízený orgán?: nadrizeny
+    datatype: yesnoradio
+    default: False
   - ID datové schránky: Adresat.idds
     show if:
       variable: rucne
@@ -95,15 +98,16 @@ fields:
     datatype: date
     note: |
       Datum uvedeno na rozhodnutí.
+    datatype: date
   - note: |
-      [TARGET lhutaKontrola]
+        [TARGET lhutaKontrola]
 check in: kontrolaLhuty
 ---
 event: kontrolaLhuty
 code: |
   if action_argument('Rozhodnuti.datumDoruceni'):
-    vystup = lhuta(15,action_argument('Rozhodnuti.datumDoruceni'))
-    if vystup[0] == True:
+    vystup_lhuta = lhutaOverit(15,action_argument('Rozhodnuti.datumDoruceni'))
+    if vystup_lhuta[0] == True:
       lhutaSplnena
     else:
       lhutaNesplnena
@@ -111,9 +115,18 @@ code: |
 template: lhutaSplnena
 content: |
   <div class="alert alert-success">
-  <strong>Jste ve lhůtě pro podání odvolání.</strong>
+  <strong>Jste ve lhůtě pro podání odporu.</strong>
 
-  Poslední den pro odeslání: <strong>${ format_date(vystup[1], format='dd.MM.yyyy') }</strong>
+  Poslední den pro odeslání: ${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }
+  </div>
+target: lhutaKontrola
+---
+template: lhutaNesplnena
+content: |
+  <div class="alert alert-danger">
+  <strong>Lhůta pro podání odporu již uplynula.</strong><br>
+
+  Lhůta uplynula dne: ${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }
   </div>
 target: lhutaKontrola
 ---
@@ -133,11 +146,8 @@ question: |
 subquestion: |
   Odvolání je nutné odůvodnit. Pokud chcete a odůvodnění je krátké, můžete jej uvést rovnou zde. Jinak doporučujeme doplnit jej až do staženého wordového dokumentu.
 fields:
-  - Chcete uvést odůvodnění?: oduvodnit
-    datatype: yesnoradio
   - Odůvodnění: Podani.oduvodneni
     datatype: area
-    show if: oduvodnit
 action buttons:
   - label: Vyplním později v dokumentu
     action: obsah_pozdeji
@@ -148,6 +158,33 @@ scan for variables: False
 event: obsah_pozdeji
 code: |
   Podani.oduvodneni = "[Doplňte odůvodnění odvolání]."
+---
+# Výběr petitu. Co vlastně v odvolání chceme.
+ga id: petit
+question: |
+  Požadované rozhodnutí
+subquestion: |
+  Je nutné k odvolání připojit jak chcete, aby odvolací orgán rozhodl. Tedy čeho se přímo domáháte. Zákon nabízí tři obecné varianty.
+fields:
+  - Chci, aby...: Podani.petitTyp
+    input type: radio
+    choices:
+      - bylo rozhodnutí zrušeno a řízení zastaveno: zastavit
+      - bylo rozhodnutí zrušeno a věc byla řešena znovu: vratit
+      - bylo rozhodnutí změněno: zmena
+  - Jak má být rozhodnutí změněno?: Podani.petitNavrh
+    input type: area
+    hint: aby výrok stanovil, že...
+---
+# Sestavení výsledného petitu
+sets: Podani.petit
+code: |
+  if Podani.petitTyp == "zmena":
+    Podani.petit = p_zmena
+  elif Podani.petitTyp == "zastavit":
+    Podani.petit = p_zastavit
+  elif Podani.petitTyp == "vratit":
+    Podani.petit = p_vratit
 ---
 # Prilohy
 ga id: zpusobOdeslani
@@ -163,7 +200,7 @@ fields:
   - Chcete přikládat přílohy: Podani.prilohy
     datatype: yesnoradio
   - Seznam příloh: prilohy
-    datatype: area
+    input type: area
     hint: |
       Jednotlivé položky oddělte "enterem".
     show if:
@@ -260,3 +297,15 @@ attachment:
   docx template file: Odvolani.docx
   valid formats:
     - docx
+---
+template: p_zastavit
+content: |
+  Vzhledem k výše uvedenému je podatel toho názoru, že napadené je nezákonné, a navrhuje, aby nadřízený orgán podle ustanovení § 90 odst. 1 písm. a) zákona č. 500/2004 Sb., správní řád, v platném znění, zrušil napadené rozhodnutí ze dne ${ Rozhodnuti.datumVydani }, č.j. ${ Rozhodnuti.cj }, a řízení zastavil.
+---
+template: p_vratit
+content: |
+  Vzhledem k výše uvedenému je podatel toho názoru, že napadené je nezákonné, a navrhuje, aby nadřízený orgán podle ustanovení § 90 odst. 1 písm. b) zákona č. 500/2004 Sb., správní řád, v platném znění, zrušil napadené rozhodnutí ze dne ${ Rozhodnuti.datumVydani }, č.j. ${ Rozhodnuti.cj }, a věc vrátil k novému projednání.
+---
+template: p_zmena
+content: |
+  Vzhledem k výše uvedenému je podatel toho názoru, že napadené je nezákonné, a navrhuje, aby nadřízený orgán podle ustanovení § 90 odst. 1 písm. c) zákona č. 500/2004 Sb., správní řád, v platném znění, změnil napadené rozhodnutí napadené rozhodnutí ze dne ${ Rozhodnuti.datumVydani }, č.j. ${ Rozhodnuti.cj } tak, aby jeho výrok stanovil, že ${ Podani.petitNavrh }.

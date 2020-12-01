@@ -86,11 +86,10 @@ fields:
   - Číslo jednací: Prikaz.cj
   - Datum doručení: Prikaz.datumDoruceni
     datatype: date
-  - note: |
-        [TARGET lhutaKontrola]
   - Datum vydání: Prikaz.datumVydani
     datatype: date
-
+  - note: |
+        [TARGET lhutaKontrola]
 check in: kontrolaLhuty
 ---
 event: kontrolaLhuty
