@@ -1,6 +1,6 @@
 # encoding: utf-8
 from __future__ import unicode_literals
-from docassemble.base.util import get_config
+from docassemble.base.util import *
 
 import requests
 import json
@@ -80,7 +80,7 @@ def isholiday(date):
     svatek = (date.day, date.month) in getholidays(date.year)
     return svatek == True or date.weekday() >= 5
 
-def lhuta(lhuta,datum):
+def lhutaOverit(lhuta,datum):
   datum = datetime.date(int(format_date(datum,format='yyyy')),int(format_date(datum,format='M')),int(format_date(datum,format='d')))
   konecLhuty = datum + datetime.timedelta(lhuta)
   while isholiday(konecLhuty) == True:

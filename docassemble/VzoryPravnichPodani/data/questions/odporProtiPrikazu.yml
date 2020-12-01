@@ -86,16 +86,17 @@ fields:
   - Číslo jednací: Prikaz.cj
   - Datum doručení: Prikaz.datumDoruceni
     datatype: date
+  - note: |
+        [TARGET lhutaKontrola]
   - Datum vydání: Prikaz.datumVydani
     datatype: date
-  - note: |
-      [TARGET lhutaKontrola]
+
 check in: kontrolaLhuty
 ---
 event: kontrolaLhuty
 code: |
   if action_argument('Prikaz.datumDoruceni'):
-    vystup_lhuta = lhuta(8,action_argument('Prikaz.datumDoruceni'))
+    vystup_lhuta = lhutaOverit(8,action_argument('Prikaz.datumDoruceni'))
     if vystup_lhuta[0] == True:
       lhutaSplnena
     else:
