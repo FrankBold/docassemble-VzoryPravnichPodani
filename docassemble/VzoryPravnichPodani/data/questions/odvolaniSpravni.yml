@@ -33,6 +33,8 @@ code: |
   nabidkaFBA = True
   nazev = "Odvolání proti rozhodnutí"
   nadrizeny = False
+  if "typ" in url_args:
+    typRizeni = url_args['typ']
 ---
 ga id: typRizeni
 question: |
@@ -113,7 +115,7 @@ fields:
     note: |
       Den, kdy Vám bylo rozhodnutí doručeno.
   - Lhůta pro podání odvolání: lhuta
-    data type: integer
+    datatype: integer
     default: 15
     help: |
       Standardní lhůta je 15 dní. Některá specifická řízení, mohou mít však lhůtu odlišnou. Ověřit ji můžete na konci rozhodnutí v "poučení".
@@ -128,7 +130,7 @@ check in: kontrolaLhuty
 event: kontrolaLhuty
 code: |
   if action_argument('Rozhodnuti.datumDoruceni'):
-    vystup_lhuta = lhutaOverit(action_argument('lhuta'),action_argument('Rozhodnuti.datumDoruceni'))
+    vystup_lhuta = lhutaOverit(int(action_argument('lhuta')),action_argument('Rozhodnuti.datumDoruceni'))
     if vystup_lhuta[0] == True:
       lhutaSplnena
     else:
@@ -195,7 +197,7 @@ fields:
     hint: aby výrok stanovil, že...
     show if:
       variable: Podani.petitTyp
-      is: zmena7
+      is: zmena
 help: |
   # Jaký je v nich rozdíl?
   Lorem ipsum
