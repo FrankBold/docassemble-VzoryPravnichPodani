@@ -37,7 +37,7 @@ code: |
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
     typRizeni = "info"
     Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
-    Podani.duvod = vychoziData['final_situace']['name']
+    Podani.duvod = vychoziData["final_situace"]["name"]
     if Podani.duvod == 'necinnost':
       rozhodnutiExist = False
 ---
