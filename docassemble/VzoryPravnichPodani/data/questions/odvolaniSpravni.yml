@@ -31,7 +31,20 @@ mandatory: True
 code: |
   multi_user = True
   nabidkaFBA = True
-  nazev = "Odpor proti příkazu"
+  nazev = "Odvolání proti rozhodnutí"
+  nadrizeny = False
+---
+ga id: typRizeni
+question: |
+  Druh řízení
+subquestion: |
+  Pro některé řízení mám připraven specifický obsah odvolání. Pokud Vámi vedené řízení není mezi uvedenými, vyberte možnost *obecné správní řízení*.
+fields:
+  - no label: typRizeni
+    input type: radio
+    choices:
+      Žádost o informace: info
+      Obecné správní řízení: obecne
 ---
 # Otázky
 # Úřad, který příkaz vydal
@@ -46,15 +59,20 @@ fields:
     choices:
         - Vyplním orgán ručně: True
         - Dle ID datové schránky: False
-          help: |
-            Identifikaci datové schránky často najdete na hlavičkovém papíru rozhodnutí.
-  - Uvést nadřízený orgán?: nadrizeny
-    datatype: yesnoradio
-    default: False
   - ID datové schránky: Adresat.idds
     show if:
       variable: rucne
       is: False
+#  - Uvést nadřízený orgán?: nadrizeny
+#    datatype: yesnoradio
+#    default: False
+#    help: |
+#      Není vaší povinnost nadřízený orgán uvést. Pokud jej však znáte, můžete tak učinit.
+#  - Způsob zadání: nadrizeny_rucne
+#    input type: radio
+#    choices:
+#        - Vyplním orgán ručně: True
+#        - Dle ID datové schránky: False
 ---
 ga id: adresatRucne
 if: |
@@ -94,6 +112,11 @@ fields:
     datatype: date
     note: |
       Den, kdy Vám bylo rozhodnutí doručeno.
+  - Lhůta pro podání odvolání: lhuta
+    data type: integer
+    default: 15
+    help: |
+      Standardní lhůta je 15 dní. Některá specifická řízení, mohou mít však lhůtu odlišnou. Ověřit ji můžete na konci rozhodnutí v "poučení".
   - Datum vydání: Rozhodnuti.datumVydani
     datatype: date
     note: |
@@ -105,7 +128,7 @@ check in: kontrolaLhuty
 event: kontrolaLhuty
 code: |
   if action_argument('Rozhodnuti.datumDoruceni'):
-    vystup_lhuta = lhutaOverit(15,action_argument('Rozhodnuti.datumDoruceni'))
+    vystup_lhuta = lhutaOverit(action_argument('lhuta'),action_argument('Rozhodnuti.datumDoruceni'))
     if vystup_lhuta[0] == True:
       lhutaSplnena
     else:
@@ -114,7 +137,7 @@ code: |
 template: lhutaSplnena
 content: |
   <div class="alert alert-success">
-  <strong>Jste ve lhůtě pro podání odporu.</strong><br>
+  <strong>Jste ve lhůtě pro podání odvolání.</strong><br>
 
   Poslední den pro odeslání: <strong>${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }</strong>
   </div>
@@ -123,18 +146,18 @@ target: lhutaKontrola
 template: lhutaNesplnena
 content: |
   <div class="alert alert-danger">
-  <strong>Lhůta pro podání odporu již uplynula.</strong><br>
+  <strong>Lhůta pro podání odvolání již uplynula.</strong><br>
 
   Lhůta uplynula dne: <strong>${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }</strong>
   </div>
 target: lhutaKontrola
 ---
-# Odůvodnění odporu
+# Odůvodnění odvolání
 ga id: oduvodneni
 question: |
   Odůvodnění odvolání
 subquestion: |
-  Odvolání je nutné odůvodnit. Pokud chcete a odůvodnění je krátké, můžete jej uvést rovnou zde. Jinak doporučujeme doplnit jej až do staženého wordového dokumentu.
+  Odvolání je nutné odůvodnit. Pokud chcete můžete jej vyplnit již dne, jinak doporučujeme jej rozvést až ve staženém dokumentu.
 fields:
   - Odůvodnění: Podani.oduvodneni
     datatype: area
@@ -143,11 +166,18 @@ action buttons:
     action: obsah_pozdeji
     color: danger
     icon: forward
+help: |
+  # Co má být obsahem odůvodnění?
+  Lorem ipsum
 ---
 scan for variables: False
 event: obsah_pozdeji
 code: |
   Podani.oduvodneni = "[Doplňte odůvodnění odvolání]."
+---
+# Sestavení variant petitu podle druhu řízení.
+code: |
+  petit_seznam = {"zastavit":"bylo rozhodnutí zrušeno a řízení zastaveno","vratit":"bylo rozhodnutí zrušeno a věc byla řešena znovu", "zmena": "bylo rozhodnutí změněno"}
 ---
 # Výběr petitu. Co vlastně v odvolání chceme.
 ga id: petit
@@ -158,26 +188,30 @@ subquestion: |
 fields:
   - Chci, aby...: Podani.petitTyp
     input type: radio
-    choices:
-      - bylo rozhodnutí zrušeno a řízení zastaveno: zastavit
-      - bylo rozhodnutí zrušeno a věc byla řešena znovu: vratit
-      - bylo rozhodnutí změněno: zmena
+    code:
+      petit_seznam
   - Jak má být rozhodnutí změněno?: Podani.petitNavrh
     input type: area
     hint: aby výrok stanovil, že...
     show if:
       variable: Podani.petitTyp
-      is: zmena
+      is: zmena7
+help: |
+  # Jaký je v nich rozdíl?
+  Lorem ipsum
 ---
 # Sestavení výsledného petitu
 sets: Podani.petit
 code: |
-  if Podani.petitTyp == "zmena":
-    Podani.petit = p_zmena
-  elif Podani.petitTyp == "zastavit":
-    Podani.petit = p_zastavit
-  elif Podani.petitTyp == "vratit":
-    Podani.petit = p_vratit
+  if typRizeni == "info":
+    Podani.petit = "Vzhledem k výše uvedenému jsme toho názoru, že předmětné rozhodnutí je nezákonné, a navrhujeme, aby nadřízený orgán podle ustanovení § 16 odst. 4 zákona č. 106/1999 Sb, zákona o svobodném přístupu k informacím, napadané rozhodnutí zrušil a přikázal povinnému subjektu informaci poskytnout."
+  else:
+    if Podani.petitTyp == "zmena":
+      Podani.petit = p_zmena
+    elif Podani.petitTyp == "zastavit":
+      Podani.petit = p_zastavit
+    elif Podani.petitTyp == "vratit":
+      Podani.petit = p_vratit
 ---
 # Prilohy
 ga id: zpusobOdeslani
