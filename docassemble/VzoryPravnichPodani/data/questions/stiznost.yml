@@ -1,7 +1,7 @@
 metadata:
-  title: Odvoláni proti správnímu rozhodnutí
-  short title: Správní odvolání
-  description: Průvodce vytvořením odvolání proti správnímu rozhodnutí.
+  title: Stížnost proti postupu úřadu
+  short title: Stížnost
+  description: Průvodce přípravou stížnosti
   authors:
     - name: Michal Kuk
       organization: Frank Bold Society
@@ -22,7 +22,6 @@ modules:
 objects:
   - Podatel: Person.using(nazev="podatele")
   - Adresat: Organization
-  - Adresat.nadrizeny: Organization
   - Podani: Thing
   - Rozhodnuti: Thing
   - Komentar: DAFileCollection
@@ -31,23 +30,15 @@ mandatory: True
 code: |
   multi_user = True
   nabidkaFBA = True
-  nazev = "Odvolání proti rozhodnutí"
-  nadrizeny = False
+  nazev = "Stížnost"
+  rozhodnutiExist = True
   if "typ" in url_args:
     typRizeni = url_args['typ']
     Podani.oduvodneni = url_args['oduvodneni']
----
-ga id: typRizeni
-question: |
-  Druh řízení
-subquestion: |
-  Pro některé řízení mám připraven specifický obsah odvolání. Pokud Vámi vedené řízení není mezi uvedenými, vyberte možnost *obecné správní řízení*.
-fields:
-  - no label: typRizeni
-    input type: radio
-    choices:
-      Žádost o informace: info
-      Obecné správní řízení: obecne
+    Podani.duvod = url_args['final_situace']['name']
+    if Podani.duvod == 'necinnost':
+      rozhodnutiExist = False
+
 ---
 # Otázky
 # Úřad, který příkaz vydal
@@ -55,27 +46,17 @@ ga id: adresat
 question: |
   Orgán vedoucí řízení
 subquestion: |
-  Odvolání proti rozhodnutí se podává u toho orgánu, který vydal rozhodnutí. Neposíláte jej tedy nadřízenému orgánu ale tomu, který rozhodovat.
+  Stížnost v řízení o žádosti o informace se podává k témuž orgánu, ke kterému jste podávali žádost o informace.
 fields:
   - Způsob zadání: rucne
     input type: radio
     choices:
-        - Vyplním orgán ručně: True
+        - Vyplním ručně: True
         - Dle ID datové schránky: False
   - ID datové schránky: Adresat.idds
     show if:
       variable: rucne
       is: False
-#  - Uvést nadřízený orgán?: nadrizeny
-#    datatype: yesnoradio
-#    default: False
-#    help: |
-#      Není vaší povinnost nadřízený orgán uvést. Pokud jej však znáte, můžete tak učinit.
-#  - Způsob zadání: nadrizeny_rucne
-#    input type: radio
-#    choices:
-#        - Vyplním orgán ručně: True
-#        - Dle ID datové schránky: False
 ---
 ga id: adresatRucne
 if: |
@@ -105,7 +86,7 @@ code: |
   Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
   Adresat.idds = vystup_urad['ISDS']
 ---
-# Předmět podnětu
+# Předmět stížnosti
 ga id:  rozhodnuti
 question: |
   Napadané rozhodnutí
@@ -117,9 +98,9 @@ fields:
       Den, kdy Vám bylo rozhodnutí doručeno.
   - Lhůta pro podání odvolání: lhuta
     datatype: integer
-    default: 15
+    default: 30
     help: |
-      Standardní lhůta je 15 dní. Některá specifická řízení, mohou mít však lhůtu odlišnou. Ověřit ji můžete na konci rozhodnutí v "poučení".
+      Standardní lhůta je 30 dní. Některá specifická řízení, mohou mít však lhůtu odlišnou. Ověřit ji můžete na konci rozhodnutí v "poučení".
   - Datum vydání: Rozhodnuti.datumVydani
     datatype: date
     note: |
@@ -140,81 +121,74 @@ code: |
 template: lhutaSplnena
 content: |
   <div class="alert alert-success">
-  <strong>Jste ve lhůtě pro podání odvolání.</strong><br>
+  <strong>Jste ve lhůtě pro podání odporu.</strong>
 
-  Poslední den pro odeslání: <strong>${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }</strong>
+  Poslední den pro odeslání: ${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }
   </div>
 target: lhutaKontrola
 ---
 template: lhutaNesplnena
 content: |
   <div class="alert alert-danger">
-  <strong>Lhůta pro podání odvolání již uplynula.</strong><br>
+  <strong>Lhůta pro podání odporu již uplynula.</strong><br>
 
-  Lhůta uplynula dne: <strong>${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }</strong>
+  Lhůta uplynula dne: ${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }
   </div>
 target: lhutaKontrola
 ---
-# Odůvodnění odvolání
+# Identifikace posílané žádosti pokud není rozhodnutí
+question: |
+  Identifikace žádosti
+fields:
+  - Bylo Vám přijetí žádosti potvrzeno?: Zadost.potvrzeni
+    datatype: yesnoradio
+  - Číslo jednací: Zadost.cj
+    hint: pokud jej nemáte, ponechte prázdné
+    required: False
+    show if: Zadost.potvrzeni
+  - Datum doručení: Zadost.datumDoruceni
+    datatype: date
+    show if: Zadost.potvrzeni
+  - Datum odeslání žádosti: Zadost.datumOdeslani
+    datatype: date
+    show if: not Zadost.potvrzeni
+---
+# Neposkytnuté informace pro účely neúplné odpovědi.
+question: |
+  Jaké informace nebyly poskytnuty?
+fields:
+  - Neposkytnuté informace: neposkytnute
+    input type: area
+    hint: Jednotlivé položky oddělte "enterem".
+---
+# Odůvodnění odporu
 ga id: oduvodneni
 question: |
-  Odůvodnění odvolání
+  Odůvodnění stížnosti
 subquestion: |
-  Odvolání je nutné odůvodnit. Pokud chcete můžete jej vyplnit již dne, jinak doporučujeme jej rozvést až ve staženém dokumentu.
+  Odůvodnění není povinnou součástí stížnosti, je ale dobré popsat v čem spatřujete rozpor se zákonem.
 fields:
+  - Chcete uvést odůvodnění?: oduvodnit
+    datatype: yesnoradio
   - Odůvodnění: Podani.oduvodneni
     datatype: area
+    show if: oduvodnit
+  - Požadovaná částka: Rozhodnuti.castka
+    datatype: currency
+    currency symbol: Kč
+    show if:
+      code: |
+        Podani.duvod == 'uhrada'
 action buttons:
   - label: Vyplním později v dokumentu
     action: obsah_pozdeji
     color: danger
     icon: forward
-help: |
-  # Co má být obsahem odůvodnění?
-  Lorem ipsum
 ---
 scan for variables: False
 event: obsah_pozdeji
 code: |
-  Podani.oduvodneni = "[Doplňte odůvodnění odvolání]."
----
-# Sestavení variant petitu podle druhu řízení.
-code: |
-  petit_seznam = {"zastavit":"bylo rozhodnutí zrušeno a řízení zastaveno","vratit":"bylo rozhodnutí zrušeno a věc byla řešena znovu", "zmena": "bylo rozhodnutí změněno"}
----
-# Výběr petitu. Co vlastně v odvolání chceme.
-ga id: petit
-question: |
-  Požadované rozhodnutí
-subquestion: |
-  Je nutné k odvolání připojit jak chcete, aby odvolací orgán rozhodl. Tedy čeho se přímo domáháte. Zákon nabízí tři obecné varianty.
-fields:
-  - Chci, aby...: Podani.petitTyp
-    input type: radio
-    code:
-      petit_seznam
-  - Jak má být rozhodnutí změněno?: Podani.petitNavrh
-    input type: area
-    hint: aby výrok stanovil, že...
-    show if:
-      variable: Podani.petitTyp
-      is: zmena
-help: |
-  # Jaký je v nich rozdíl?
-  Lorem ipsum
----
-# Sestavení výsledného petitu
-sets: Podani.petit
-code: |
-  if typRizeni == "info":
-    Podani.petit = "Vzhledem k výše uvedenému jsme toho názoru, že předmětné rozhodnutí je nezákonné, a navrhujeme, aby nadřízený orgán podle ustanovení § 16 odst. 4 zákona č. 106/1999 Sb, zákona o svobodném přístupu k informacím, napadané rozhodnutí zrušil a přikázal povinnému subjektu informaci poskytnout."
-  else:
-    if Podani.petitTyp == "zmena":
-      Podani.petit = p_zmena
-    elif Podani.petitTyp == "zastavit":
-      Podani.petit = p_zastavit
-    elif Podani.petitTyp == "vratit":
-      Podani.petit = p_vratit
+  Podani.oduvodneni = "[Doplňte odůvodnění]."
 ---
 # Prilohy
 ga id: zpusobOdeslani
@@ -224,15 +198,21 @@ fields:
   - Jak budete podnět odesílat?: Podani.forma
     input type: radio
     choices:
-      - Poštou / Osobně: posta
+      - Poštou: posta
       - Datovou schránkou: datovka
 #      - E-mailem (s ověřeným el. podpisem): email
   - Chcete přikládat přílohy: Podani.prilohy
     datatype: yesnoradio
+    default: |
+      % if Podani.duvod == 'necinnost':
+      True
+      % endif
   - Seznam příloh: prilohy
-    input type: area
-    hint: |
-      Jednotlivé položky oddělte "enterem".
+    datatype: area
+    default: |
+      % if Podani.duvod == 'necinnost':
+      Žádost o informace
+      % endif
     show if:
       variable: Podani.prilohy
       is: true
@@ -248,7 +228,7 @@ progress: 100
 question: |
   Vaš vzor je připraven
 subquestion: |
-  Vzor Vám společné s manuálem k jeho kontrole pošleme na e-mail.
+  Vzor Vám společné s manuálem pošleme na e-mail.
   *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
 
   % if user_has_privilege('admin'):
@@ -263,7 +243,7 @@ event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odvolani_proti_rozhodnuti_ve_spravnim_rizeni_Komentar.pdf')])
+  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odpor_proti_prikazu_Komentar.pdf')])
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
@@ -272,7 +252,7 @@ code: |
 ---
 event: ecomailNewsletter
 code: |
-  ecomail = addEcomail(email, "12", "Odvolání proti správnímu rozhodnutí")
+  ecomail = addEcomail(email, "12", "Odpor proti příkazu")
 ---
 # Výstup
 mandatory: True
@@ -290,7 +270,7 @@ subquestion: |
 
     ${ action_button_html("https://bit.ly/31MGcY3", label="Podpořím darem", color="secondary", icon="hand-holding-heart", block="True") }
   </td><td>
-  Pokud chcete sepsat podání přímo na míru či v řízení zastupovat, můžete využít placených služeb našich advokátů.
+    Pokud chcete sepsat podání přímo na míru či v řízení zastupovat, můžete využít placených služeb našich advokátů.
 
     ${ action_button_html("https://bit.ly/2GFmUft", label="Navštívit web advokátů", color="light", icon="external-link-alt", block="True") }
     </td></tr></table>
@@ -321,21 +301,9 @@ script: |
   </script>
 ---
 attachment:
-  name: Odvolání pro správnímu rozhodnuti
-  filename: Odvolani
+  name: Stížnost
+  filename: Stížnost
   variable name: vzor
-  docx template file: Odvolani.docx
+  docx template file: Stiznost.docx
   valid formats:
     - docx
----
-template: p_zastavit
-content: |
-  Vzhledem k výše uvedenému je podatel toho názoru, že napadené je nezákonné, a navrhuje, aby nadřízený orgán podle ustanovení § 90 odst. 1 písm. a) zákona č. 500/2004 Sb., správní řád, v platném znění, zrušil napadené rozhodnutí ze dne ${ Rozhodnuti.datumVydani }, č.j. ${ Rozhodnuti.cj }, a řízení zastavil.
----
-template: p_vratit
-content: |
-  Vzhledem k výše uvedenému je podatel toho názoru, že napadené je nezákonné, a navrhuje, aby nadřízený orgán podle ustanovení § 90 odst. 1 písm. b) zákona č. 500/2004 Sb., správní řád, v platném znění, zrušil napadené rozhodnutí ze dne ${ Rozhodnuti.datumVydani }, č.j. ${ Rozhodnuti.cj }, a věc vrátil k novému projednání.
----
-template: p_zmena
-content: |
-  Vzhledem k výše uvedenému je podatel toho názoru, že napadené je nezákonné, a navrhuje, aby nadřízený orgán podle ustanovení § 90 odst. 1 písm. c) zákona č. 500/2004 Sb., správní řád, v platném znění, změnil napadené rozhodnutí napadené rozhodnutí ze dne ${ Rozhodnuti.datumVydani }, č.j. ${ Rozhodnuti.cj } tak, aby jeho výrok stanovil, že ${ Podani.petitNavrh }.
