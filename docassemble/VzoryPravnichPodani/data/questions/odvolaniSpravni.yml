@@ -35,6 +35,7 @@ code: |
   nadrizeny = False
   if "typ" in url_args:
     typRizeni = url_args['typ']
+    Podani.petit = url_args['petit']
 ---
 ga id: typRizeni
 question: |
