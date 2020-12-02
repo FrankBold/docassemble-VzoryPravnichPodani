@@ -23,6 +23,7 @@ objects:
   - Podatel: Person.using(nazev="podatele")
   - Adresat: Organization
   - Podani: Thing
+  - Zadost: Thing
   - Rozhodnuti: Thing
   - Komentar: DAFileCollection
 ---
@@ -32,13 +33,13 @@ code: |
   nabidkaFBA = True
   nazev = "Stížnost"
   rozhodnutiExist = True
-  if "typ" in url_args:
-    typRizeni = url_args['typ']
-    Podani.oduvodneni = url_args['oduvodneni']
-    Podani.duvod = url_args['final_situace']['name']
+  if 'idFile' in url_args:
+    vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
+    typRizeni = "info"
+    Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
+    Podani.duvod = vychoziData['final_situace']['name']
     if Podani.duvod == 'necinnost':
       rozhodnutiExist = False
-
 ---
 # Otázky
 # Úřad, který příkaz vydal
