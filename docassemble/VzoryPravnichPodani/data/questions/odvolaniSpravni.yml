@@ -128,6 +128,18 @@ fields:
   - note: |
         [TARGET lhutaKontrola]
 check in: kontrolaLhuty
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: lhuty_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: lhuty_pozdeji
+code: |
+  Rozhodnuti.cj = "[Číslo jednací]"
+  Rozhodnuti.datumDoruceni = "[Datum doručení]"
+  Rozhodnuti.datumVydani = "[Datum odeslání]"
 ---
 event: kontrolaLhuty
 code: |
@@ -170,9 +182,6 @@ action buttons:
     action: obsah_pozdeji
     color: danger
     icon: forward
-help: |
-  # Co má být obsahem odůvodnění?
-  Lorem ipsum
 ---
 scan for variables: False
 event: obsah_pozdeji
@@ -200,9 +209,6 @@ fields:
     show if:
       variable: Podani.petitTyp
       is: zmena
-help: |
-  # Jaký je v nich rozdíl?
-  Lorem ipsum
 ---
 # Sestavení výsledného petitu
 sets: Podani.petit
@@ -211,11 +217,11 @@ code: |
     Podani.petit = "Vzhledem k výše uvedenému jsme toho názoru, že předmětné rozhodnutí je nezákonné, a navrhujeme, aby nadřízený orgán podle ustanovení § 16 odst. 4 zákona č. 106/1999 Sb, zákona o svobodném přístupu k informacím, napadané rozhodnutí zrušil a přikázal povinnému subjektu informaci poskytnout."
   else:
     if Podani.petitTyp == "zmena":
-      Podani.petit = p_zmena
+      Podani.petit = p_zmena.content
     elif Podani.petitTyp == "zastavit":
-      Podani.petit = p_zastavit
+      Podani.petit = p_zastavit.content
     elif Podani.petitTyp == "vratit":
-      Podani.petit = p_vratit
+      Podani.petit = p_vratit.content
 ---
 # Prilohy
 ga id: zpusobOdeslani
