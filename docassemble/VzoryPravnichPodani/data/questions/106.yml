@@ -190,19 +190,7 @@ need: vseHotovo
 question: |
   Úspěšně odesláno!
 subquestion: |
-  Děkujeme, že jste využili náš nástroj. Kdyby Vám dokumenty na e-mail nedorazily, napiště na [servis@frankbold.org](mailto:servis@frankbold.org) a napravíme to.
-
-  Pokud od nás chcete dostávat pravidelné informace a právní rady, spolu s novinkami z činnosti organizace   ${ action_button_html("#", id_tag="newsletter", label="přihlaste e-mail k newsletteru Občan 2.0", color="secondary", size="sm") }
-
-  <table class="table"><tr><td>
-  Tento nástroj je zdarma díky <strong>podpoře donorů</strong>. Pomozte nám též.
-
-    ${ action_button_html("https://bit.ly/31MGcY3", label="Podpořím darem", color="secondary", icon="hand-holding-heart", block="True") }
-  </td><td>
-    Pokud chcete, abychom založení spolku <strong>vyřídili za Vás, či potřebujete komplexnější pomoc šitou na míru</strong>, můžete využít placených služeb našich advokátů.
-
-    ${ action_button_html("https://bit.ly/2GFmUft", label="Navštívit web advokátů", color="light", icon="external-link-alt", block="True") }
-    </td></tr></table>
+  ${ t_final.content }
 buttons:
   - Ukončit průvodce: leave
     url: https://frankbold.org/
