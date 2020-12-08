@@ -13,6 +13,7 @@ features:
 include:
   - t_mail.yml
   - objektPerson.yml
+  - final_screen.yml
 ---
 modules:
   - .integrace
@@ -162,51 +163,6 @@ code: |
 event: ecomailNewsletter
 code: |
   ecomail = addEcomail(email, "12", "Podnet ke kontrole obce")
----
-# Výstup
-mandatory: True
-id: final_screen
-need: vseHotovo
-question: |
-  Úspěšně odesláno!
-subquestion: |
-  Děkujeme, že jste využili náš nástroj. Kdyby Vám dokumenty na e-mail nedorazily, napiště na [servis@frankbold.org](mailto:servis@frankbold.org) a napravíme to.
-
-  Pokud od nás chcete dostávat pravidelné informace a právní rady, spolu s novinkami z činnosti organizace   ${ action_button_html("#", id_tag="newsletter", label="přihlaste e-mail k newsletteru Občan 2.0", color="secondary", size="sm") }
-
-  Tento nástroj je zdarma díky podpoře donorů. Pomozte nám též.
-
-  Komplexnější služby nabízí Frank Bold Advokáti
-action buttons:
-  - label: Podpořím darem
-    action: https://frankbold.org/podporte-nas
-    color: dark
-    icon: hand-holding-heart
-    placement: before
-  - label: Navštívit web advokátů
-    action: C2B07C
-    color: light
-    icon: external-link-alt
-    placement: before
-buttons:
-  - Ukončit průvodce: leave
-    url: https://frankbold.org/
-css: |
-  <style>
-  .btn-dark {
-    background-color: #D70B3B;
-    border-color: #D70B3B;
-    }
-  .btn-light {
-    color: white;
-    background-color: #C2B07C;
-    border-color: #C2B07C;
-    }
-  </style>
-script: |
-  <script>
-    $("#newsletter").click(function(){action_call('ecomailNewsletter'); $('#newsletter').text('Přihlášeno').addClass('btn-primary').removeClass('btn-secondary'); return false;})
-  </script>
 ---
 attachment:
   name: Podnět k provedení kontroly obce

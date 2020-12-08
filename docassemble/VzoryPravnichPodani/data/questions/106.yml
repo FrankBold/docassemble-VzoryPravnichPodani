@@ -13,6 +13,7 @@ features:
 include:
   - t_mail.yml
   - objektPerson.yml
+  - final_screen.yml
 ---
 modules:
   - .integrace
@@ -182,40 +183,6 @@ code: |
 event: ecomailNewsletter
 code: |
   ecomail = addEcomail(email, "12", "Žádost o informace")
----
-# Výstup
-mandatory: True
-id: final_screen
-need: vseHotovo
-question: |
-  Úspěšně odesláno!
-subquestion: |
-  ${ t_final.content }
-buttons:
-  - Ukončit průvodce: leave
-    url: https://frankbold.org/
-css: |
-  <style>
-  .btn-dark {
-    background-color: #D70B3B;
-    border-color: #D70B3B;
-    }
-  .btn-light {
-    color: white;
-    background-color: #C2B07C;
-    border-color: #C2B07C;
-    }
-  .table tr {
-  background:none !important;
-  }
-  .table td {
-  width:50%;
-  }
-  </style>
-script: |
-  <script>
-    $("#newsletter").click(function(){action_call('ecomailNewsletter'); $('#newsletter').text('Přihlášeno').addClass('btn-primary').removeClass('btn-secondary'); return false;})
-  </script>
 ---
 attachment:
   name: Žádost o informace
