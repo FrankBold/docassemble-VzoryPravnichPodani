@@ -44,9 +44,17 @@ def overitXml(ico):
   info = {
     "firma": company_record.get('are:Obchodni_firma'),
     "ico": company_record.get('are:ICO'),
-    "sidlo": address.get('dtt:Nazev_ulice') +" "+ address.get('dtt:Cislo_domovni') +"/"+ address.get('dtt:Cislo_orientacni') +", "+ address.get('dtt:PSC') +" "+ address.get('dtt:Nazev_obce')
-  }
-
+    }
+  if address.get('dtt:Cislo_do_adresy') is None:
+    if address.get('dtt:Cislo_orientacni') is None:
+      info["sidlo"] = str(address.get('dtt:Nazev_ulice')) +" "+ str(address.get('dtt:Cislo_domovni')) +", "+ str(address.get('dtt:PSC')) +" "+ str(address.get('dtt:Nazev_obce'))
+    else:
+      info["sidlo"] = str(address.get('dtt:Nazev_ulice')) +" "+ str(address.get('dtt:Cislo_domovni')) +"/"+ str(address.get('dtt:Cislo_orientacni')) +", "+ str(address.get('dtt:PSC')) +" "+ str(address.get('dtt:Nazev_obce'))
+  elif isinstance(address.get('dtt:Cislo_do_adresy'), str):
+    info["sidlo"] = str(address.get('dtt:Nazev_ulice')) +" "+ str(address.get('dtt:Cislo_do_adresy')) +", "+ str(address.get('dtt:PSC')) +" "+ str(address.get('dtt:Nazev_obce'))
+  else:
+    info["sidlo"] = str(address.get('dtt:Nazev_ulice')) +", "+ str(address.get('dtt:PSC')) +" "+ str(address.get('dtt:Nazev_obce'))
+  
   return info
 
 def getholidays(year):
