@@ -1,6 +1,6 @@
 mandatory: True
 id: final_screen
-#need: vseHotovo
+need: vseHotovo
 question: |
   Úspěšně odesláno!
 subquestion: |
