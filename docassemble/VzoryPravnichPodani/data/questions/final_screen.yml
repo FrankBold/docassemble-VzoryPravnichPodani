@@ -10,9 +10,8 @@ subquestion: |
 
   Tento nástroj je zdarma díky <strong>podpoře donorů</strong>. Pomozte jej takový udržet.
 
-<<<<<<< HEAD
   ${ action_button_html("https://frankbold.org/podporte-nas?utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Podpořím darem", color="secondary", icon="hand-holding-heart", block="True") }
-  <br><br>  
+  <br><br>
   Podporu <strong>49 Kč</strong> můžete též zaslat, pomocí QR kódu:
   [QR SPD*1.0*ACC:CZ4520100000002401874285*AM:49*CC:CZK*MSG:QR - vzor*X-KS:0125*RN:Frank Bold Society z.s., 200px]
   </td><td>
@@ -20,12 +19,6 @@ subquestion: |
 
   ${ action_button_html("https://fbadvokati/kontakt?utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Navštívit web advokátů", color="light", icon="external-link-alt", block="True") }
   </td></tr></table>
-=======
-  ${ action_button_html("https://frankbold.org/podporte-nas?utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Podpořím darem", color="secondary", icon="hand-holding-heart") }
-  
-  Podporu <strong>49 Kč</strong> můžete též zaslat, pomocí QR kódu:
-  [QR SPD*1.0*ACC:CZ4520100000002401874285*AM:49*CC:CZK*MSG:QR - vzor*X-KS:0125*RN:Frank Bold Society z.s., 200px]
->>>>>>> 3835bc99b2bb6541e410f6bb2c0801883cde32c4
 buttons:
   - Ukončit průvodce: leave
     url: https://frankbold.org/

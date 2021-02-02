@@ -26,7 +26,7 @@ def uradDleDatovky(idds):
       return(xmltodict.parse(data.text)['GetInfoResponse']['Osoba'])
     except:
       return "chyba"
-    
+
 def overitXml(ico):
   URL = 'https://wwwinfo.mfcr.cz/cgi-bin/ares/darv_std.cgi'
   params = {'ico': ico}
@@ -39,11 +39,11 @@ def overitXml(ico):
 
   if int(number_of_results) == 0:
         return "Nic jsme nenalezli."
-    
+
   company_record = response_root['are:Zaznam']
   identification = company_record['are:Identifikace']
-  address = identification['are:Adresa_ARES']  
-  
+  address = identification['are:Adresa_ARES']
+
   info = {
     "firma": company_record.get('are:Obchodni_firma'),
     "ico": company_record.get('are:ICO'),
@@ -57,10 +57,6 @@ def overitXml(ico):
     info["sidlo"] = str(address.get('dtt:Nazev_ulice')) +" "+ str(address.get('dtt:Cislo_do_adresy')) +", "+ str(address.get('dtt:PSC')) +" "+ str(address.get('dtt:Nazev_obce'))
   else:
     info["sidlo"] = str(address.get('dtt:Nazev_ulice')) +", "+ str(address.get('dtt:PSC')) +" "+ str(address.get('dtt:Nazev_obce'))
-<<<<<<< HEAD
-=======
-  
->>>>>>> 3835bc99b2bb6541e410f6bb2c0801883cde32c4
   return info
 
 def getholidays(year):
