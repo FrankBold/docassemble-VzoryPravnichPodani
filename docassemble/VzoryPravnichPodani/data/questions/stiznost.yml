@@ -37,6 +37,10 @@ code: |
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
     typRizeni = "info"
+<<<<<<< HEAD
+=======
+    Podani.oduvodneni = vychoziData["final_situace"]["petit"]
+>>>>>>> 3835bc99b2bb6541e410f6bb2c0801883cde32c4
     Podani.duvod = vychoziData["final_situace"]["name"]
     if Podani.duvod == 'necinnost':
       rozhodnutiExist = False

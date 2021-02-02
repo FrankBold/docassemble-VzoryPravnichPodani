@@ -1,6 +1,6 @@
 mandatory: True
 id: final_screen
-need: vseHotovo
+#need: vseHotovo
 question: |
   Úspěšně odesláno!
 subquestion: |
@@ -8,9 +8,9 @@ subquestion: |
 
   Pokud od nás chcete dostávat pravidelné informace a právní rady, spolu s novinkami z činnosti organizace ${ action_button_html("#", id_tag="newsletter", label="přihlaste e-mail k newsletteru Občan 2.0", color="secondary", size="sm") }
 
-  <table class="table"><tr><td>
   Tento nástroj je zdarma díky <strong>podpoře donorů</strong>. Pomozte jej takový udržet.
 
+<<<<<<< HEAD
   ${ action_button_html("https://frankbold.org/podporte-nas?utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Podpořím darem", color="secondary", icon="hand-holding-heart", block="True") }
   <br><br>  
   Podporu <strong>49 Kč</strong> můžete též zaslat, pomocí QR kódu:
@@ -20,6 +20,12 @@ subquestion: |
 
   ${ action_button_html("https://fbadvokati/kontakt?utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Navštívit web advokátů", color="light", icon="external-link-alt", block="True") }
   </td></tr></table>
+=======
+  ${ action_button_html("https://frankbold.org/podporte-nas?utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Podpořím darem", color="secondary", icon="hand-holding-heart") }
+  
+  Podporu <strong>49 Kč</strong> můžete též zaslat, pomocí QR kódu:
+  [QR SPD*1.0*ACC:CZ4520100000002401874285*AM:49*CC:CZK*MSG:QR - vzor*X-KS:0125*RN:Frank Bold Society z.s., 200px]
+>>>>>>> 3835bc99b2bb6541e410f6bb2c0801883cde32c4
 buttons:
   - Ukončit průvodce: leave
     url: https://frankbold.org/
@@ -34,12 +40,6 @@ css: |
     background-color: #C2B07C;
     border-color: #C2B07C;
     }
-  .table tr {
-  background:none !important;
-  }
-  .table td {
-  width:50%;
-  }
   </style>
 script: |
   <script>

@@ -57,6 +57,10 @@ def overitXml(ico):
     info["sidlo"] = str(address.get('dtt:Nazev_ulice')) +" "+ str(address.get('dtt:Cislo_do_adresy')) +", "+ str(address.get('dtt:PSC')) +" "+ str(address.get('dtt:Nazev_obce'))
   else:
     info["sidlo"] = str(address.get('dtt:Nazev_ulice')) +", "+ str(address.get('dtt:PSC')) +" "+ str(address.get('dtt:Nazev_obce'))
+<<<<<<< HEAD
+=======
+  
+>>>>>>> 3835bc99b2bb6541e410f6bb2c0801883cde32c4
   return info
 
 def getholidays(year):
