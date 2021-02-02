@@ -84,6 +84,12 @@ if: |
   rucne
 question: |
   Identifikační údaje orgánu
+subquestion: |
+  % if defined('hlaska'):
+  <div class="alert alert-warning">
+  Bohužel se nepodařilo údaje doplnit automaticky. Zadejte je prosím ručně.
+  </div>
+  % endif
 fields:
   - Název orgánu: Adresat.name.text
   - Oddělení: Adresat.oddeleni
@@ -101,11 +107,16 @@ if: |
   rucne == False
 code: |
   vystup_urad = uradDleDatovky(Adresat.idds)
-  Adresat.name.text = vystup_urad['NazevOsoby']
-  Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
-  Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
-  Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
-  Adresat.idds = vystup_urad['ISDS']
+  if vystup_urad == "chyba":
+    rucne = True
+    hlaska = True
+    Adresat.name.text
+  else:
+    Adresat.name.text = vystup_urad['NazevOsoby']
+    Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
+    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
+    Adresat.idds = vystup_urad['ISDS']
 ---
 # Předmět podnětu
 ga id:  rozhodnuti

@@ -37,10 +37,13 @@ code: |
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
     typRizeni = "info"
-    Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
     Podani.duvod = vychoziData["final_situace"]["name"]
     if Podani.duvod == 'necinnost':
       rozhodnutiExist = False
+    elif Podani.duvod == 'uhrada':
+      Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
+  else:
+    Podani.duvod = None
 ---
 # Otázky
 # Úřad, který příkaz vydal
@@ -65,6 +68,12 @@ if: |
   rucne
 question: |
   Identifikační údaje orgánu
+subquestion: |
+  % if defined('hlaska'):
+  <div class="alert alert-warning">
+  Bohužel se nepodařilo údaje doplnit automaticky. Zadejte je prosím ručně.
+  </div>
+  % endif
 fields:
   - Název orgánu: Adresat.name.text
   - Oddělení: Adresat.oddeleni
@@ -82,11 +91,16 @@ if: |
   rucne == False
 code: |
   vystup_urad = uradDleDatovky(Adresat.idds)
-  Adresat.name.text = vystup_urad['NazevOsoby']
-  Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
-  Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
-  Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
-  Adresat.idds = vystup_urad['ISDS']
+  if vystup_urad == "chyba":
+    rucne = True
+    hlaska = True
+    Adresat.name.text
+  else:
+    Adresat.name.text = vystup_urad['NazevOsoby']
+    Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
+    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
+    Adresat.idds = vystup_urad['ISDS']
 ---
 # Předmět stížnosti
 ga id:  rozhodnuti
@@ -98,11 +112,11 @@ fields:
     datatype: date
     note: |
       Den, kdy Vám bylo rozhodnutí doručeno.
-  - Lhůta pro podání odvolání: lhuta
+  - Lhůta pro podání stížnosti: lhuta
     datatype: integer
     default: 30
     help: |
-      Standardní lhůta je 30 dní. Některá specifická řízení, mohou mít však lhůtu odlišnou. Ověřit ji můžete na konci rozhodnutí v "poučení".
+      Standardní lhůta je 30 dní.
   - Datum vydání: Rozhodnuti.datumVydani
     datatype: date
     note: |
@@ -123,7 +137,7 @@ code: |
 template: lhutaSplnena
 content: |
   <div class="alert alert-success">
-  <strong>Jste ve lhůtě pro podání odporu.</strong>
+  <strong>Jste ve lhůtě pro podání stížnosti.</strong>
 
   Poslední den pro odeslání: ${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }
   </div>
@@ -132,7 +146,7 @@ target: lhutaKontrola
 template: lhutaNesplnena
 content: |
   <div class="alert alert-danger">
-  <strong>Lhůta pro podání odporu již uplynula.</strong><br>
+  <strong>Lhůta pro podání stížnosti již uplynula.</strong><br>
 
   Lhůta uplynula dne: ${ format_date(vystup_lhuta[1], format='dd.MM.yyyy') }
   </div>
@@ -210,7 +224,7 @@ code: |
 # Prilohy
 ga id: zpusobOdeslani
 question: |
-  Odeslání podnětu
+  Odeslání stížnosti
 fields:
   - Jak budete podnět odesílat?: Podani.forma
     input type: radio
@@ -260,7 +274,7 @@ event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odpor_proti_prikazu_Komentar.pdf')])
+  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
@@ -269,7 +283,7 @@ code: |
 ---
 event: ecomailNewsletter
 code: |
-  ecomail = addEcomail(email, "12", "Odpor proti příkazu")
+  ecomail = addEcomail(email, "12", "Stížnosti")
 ---
 attachment:
   name: Stížnost
