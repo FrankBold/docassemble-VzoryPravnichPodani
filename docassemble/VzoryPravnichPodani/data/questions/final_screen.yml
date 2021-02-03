@@ -10,7 +10,7 @@ subquestion: |
 
   Tento nástroj je zdarma díky <strong>podpoře donorů</strong>. Pomozte jej takový udržet.
 
-  ${ action_button_html("https://frankbold.org/podporte-nas?utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Podpořím darem", color="secondary", icon="hand-holding-heart", block="True") }
+  ${ action_button_html("https://frankbold.org/podporte-nas?pAuto&utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Podpořím darem", color="secondary", icon="hand-holding-heart", block="True") }
   <br><br>
   Podporu <strong>49 Kč</strong> můžete též zaslat, pomocí QR kódu:
   [QR SPD*1.0*ACC:CZ4520100000002401874285*AM:49*CC:CZK*MSG:QR - vzor*X-KS:0125*RN:Frank Bold Society z.s., 200px]
