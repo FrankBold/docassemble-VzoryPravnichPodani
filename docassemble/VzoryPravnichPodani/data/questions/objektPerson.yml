@@ -3,7 +3,7 @@ modules:
 ---
 generic object: Person
 question: |
-  Indentifikační údaje ${ x.nazev }
+  Vaše indentifikační údaje jakožto ${ x.nazev }
 fields:
   - Typ osoby: x.forma
     input type: radio

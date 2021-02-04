@@ -43,7 +43,7 @@ code: |
     elif Podani.duvod == 'uhrada':
       Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
   else:
-    Podani.duvod = None
+    Podani.duvod = 'None'
 ---
 # Otázky
 # Úřad, který příkaz vydal
@@ -170,6 +170,19 @@ fields:
     show if:
       variable: Zadost.potvrzeni
       is: False
+---
+# O jaký druh řízení se jedná?
+ga id: typRizeni
+question: |
+  Druh řízení
+subquestion: |
+  Pro některá řízení máme připraven specifický obsah odvolání. Pokud Vámi vedené řízení není mezi uvedenými, vyberte možnost *jiné správní řízení*.
+fields:
+  - no label: typRizeni
+    input type: radio
+    choices:
+      Žádost o informace: info
+      Jiné správní řízení: obecne
 ---
 # Neposkytnuté informace pro účely neúplné odpovědi.
 question: |

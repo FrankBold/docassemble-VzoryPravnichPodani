@@ -43,13 +43,13 @@ ga id: typRizeni
 question: |
   Druh řízení
 subquestion: |
-  Pro některé řízení mám připraven specifický obsah odvolání. Pokud Vámi vedené řízení není mezi uvedenými, vyberte možnost *obecné správní řízení*.
+  Pro některá řízení máme připraven specifický obsah odvolání. Pokud Vámi vedené řízení není mezi uvedenými, vyberte možnost *jiné správní řízení*.
 fields:
   - no label: typRizeni
     input type: radio
     choices:
       Žádost o informace: info
-      Obecné správní řízení: obecne
+      Jiné správní řízení: obecne
 ---
 # Otázky
 # Úřad, který příkaz vydal
@@ -118,7 +118,7 @@ code: |
     Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
     Adresat.idds = vystup_urad['ISDS']
 ---
-# Předmět podnětu
+# Předmět Odvolání
 ga id:  rozhodnuti
 question: |
   Napadané rozhodnutí
@@ -185,7 +185,7 @@ ga id: oduvodneni
 question: |
   Odůvodnění odvolání
 subquestion: |
-  Odvolání je nutné odůvodnit. Pokud chcete můžete jej vyplnit již dne, jinak doporučujeme jej rozvést až ve staženém dokumentu.
+  Odvolání je nutné odůvodnit. Pokud chcete můžete jej vyplnit již zde, jinak doporučujeme jej rozvést až ve staženém dokumentu.
 fields:
   - Odůvodnění: Podani.oduvodneni
     datatype: area
@@ -209,7 +209,7 @@ ga id: petit
 question: |
   Požadované rozhodnutí
 subquestion: |
-  Je nutné k odvolání připojit jak chcete, aby odvolací orgán rozhodl. Tedy čeho se přímo domáháte. Zákon nabízí tři obecné varianty.
+  V odvolání je nutné uvést, jak chcete, aby odvolací orgán rozhodl. Tedy čeho se přímo domáháte. Zákon nabízí tři obecné varianty.
 fields:
   - Chci, aby...: Podani.petitTyp
     input type: radio
@@ -238,12 +238,12 @@ code: |
 # Prilohy
 ga id: zpusobOdeslani
 question: |
-  Odeslání podnětu
+  Odeslání odvolání
 fields:
-  - Jak budete podnět odesílat?: Podani.forma
+  - Jak budete odvolání odesílat?: Podani.forma
     input type: radio
     choices:
-      - Poštou / Osobně: posta
+      - Poštou / Předám osobně: posta
       - Datovou schránkou: datovka
 #      - E-mailem (s ověřeným el. podpisem): email
   - Chcete přikládat přílohy: Podani.prilohy
