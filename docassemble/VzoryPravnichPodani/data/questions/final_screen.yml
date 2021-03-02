@@ -6,8 +6,6 @@ question: |
 subquestion: |
   Děkujeme, že jste využili náš nástroj. Kdyby Vám dokumenty na e-mail nedorazily, napiště na [servis@frankbold.org](mailto:servis@frankbold.org) a napravíme to.
 
-  Pokud od nás chcete dostávat pravidelné informace a právní rady, spolu s novinkami z činnosti organizace ${ action_button_html("#", id_tag="newsletter", label="přihlaste e-mail k newsletteru Občan 2.0", color="secondary", size="sm") }
-
   Tento nástroj je zdarma díky <strong>podpoře donorů</strong>. Pomozte jej takový udržet.
 
   ${ action_button_html("https://frankbold.org/podporte-nas?pAuto&utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Podpořím darem", color="secondary", icon="hand-holding-heart", block="True") }
@@ -34,7 +32,3 @@ css: |
     border-color: #C2B07C;
     }
   </style>
-script: |
-  <script>
-    $("#newsletter").click(function(){action_call('ecomailNewsletter'); $('#newsletter').text('Přihlášeno').addClass('btn-primary').removeClass('btn-secondary'); return false;})
-  </script>

@@ -195,6 +195,8 @@ subquestion: |
 fields:
   - Váš e-mail: email
     datatype: email
+  - Přihlásit k odběru novinek: novinky
+    datatype: yesno
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
@@ -202,15 +204,13 @@ sets: vseHotovo
 code: |
   vzor
   emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odpor_proti_prikazu_Komentar.pdf')])
+  if novinky:
+    ecomail = addEcomail(email, "12", "Odpor proti prikazu")
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
   else:
     neodeslano
----
-event: ecomailNewsletter
-code: |
-  ecomail = addEcomail(email, "12", "Odpor proti příkazu")
 ---
 attachment:
   name: Odpor proti příkazu

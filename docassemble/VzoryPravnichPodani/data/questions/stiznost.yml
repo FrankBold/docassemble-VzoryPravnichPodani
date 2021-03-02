@@ -42,8 +42,6 @@ code: |
       rozhodnutiExist = False
     elif Podani.duvod == 'uhrada':
       Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
-  else:
-    Podani.duvod = 'None'
 ---
 # Otázky
 # Úřad, který příkaz vydal
@@ -176,13 +174,28 @@ ga id: typRizeni
 question: |
   Druh řízení
 subquestion: |
-  Pro některá řízení máme připraven specifický obsah odvolání. Pokud Vámi vedené řízení není mezi uvedenými, vyberte možnost *jiné správní řízení*.
+  V současnosti nástroj poskytuje pouze šablonu pro stížnost v rámci řízení o přístupu k informacím.
 fields:
   - no label: typRizeni
     input type: radio
     choices:
       Žádost o informace: info
-      Jiné správní řízení: obecne
+---
+# Důvod stížnosti
+need: typRizeni
+ga id: duvodStiznosti
+question: |
+  Důvod podání stížnosti
+subquestion: |
+  Vyberte proti jakému skutečnosti podáváte stížnost.
+fields:
+  - no label: Podani.duvod
+    input type: radio
+    choices:
+      Nebyly poskytnuty všechny informace: neuplne
+      Povinný za žádost nereagoval: necinnost
+      Byl jsme vyzván k úhradě: uhrada
+      Žádost byla vyřízena chybně: zpusobVyrizeni
 ---
 # Neposkytnuté informace pro účely neúplné odpovědi.
 question: |
@@ -203,7 +216,7 @@ code: |
   Zadost.neposkytnuto = "[Doplňte neposkytnuté informace]."
 ---
 code: |
-  Podani.neposkytnuto = string_pole(neposkytnuto)
+  Zadost.neposkytnuto = string_pole(neposkytnuto)
 ---
 # Odůvodnění odporu
 ga id: oduvodneni
@@ -281,6 +294,8 @@ subquestion: |
 fields:
   - Váš e-mail: email
     datatype: email
+  - Přihlásit k odběru novinek: novinky
+    datatype: yesno
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
@@ -288,15 +303,13 @@ sets: vseHotovo
 code: |
   vzor
   emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
+  if novinky:
+    ecomail = addEcomail(email, "12", "Stiznost")
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
   else:
     neodeslano
----
-event: ecomailNewsletter
-code: |
-  ecomail = addEcomail(email, "12", "Stížnosti")
 ---
 attachment:
   name: Stížnost

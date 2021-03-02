@@ -147,6 +147,8 @@ subquestion: |
 fields:
   - Váš e-mail: email
     datatype: email
+  - Přihlásit k odběru novinek: novinky
+    datatype: yesno
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
@@ -154,15 +156,13 @@ sets: vseHotovo
 code: |
   vzor
   emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
+  if novinky:
+    ecomail = addEcomail(email, "12", "Podnet ke kontrole obce")
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
   else:
     neodeslano
----
-event: ecomailNewsletter
-code: |
-  ecomail = addEcomail(email, "12", "Podnet ke kontrole obce")
 ---
 attachment:
   name: Podnět k provedení kontroly obce

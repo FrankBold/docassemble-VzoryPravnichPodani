@@ -1,6 +1,7 @@
 modules:
   - .overovac
 ---
+ga id: uzivatel
 generic object: Person
 question: |
   Vaše indentifikační údaje jakožto ${ x.nazev }
