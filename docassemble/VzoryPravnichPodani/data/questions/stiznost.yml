@@ -30,17 +30,17 @@ objects:
 ---
 mandatory: True
 code: |
-  multi_user = True
   nabidkaFBA = True
   nazev = "Stížnost"
   rozhodnutiExist = True
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
-    typRizeni = "info"
+    typRizeni = url_args['typ']
     Podani.duvod = vychoziData["final_situace"]["name"]
     if Podani.duvod == 'necinnost':
       rozhodnutiExist = False
     elif Podani.duvod == 'uhrada':
+      oduvodnit = True
       Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
 ---
 # Otázky
@@ -122,6 +122,18 @@ fields:
   - note: |
         [TARGET lhutaKontrola]
 check in: kontrolaLhuty
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: lhuty_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: lhuty_pozdeji
+code: |
+  Rozhodnuti.cj = "[Číslo jednací]"
+  Rozhodnuti.datumDoruceni = "[Datum doručení]"
+  Rozhodnuti.datumVydani = "[Datum odeslání]"
 ---
 event: kontrolaLhuty
 code: |

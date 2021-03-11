@@ -30,13 +30,12 @@ objects:
 ---
 mandatory: True
 code: |
-  multi_user = True
   nabidkaFBA = True
   nazev = "Odvolání proti rozhodnutí"
   nadrizeny = False
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
-    typRizeni = "info"
+    typRizeni = url_args['typ']
     Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
 ---
 ga id: typRizeni

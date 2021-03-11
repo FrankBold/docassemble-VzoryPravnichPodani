@@ -4,7 +4,7 @@ modules:
 ga id: uzivatel
 generic object: Person
 question: |
-  Vaše indentifikační údaje jakožto ${ x.nazev }
+  Vaše indentifikační údaje v roli ${ x.nazev }
 fields:
   - Typ osoby: x.forma
     input type: radio

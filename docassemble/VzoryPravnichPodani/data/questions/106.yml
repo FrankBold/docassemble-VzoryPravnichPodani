@@ -28,7 +28,6 @@ objects:
 ---
 mandatory: True
 code: |
-  multi_user = True
   nabidkaFBA = True
   nazev = "Žádost o informace"
   zdroj = False
