@@ -10,11 +10,6 @@ metadata:
 features:
   question help button: True
 ---
-include:
-  - t_mail.yml
-  - objektPerson.yml
-  - final_screen.yml
----
 modules:
   - .integrace
   - .overovac
@@ -37,6 +32,11 @@ code: |
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
     typRizeni = url_args['typ']
     Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
+---
+include:
+  - t_mail.yml
+  - objektPerson.yml
+  - final_screen.yml
 ---
 ga id: typRizeni
 question: |

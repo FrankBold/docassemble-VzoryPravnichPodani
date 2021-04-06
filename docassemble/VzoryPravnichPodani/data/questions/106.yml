@@ -10,11 +10,6 @@ metadata:
 features:
   question help button: True
 ---
-include:
-  - t_mail.yml
-  - objektPerson.yml
-  - final_screen.yml
----
 modules:
   - .integrace
   - .overovac
@@ -30,7 +25,13 @@ mandatory: True
 code: |
   nabidkaFBA = True
   nazev = "Žádost o informace"
-  zdroj = False
+  if 'zdroj' in url_args:
+    zdroj = url_args['zdroj']
+---
+include:
+  - t_mail.yml
+  - objektPerson.yml
+  - final_screen.yml
 ---
 # Otázky
 # Úřad, který příkaz vydal

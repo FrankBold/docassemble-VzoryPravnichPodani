@@ -10,11 +10,6 @@ metadata:
 features:
   question help button: True
 ---
-include:
-  - t_mail.yml
-  - objektPerson.yml
-  - final_screen.yml
----
 modules:
   - .integrace
   - .overovac
@@ -36,12 +31,19 @@ code: |
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
     typRizeni = url_args['typ']
-    Podani.duvod = vychoziData["final_situace"]["name"]
-    if Podani.duvod == 'necinnost':
-      rozhodnutiExist = False
-    elif Podani.duvod == 'uhrada':
-      oduvodnit = True
-      Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
+    if "final_situace" in vychoziData:
+      Podani.duvod = vychoziData["final_situace"]["name"]
+      if Podani.duvod == 'necinnost':
+        rozhodnutiExist = False
+      elif Podani.duvod == 'uhrada':
+        oduvodnit = True
+        if "final_arg" in vychoziData:
+          Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
+---
+include:
+  - t_mail.yml
+  - objektPerson.yml
+  - final_screen.yml
 ---
 # Otázky
 # Úřad, který příkaz vydal
@@ -257,6 +259,7 @@ action buttons:
 scan for variables: False
 event: obsah_pozdeji
 code: |
+  oduvodnit = True
   Podani.oduvodneni = "[Doplňte odůvodnění]."
 ---
 # Prilohy
