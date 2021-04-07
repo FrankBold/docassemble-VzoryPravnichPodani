@@ -103,6 +103,18 @@ fields:
   - note: |
         [TARGET lhutaKontrola]
 check in: kontrolaLhuty
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: lhuty_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: lhuty_pozdeji
+code: |
+  Prikaz.cj = "[Číslo jednací]"
+  Prikaz.datumDoruceni = "[Datum doručení]"
+  Prikaz.datumVydani = "[Datum odeslání]"
 ---
 event: kontrolaLhuty
 code: |

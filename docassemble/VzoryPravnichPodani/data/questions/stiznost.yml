@@ -261,6 +261,7 @@ event: obsah_pozdeji
 code: |
   oduvodnit = True
   Podani.oduvodneni = "[Doplňte odůvodnění]."
+  Rozhodnuti.castka = "[Částka v KČ]"
 ---
 # Prilohy
 ga id: zpusobOdeslani

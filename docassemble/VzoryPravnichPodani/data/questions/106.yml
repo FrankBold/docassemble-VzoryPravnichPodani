@@ -23,10 +23,13 @@ objects:
 ---
 mandatory: True
 code: |
+  multi_user = True
   nabidkaFBA = True
   nazev = "Žádost o informace"
   if 'zdroj' in url_args:
     zdroj = url_args['zdroj']
+  else:
+    zdroj = None
 ---
 include:
   - t_mail.yml
@@ -167,6 +170,10 @@ question: |
 subquestion: |
   Vzor Vám společné s manuálem pošleme na e-mail.
   *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
+  
+  % if Podani.forma == "email":
+  ${ action_button_html(url_of('mailto:adresa@uradu.cz', subject='Žádost o informace', body=zadost_md.content), label="Otevřít v přímo v e-mailu", color="info", icon="envelope-open-text") }
+  % endif
 
   % if user_has_privilege('admin'):
   [Stáhnout](${ vzor.url_for() })
@@ -202,3 +209,6 @@ attachment:
   docx template file: 106.docx
   valid formats:
     - docx
+---
+template: zadost_md
+content file: 106.md
