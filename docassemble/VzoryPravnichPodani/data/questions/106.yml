@@ -172,7 +172,7 @@ subquestion: |
   *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
   
   % if Podani.forma == "email":
-  ${ action_button_html(url_of('mailto:adresa@uradu.cz', subject='Žádost o informace', body=zadost_md.content), label="Otevřít v přímo v e-mailu", color="info", icon="envelope-open-text") }
+  ${ action_button_html(url_of('mailto:adresa@uradu.cz', subject='Žádost o informace', body=zadost_md.content), label="Otevřít přímo v e-mailu", color="info", icon="envelope-open-text") }
   % endif
 
   % if user_has_privilege('admin'):
@@ -185,6 +185,8 @@ fields:
       % if defined('Podatel.email'):
       ${ Podatel.email }
       % endif
+  - Chci za 15 dní poslat e-mail s informacemi pro případ odmítnutí žádosti: reminder
+    datatype: yesno
   - Přihlásit k odběru novinek: novinky
     datatype: yesno
 ---
