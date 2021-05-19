@@ -97,7 +97,10 @@ code: |
     Adresat.name.text
   else:
     Adresat.name.text = vystup_urad['NazevOsoby']
-    Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+    if vystup_urad['AdresaSidla']['CisloOrientacni']:
+      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+    else:
+      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
     Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
     Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
     Adresat.idds = vystup_urad['ISDS']

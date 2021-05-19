@@ -66,7 +66,10 @@ code: |
 code: |
   vystup = overitUrad(kraj, "ICO")
   Adresat.name.text = vystup['Nazev'] +" - Krajský úřad"
-  Adresat.ulice = vystup['AdresaUradu']['UliceNazev'] +" "+ vystup['AdresaUradu']['CisloDomovni'] +"/"+ vystup['AdresaUradu']['CisloOrientacni']
+  if vystup_urad['AdresaSidla']['CisloOrientacni']:
+    Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+  else:
+    Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
   Adresat.psc = vystup['AdresaUradu']['PSC']
   Adresat.obec = vystup['AdresaUradu']['ObecNazev']
   Adresat.idds = vystup['IdDS']
