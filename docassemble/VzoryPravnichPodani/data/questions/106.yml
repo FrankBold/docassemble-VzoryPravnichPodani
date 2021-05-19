@@ -28,6 +28,20 @@ code: |
   nazev = "Žádost o informace"
   if 'zdroj' in url_args:
     zdroj = url_args['zdroj']
+    if 'urad' in url_args:
+      Adresat.name.text = url_args['urad']
+    if 'uradUlice' in url_args:
+      Adresat.ulice = url_args['uradUlice']
+    if 'uradPSC' in url_args:
+      Adresat.psc = url_args['uradPSC']
+    if 'uradObec' in url_args:
+      Adresat.obec = url_args['uradObec']
+    if 'uradIDDS' in url_args:
+      Adresat.idds = url_args['uradIDDS']
+    if 'smlouvaDatum' in url_args:
+      Podani.smlouvaDatum = url_args['smlouvaDatum']
+    if 'smlouvaCislo' in url_args:
+       Podani.smlouvaCislo = url_args['smlouvaCislo']
   else:
     zdroj = None
 ---
