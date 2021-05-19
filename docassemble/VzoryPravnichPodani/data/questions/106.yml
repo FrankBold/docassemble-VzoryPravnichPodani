@@ -120,11 +120,12 @@ ga id: obsahZadosti
 question: |
   Jaké informace požadujete?
 fields:
-  - Formy činnosti spolku: obsah
+  - no label: obsah
     datatype: area
     hint: jednotlivé položky oddělte novým řádkem
-    label: Jaké informace nemohu požadovat?
-      content: |
+help:
+  label: Jaké informace nemohu požadovat?
+  content: |
         Definice informace podle informačního zákona je velmi široká. **Informací** je jakýkoliv obsah nebo jeho část v jakékoliv podobě. Informace mohou být zaznamenány na jakémkoliv nosiči. Zejména jde o obsah:
 
         * písemného záznamu na listině (např. stavební povolení),
@@ -160,8 +161,6 @@ fields:
         * informace, které významně nebo přímo ohrožují účinnost bezpečnostního opatření stanoveného na základě zvláštního předpisu pro účel ochrany bezpečnosti osob, majetku a veřejného pořádku.
         * informace, jejichž poskytnutí významně nebo přímo ohrožuje výkon zahraniční služby při ochraně zájmu České republiky a jejích občanů v zahraničí.
 ---
-code: |
-
 # Způsob obdržení
 ga id: zpusobObdrzeni
 question: |
@@ -204,9 +203,12 @@ fields:
       variable: Podani.prilohy
       is: true
 ---
-# Rozdělení příloh na seznam
+# Rozdělení obsahu na jednotlivé položky. Samostatně, protože ne vždy to potřebujeme
 code: |
   Podani.obsah = string_pole(obsah)
+---
+# Rozdělení příloh na seznam
+code: |
   Podani.prilohySeznam = string_pole(prilohy)
 ---
 # Odeslání souborů
