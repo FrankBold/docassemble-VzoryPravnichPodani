@@ -115,6 +115,53 @@ fields:
   - Datum uzavření smlouvy: Podani.smlouvaDatum
     datatype: date
 ---
+# Obecné pole pro obsah žádosti
+ga id: obsahZadosti
+question: |
+  Jaké informace požadujete?
+fields:
+  - Formy činnosti spolku: obsah
+    datatype: area
+    hint: jednotlivé položky oddělte novým řádkem
+    label: Jaké informace nemohu požadovat?
+      content: |
+        Definice informace podle informačního zákona je velmi široká. **Informací** je jakýkoliv obsah nebo jeho část v jakékoliv podobě. Informace mohou být zaznamenány na jakémkoliv nosiči. Zejména jde o obsah:
+
+        * písemného záznamu na listině (např. stavební povolení),
+        * záznamu uloženého v elektronické podobě (např. záznam o prodeji určitého pozemku) nebo
+        * záznamu zvukového, obrazového nebo audiovizuálního (např. audiovizuální záznam ze zasedání zastupitelstva).
+
+        ### Jaké informace můžete od povinných subjektů požadovat?
+        Pro všechny platí, že jsou povinny vám poskytnout **pouze ty informace, které se vztahují k jejich působnosti.** Povinnost poskytovat informace se také netýká dotazů na názory a budoucí rozhodnutí. Povinný subjekt tak nemusí na vaši žádost vytvářet nové informace. O tom, co spadá pod působnost povinného subjektu a kdy je uvedený důvod pro odmítnutí žádosti oprávněný, pojednává náš manuál [Musí úřad zjistit informaci, kterou nemá?](https://frankbold.org/poradna/pravo-na-informace/pravo-na-informace/informace-a-urady/rada/musi-urad-zjistit-informaci-kterou-nema)
+
+        Informační zákon obsahuje výčet informací, na jejichž poskytování **se nevztahuje**. Pomocí žádosti o informace například nezískáte informace o vynálezech, průmyslových známkách a ochranných známkách.
+
+        Informační zákon se také nevztahuje na informace, jejichž poskytování upravuje komplexně jiný zákon. Komentářová literatura uvádí, že tento jiný zákon zároveň musí upravovat režim, jak se bránit, pokud vám informace nebyly poskytnuty. Tak tomu je například v případě, kdy se vaše žádost týká kompletního spisu či jeho podstatné části. V takovém případě se nepoužije úprava informačního zákona, ale použije se ustanovení [§ 38 správního řádu](https://www.zakonyprolidi.cz/cs/2004-500#p38), které upravuje nahlížení do spisu. To znamená, že v tomto rozsahu budete moci informace získat pouze nahlížením do spisu, nikoli žádostí o informace.
+
+        ## Kdy vám povinný subjekt informace neposkytne?
+        Všechny důvody pro neposkytnutí informací včetně jejich popisu naleznete v našem manuálu [Obvyklé důvody neposkytnutí informací](https://frankbold.org/poradna/pravo-na-informace/pravo-na-informace/proces-ziskani-a-poskytnuti-informace/rada/obvykle-duvody-neposkytnuti-informaci).
+        ### Které informace vám povinný subjekt nesmí poskytnout?
+        Podle [§§ 7 a násl. informačního zákona](https://www.zakonyprolidi.cz/cs/1999-106#p7) vám povinný subjekt nesmí poskytnout zejména:
+
+        * **utajované informace**,
+        * informace **týkající se osobnosti** (ty se poskytují jen v souladu s právními předpisy upravujícími jejich ochranu),
+        * **obchodní tajemství**,
+        * informace **o majetkových poměrech osoby, která není povinným subjektem**,
+        * informace **vzniklé bez použití veřejných prostředků**, která byly předány osobou, jíž takovou povinnost zákon neukládá (pokud tato osoba s poskytnutím informace nesouhlasila),
+        * informace, které **povinný subjekt získal od třetí osoby při plnění úkolů v rámci kontrolní, dozorové, dohledové nebo obdobné činnosti**, jež prováděl na základě zvláštního právního předpisu,
+        * informace **o probíhajícím trestním řízení**,
+        * informace **o činnosti orgánů činných v trestním řízení**,
+        * informace **o rozhodovací činnosti soudů** s výjimkou rozsudků,
+        * informace, které jsou **předmětem ochrany autorského práva**, pokud jsou v držení zákonem vymezených osob.
+        ### Které informace vám povinný subjekt nemusí poskytnout?
+        * Informace, které se **vztahují výlučně k vnitřním pokynům a personálním předpisům** povinného subjektu.
+        * **Nové informace, která vznikly při přípravě rozhodnutí povinného subjektu** (pokud zákon nestanoví jinak). To platí jen do doby, kdy se příprava ukončí rozhodnutím.
+        * Informace získané od NATO nebo EU, které jsou v zájmu bezpečnosti státu, veřejné bezpečnosti nebo ochrany práv třetích osob chráněné zákonem stanoveným označením.
+        * informace, které významně nebo přímo ohrožují účinnost bezpečnostního opatření stanoveného na základě zvláštního předpisu pro účel ochrany bezpečnosti osob, majetku a veřejného pořádku.
+        * informace, jejichž poskytnutí významně nebo přímo ohrožuje výkon zahraniční služby při ochraně zájmu České republiky a jejích občanů v zahraničí.
+---
+code: |
+
 # Způsob obdržení
 ga id: zpusobObdrzeni
 question: |
@@ -159,6 +206,7 @@ fields:
 ---
 # Rozdělení příloh na seznam
 code: |
+  Podani.obsah = string_pole(obsah)
   Podani.prilohySeznam = string_pole(prilohy)
 ---
 # Odeslání souborů
@@ -170,7 +218,7 @@ question: |
 subquestion: |
   Vzor Vám společné s manuálem pošleme na e-mail.
   *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
-  
+
   % if Podani.forma == "email":
   ${ action_button_html(url_of('mailto:adresa@uradu.cz', subject='Žádost o informace', body=zadost_md.content), label="Otevřít přímo v e-mailu", color="info", icon="envelope-open-text") }
   % endif
