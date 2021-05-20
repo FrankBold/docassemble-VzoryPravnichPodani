@@ -33,20 +33,20 @@ subquestion: |
   V rámci tvorby statistiky o **využívání práva na informace**, bychom vás chtěli požádat o pár informací. Tyto údaje jsou ukládány **anonymně** bez spojitosti s vaší žádostí o informace.
 
 fields:
-  - O informaci žádám v rámci: tazatel
+  - O informaci žádám v rámci: stast_tazatel
     datatype: checkboxes
     choices:
       - Ve veřejném zájmu
       - Soukromého zájmu
       - Práce
-  - Žádost o informace podávám: cetnost
+  - Žádost o informace podávám: stats_cetnost
     datatype: radio
     choices:
       - Poprvé
       - Po několikáté
       - Běžně
-continue button field: stats
-continue button label: Odeslat
+continue button field: final_stats
+continue button label: Odeslat a ukončit
 action buttons:
   - label: Ukončit průvodce bez odeslání
     action: https://frankbold.org
@@ -55,6 +55,5 @@ action buttons:
 event: final_stats
 code: |
   import requests
-  stats
-  webhook_stats = requests.post('https://hook.integromat.com/02ynpnmau68tov733a2tpvdu2hujb16c', data={'Tazatel': tazatel, 'Četnost': cetnost})
+  webhook_stats = requests.post('https://hook.integromat.com/02ynpnmau68tov733a2tpvdu2hujb16c', data={'Tazatel': stats_tazatel, 'Četnost': stats_cetnost})
   command('exit', url='https://frankbold.org')
