@@ -48,7 +48,8 @@ code: |
   if random.random() < 0.5:
     final_fr
   else:
-    stast_tazatel
+    stats_tazatel
+    final_stats
 ---
 include:
   - t_mail.yml

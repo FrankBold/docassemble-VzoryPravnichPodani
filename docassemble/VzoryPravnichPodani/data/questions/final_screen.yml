@@ -33,7 +33,7 @@ subquestion: |
   V rámci tvorby statistiky o **využívání práva na informace**, bychom vás chtěli požádat o pár informací. Tyto údaje jsou ukládány **anonymně** bez spojitosti s vaší žádostí o informace.
 
 fields:
-  - O informaci žádám v rámci: stast_tazatel
+  - O informaci žádám v rámci: stats_tazatel
     datatype: checkboxes
     choices:
       - Ve veřejném zájmu
@@ -45,7 +45,6 @@ fields:
       - Poprvé
       - Po několikáté
       - Běžně
-continue button field: final_stats
 continue button label: Odeslat a ukončit
 action buttons:
   - label: Ukončit průvodce bez odeslání
