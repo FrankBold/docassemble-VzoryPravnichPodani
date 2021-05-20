@@ -119,6 +119,7 @@ code: |
     Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
     Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
     Adresat.idds = vystup_urad['ISDS']
+  final_fr
 ---
 # Předmět Odvolání
 ga id:  rozhodnuti

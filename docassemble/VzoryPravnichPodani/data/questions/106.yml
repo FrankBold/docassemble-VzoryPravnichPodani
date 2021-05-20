@@ -23,6 +23,7 @@ objects:
 ---
 mandatory: True
 code: |
+  import random
   multi_user = True
   nabidkaFBA = True
   nazev = "Žádost o informace"
@@ -44,6 +45,11 @@ code: |
        Podani.smlouvaCislo = url_args['smlouvaCislo']
   else:
     zdroj = None
+  if random.random() < 0.5:
+    final_fr
+  else:
+    final_stats
+
 ---
 include:
   - t_mail.yml
@@ -106,6 +112,7 @@ fields:
 if: |
   rucne == False
 code: |
+  import random
   vystup_urad = uradDleDatovky(Adresat.idds)
   if vystup_urad == "chyba":
     rucne = True
@@ -120,6 +127,10 @@ code: |
     Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
     Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
     Adresat.idds = vystup_urad['ISDS']
+  if random.random() < 0.5:
+    final_fr
+  else:
+    final_stats
 ---
 # Předmět podnětu
 ga id:  smlouva

@@ -32,6 +32,7 @@ code: |
   multi_user = True
   nabidkaFBA = False
   nazev = "Podnět k provedení kontroly obce"
+  final_fr
 ---
 # Otázky
 # Působnost předmětu kontroly

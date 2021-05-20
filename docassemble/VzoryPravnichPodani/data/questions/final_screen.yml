@@ -1,34 +1,60 @@
-mandatory: True
-id: final_screen
+id: final_fr
 need: vseHotovo
 question: |
   Úspěšně odesláno!
 subquestion: |
+  Dokumenty jsme odeslali na e-mail: **${ email }** Pokud je v e-mailu chyba, klikněte níže na *zpět* a zadejte adresu znovu.
+
   Děkujeme, že jste využili náš nástroj. Kdyby Vám dokumenty na e-mail nedorazily, napiště na [servis@frankbold.org](mailto:servis@frankbold.org) a napravíme to.
 
-  Tento nástroj je zdarma díky <strong>podpoře donorů</strong>. Pomozte jej takový udržet.
+  ---
 
-  ${ action_button_html("https://frankbold.org/podporte-nas?pAuto&utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Podpořím darem", color="secondary", icon="hand-holding-heart", block="True") }
-  <br><br>
-  Podporu <strong>49 Kč</strong> můžete též zaslat, pomocí QR kódu:
-  [QR SPD*1.0*ACC:CZ4520100000002401874285*AM:49*CC:CZK*MSG:QR - vzor*X-KS:0125*RN:Frank Bold Society z.s., 200px]
-  </td><td>
-  Pokud chcete sepsat dokument přímo na míru či v řízení zastupovat, můžete využít placených služeb Frank Bold Advokáti.
+  Tento nástroj je zdarma díky <strong>podpoře [dárců](https://frankbold.org/o-nas/darci)</strong>. Pomozte jej takový udržet.
 
-  ${ action_button_html("https://fbadvokati/kontakt?utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }", label="Navštívit web advokátů", color="light", icon="external-link-alt", block="True") }
-  </td></tr></table>
-buttons:
-  - Ukončit průvodce: leave
-    url: https://frankbold.org/
-css: |
-  <style>
-  .btn-dark {
-    background-color: #D70B3B;
-    border-color: #D70B3B;
-    }
-  .btn-light {
-    color: white;
-    background-color: #C2B07C;
-    border-color: #C2B07C;
-    }
-  </style>
+action buttons:
+  - label: Podpořím darem
+    action: https://frankbold.org/podporte-nas?pAuto&utm_source=Servis&utm_medium=appka&utm_campaign=fundraising&utm_content=vzor-${ all_variables(special='metadata')['short title'] }
+    color: secondary
+    icon: hand-holding-heart
+  - label: Ukončit průvodce
+    action: https://frankbold.org
+    color: light
+---
+need: vseHotovo
+question: |
+  Úspěšně odesláno!
+subquestion: |
+  Dokumenty jsme odeslali na e-mail: **${ email }** Pokud je v e-mailu chyba, klikněte níže na *zpět* a zadejte adresu znovu.
+
+  Děkujeme, že jste využili náš nástroj. Kdyby Vám dokumenty na e-mail nedorazily, napiště na [servis@frankbold.org](mailto:servis@frankbold.org) a napravíme to.
+
+  ---
+
+  V rámci tvorby statistiky o **využívání práva na informace**, bychom vás chtěli požádat o pár informací. Tyto údaje jsou ukládány **anonymně** bez spojitosti s vaší žádostí o informace.
+
+fields:
+  - O informaci žádám v rámci: tazatel
+    datatype: checkboxes
+    choices:
+      - Ve veřejném zájmu
+      - Soukromého zájmu
+      - Práce
+  - Žádost o informace podávám: cetnost
+    datatype: radio
+    choices:
+      - Poprvé
+      - Po několikáté
+      - Běžně
+continue button field: stats
+continue button label: Odeslat
+action buttons:
+  - label: Ukončit průvodce bez odeslání
+    action: https://frankbold.org
+    color: light
+---
+event: final_stats
+code: |
+  import requests
+  stats
+  webhook_stats = requests.post('https://hook.integromat.com/02ynpnmau68tov733a2tpvdu2hujb16c', data={'Tazatel': tazatel, 'Četnost': cetnost})
+  command('exit', url='https://frankbold.org')
