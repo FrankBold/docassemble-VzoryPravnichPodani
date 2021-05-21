@@ -39,6 +39,7 @@ code: |
         oduvodnit = True
         if "final_arg" in vychoziData:
           Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
+  final_fr
 ---
 include:
   - t_mail.yml
@@ -104,7 +105,6 @@ code: |
     Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
     Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
     Adresat.idds = vystup_urad['ISDS']
-  final_fr
 ---
 # Předmět stížnosti
 ga id:  rozhodnuti
