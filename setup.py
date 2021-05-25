@@ -43,7 +43,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.VzoryPravnichPodani',
-      version='0.0.5',
+      version='0.0.6',
       description=('Interaktivní varianty vzorů právních podání'),
       long_description='# docassemble.VzoryPravnichPodani\r\n\r\nInteraktivní varianty vzorů právních podání\r\n\r\n## Author\r\n\r\nSystem Administrator, admin@admin.com\r\n\r\n',
       long_description_content_type='text/markdown',

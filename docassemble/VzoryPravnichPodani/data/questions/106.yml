@@ -45,6 +45,7 @@ code: |
        Podani.smlouvaCislo = url_args['smlouvaCislo']
   else:
     zdroj = None
+  novinky
   if random.random() < 0.5:
     final_fr
   else:
@@ -249,10 +250,6 @@ subquestion: |
   Vzor Vám společné s manuálem pošleme na e-mail.
   *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
 
-  % if Podani.forma == "email":
-  ${ action_button_html(url_of('mailto:adresa@uradu.cz', subject='Žádost o informace', body=zadost_md.content), label="Otevřít přímo v e-mailu", color="info", icon="envelope-open-text") }
-  % endif
-
   % if user_has_privilege('admin'):
   [Stáhnout](${ vzor.url_for() })
   % endif
@@ -273,7 +270,7 @@ event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Zadost_o_informace_Komentar.pdf')])
+  emailOdeslan = send_email(email, template=t_vzor_106, attachments=[vzor.docx, vzor.pdf, vzorPDF,DAStaticFile(filename='Zadost_o_informace_Komentar.pdf')])
   if novinky:
     ecomail = addEcomail(email, "12", "Zadost o informace")
   if emailOdeslan:
@@ -289,6 +286,7 @@ attachment:
   docx template file: 106.docx
   valid formats:
     - docx
+    - pdf
 ---
 template: zadost_md
 content file: 106.md
