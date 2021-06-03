@@ -44,7 +44,7 @@ code: |
     if 'smlouvaCislo' in url_args:
        Podani.smlouvaCislo = url_args['smlouvaCislo']
   else:
-    zdroj = None
+    zdroj
   novinky
   if random.random() < 0.5:
     final_fr
@@ -152,6 +152,12 @@ fields:
   - no label: obsah
     datatype: area
     hint: jednotlivé položky oddělte novým řádkem
+  - Předpřipravené varianty: zdroj
+    choices:
+      - O smlouvě: HS
+      - Stavební povolení: stavba
+      - Prováděná měření hluku: hluk
+    disable others: True
 help:
   label: Jaké informace nemohu požadovat?
   content: |
@@ -189,6 +195,17 @@ help:
         * Informace získané od NATO nebo EU, které jsou v zájmu bezpečnosti státu, veřejné bezpečnosti nebo ochrany práv třetích osob chráněné zákonem stanoveným označením.
         * informace, které významně nebo přímo ohrožují účinnost bezpečnostního opatření stanoveného na základě zvláštního předpisu pro účel ochrany bezpečnosti osob, majetku a veřejného pořádku.
         * informace, jejichž poskytnutí významně nebo přímo ohrožuje výkon zahraniční služby při ochraně zájmu České republiky a jejích občanů v zahraničí.
+---
+# Typ objektu a adresa
+question: |
+  O jaký objekt se jedná?
+fields:
+  - Označení objektu: Podani.typ_objektu
+    hint: |
+      Např.: Výrobna asfaltových směsí
+  - Adresa objektu: Podani.adresa_objektu
+    hint: |
+      Ulice čp., psč obec
 ---
 # Způsob obdržení
 ga id: zpusobObdrzeni
