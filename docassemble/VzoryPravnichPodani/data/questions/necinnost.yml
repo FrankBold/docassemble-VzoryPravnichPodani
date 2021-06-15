@@ -1,0 +1,287 @@
+metadata:
+  title: Opatření proti nečinnosti
+  short title: necinnost
+  description: Průvodce řešením nečinnosti úřadu ve správním řízení.
+  authors:
+    - name: Michal Kuk
+      organization: Frank Bold Society
+  revision_date: 2021-05-15
+---
+features:
+  question help button: True
+---
+modules:
+  - .integrace
+  - .overovac
+  - .utility
+---
+objects:
+  - Podatel: Person.using(nazev="podatele")
+  - Adresat: Organization
+  - Adresat.nadrizeny: Organization
+  - Podani: Thing
+  - Rizeni: Thing
+  - Komentar: DAFileCollection
+---
+mandatory: True
+code: |
+  nabidkaFBA = True
+  nazev = "Nečinnost ve správním řízení"
+  nadrizeny = False
+  if 'idFile' in url_args:
+    vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
+  final_fr
+---
+include:
+  - t_mail.yml
+  - objektPerson.yml
+  - final_screen.yml
+---
+ga id: typRizeni
+question: |
+  Fáze správního řizení
+subquestion: |
+  Druh právního podání je odvyslý od stádia správního řízení. Následující otázky nám pomohou určit vhodný postup pro vaší situaci.
+fields:
+  - Bylo již zahájeno řízení?: Rizeni.zahajeno
+    input type: yesnoradio
+  - Jste účastníkem řízení?: Rizeni.ucastnik
+    input type: yesnoradio
+    show if: Rizeni.zahajeno
+---
+sets: Podani.typ
+code: |
+  if Rizeni.zahajeno and Rizeni.ucastnik:
+    Podani.typ = 'zadost'
+  else:
+    Podani.typ = 'podnet'
+---
+# Otázky
+# Úřad, který příkaz vydal
+ga id: adresat
+question: |
+  Kontaktní údaje úřadů
+subquestion: |
+  Podání adresujete úřadu, která je nadřízený tomu nečinnému. Zároveň je zasíláno na vědomí nečinnému úřadu. Pokud si nejse jisti, kdo je nadřízeným orgánem můžete se podívat na portál [StátníSpráva.cz](https://www.statnisprava.cz/rstsp/redakce.nsf/i/home).
+fields:
+  - Způsob zadání nečinného úřadu: rucne
+    input type: radio
+    choices:
+        - Vyplním orgán ručně: True
+        - Dle ID datové schránky: False
+  - ID datové schránky: Adresat.idds
+    show if:
+      variable: rucne
+      is: False
+  - Způsob zadání nadřízeného úřadu: nadrizeny_rucne
+    input type: radio
+    choices:
+        - Vyplním orgán ručně: True
+        - Dle ID datové schránky: False
+  - ID datové schránky: Adresat.nadrizeny.idds
+    show if:
+      variable: nadrizeny_rucne
+      is: False
+---
+ga id: adresatRucne
+if: |
+  rucne
+question: |
+  Identifikační údaje **nečinného** úřadu
+subquestion: |
+  % if defined('hlaska'):
+  <div class="alert alert-warning">
+  Bohužel se nepodařilo údaje doplnit automaticky. Zadejte je prosím ručně.
+  </div>
+  % endif
+fields:
+  - Název orgánu: Adresat.name.text
+  - Oddělení: Adresat.oddeleni
+    required: False
+  - Ulice a čp: Adresat.ulice
+  - Obec: Adresat.obec
+  - PSČ: Adresat.psc
+  - ID DS: Adresat.idds
+    show if:
+      code: |
+        Podani.forma == 'datovka'
+---
+ga id: adresatRucne
+if: |
+  nadrizeny_rucne
+question: |
+  Identifikační údaje **nadřízeného** úřadu
+subquestion: |
+  % if defined('hlaska'):
+  <div class="alert alert-warning">
+  Bohužel se nepodařilo údaje doplnit automaticky. Zadejte je prosím ručně.
+  </div>
+  % endif
+fields:
+  - Název orgánu: Adresat.nadrizenyname.text
+  - Oddělení: Adresat.nadrizeny.oddeleni
+    required: False
+  - Ulice a čp: Adresat.nadrizeny.ulice
+  - Obec: Adresat.nadrizeny.obec
+  - PSČ: Adresat.nadrizeny.psc
+  - ID DS: Adresat.nadrizeny.idds
+    show if:
+      code: |
+        Podani.forma == 'datovka'
+---
+# Získání údajů o nečinném úřadu
+if: |
+  rucne == False
+code: |
+  vystup_urad = uradDleDatovky(Adresat.idds)
+  if vystup_urad == "chyba":
+    rucne = True
+    hlaska = True
+    Adresat.name.text
+  else:
+    Adresat.name.text = vystup_urad['NazevOsoby']
+    if vystup_urad['AdresaSidla']['CisloOrientacni']:
+      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+    else:
+      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
+    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
+    Adresat.idds = vystup_urad['ISDS']
+---
+# Získání údajů o nadřízeném úřadu
+if: |
+  nadrizeny_rucne == False
+code: |
+  vystup_urad = uradDleDatovky(Adresat.nadrizeny.idds)
+  if vystup_urad == "chyba":
+    rucne = True
+    hlaska = True
+    Adresat.nadrizeny.name.text
+  else:
+    Adresat.nadrizeny.name.text = vystup_urad['NazevOsoby']
+    if vystup_urad['AdresaSidla']['CisloOrientacni']:
+      Adresat.nadrizeny.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+    else:
+      Adresat.nadrizeny.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+    Adresat.nadrizeny.psc = vystup_urad['AdresaSidla']['PostaKod']
+    Adresat.nadrizeny.obec = vystup_urad['AdresaSidla']['ObecNazev']
+    Adresat.nadrizeny.idds = vystup_urad['ISDS']
+---
+# Předmětné řízení - Žádost
+ga id: rizeni
+if: |
+  Podani.typ == 'zadost'
+question: |
+  Popis řízení a nečinnosti.
+fields:
+  - Datum zahájení řízení: Rizeni.datumZahajeni
+  - Číslo jednací: Rizeni.cisloJednaci
+  - Popis nečinnosti: Rizeni.necinnostPopis
+    input type: area
+    default: |
+      Úřad v zákonné lhůtě nevydal rozhodnutí, ani v řízení neučinil žádné jiné úkony.
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: rizeni_zadost_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: rizeni_zadost_pozdeji
+code: |
+  Rizeni.cisloJednaci = "[Číslo jednací]"
+  Rizeni.datumZahajeni = "[Datum doručení]"
+  Rizeni.necinnostPopis = "[V čem nečinnost spočívá]"
+---
+# Předmětné řízení _ Podnět
+ga id: rizeni
+if: |
+  Podani.typ == 'podnet'
+question: |
+  Ať se již jedná o řízení, které měl úřad zahájit z úřední povinnosti, či na základě podaného návrhu, je důležité datum, od kterého je úřad nečinný.
+fields:
+  - Kdy se úřad o věci dozvěděl? : Rizeni.datumZahajeni
+  - Předmět řízení: Rizeni.predmet
+    hint: |
+      o odstranění černé stavby
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: rizeni_podnet_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: rizeni_podnet_pozdeji
+code: |
+  Rizeni.predmet = "[Předmět řízení]"
+  Rizeni.datumZahajeni = "[Datum]"
+---
+# Prilohy
+ga id: zpusobOdeslani
+question: |
+  Odeslání odvolání
+fields:
+  - Jak budete odvolání odesílat?: Podani.forma
+    input type: radio
+    choices:
+      - Poštou / Předám osobně: posta
+      - Datovou schránkou: datovka
+#      - E-mailem (s ověřeným el. podpisem): email
+  - Chcete přikládat přílohy: Podani.prilohy
+    datatype: yesnoradio
+  - Seznam příloh: prilohy
+    input type: area
+    hint: |
+      Jednotlivé položky oddělte "enterem".
+    help: |
+      Například „Podnět k zahájení řízení“ či „Vyrozumění o zahájení řízení“.
+    show if:
+      variable: Podani.prilohy
+      is: true
+---
+# Rozdělení příloh na seznam
+code: |
+  Podani.prilohySeznam = string_pole(prilohy)
+---
+# Odeslání souborů
+need: vzor
+id: souboryKeStazeni
+progress: 100
+question: |
+  Vaš vzor je připraven
+subquestion: |
+  Vzor Vám společné s manuálem k jeho kontrole pošleme na e-mail.
+
+  % if user_has_privilege('admin'):
+  [Stáhnout](${ vzor.url_for() })
+  % endif
+fields:
+  - Váš e-mail: email
+    datatype: email
+  - Přihlásit k odběru novinek: novinky
+    datatype: yesno
+---
+# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
+event: odeslatEmail
+sets: vseHotovo
+code: |
+  vzor
+  if Podani.typ == 'podnet':
+    emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Necinnost_Podnet_Komentar.pdf')])
+  else:
+    emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Necinnost_Zadost_Komentar.pdf')])
+  if novinky:
+    ecomail = addEcomail(email, "12", "Nečinnost ve správním řízení")
+  if emailOdeslan:
+    vseHotovo = True
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+  else:
+    neodeslano
+---
+attachment:
+  name: Nečinnost ve správním řízení
+  filename: Nečinnost
+  variable name: vzor
+  docx template file: Necinnost.docx
+  valid formats:
+    - docx
