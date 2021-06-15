@@ -27,7 +27,7 @@ mandatory: True
 code: |
   nabidkaFBA = True
   nazev = "Nečinnost ve správním řízení"
-  nadrizeny = False
+  Podani.typ
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
   final_fr
@@ -44,9 +44,9 @@ subquestion: |
   Druh právního podání je odvyslý od stádia správního řízení. Následující otázky nám pomohou určit vhodný postup pro vaší situaci.
 fields:
   - Bylo již zahájeno řízení?: Rizeni.zahajeno
-    input type: yesnoradio
+    datatype: yesnoradio
   - Jste účastníkem řízení?: Rizeni.ucastnik
-    input type: yesnoradio
+    datatype: yesnoradio
     show if: Rizeni.zahajeno
 ---
 sets: Podani.typ
