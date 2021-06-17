@@ -61,12 +61,15 @@ fields:
       **Rozhodnutí o odmínutí žádosti:**
   - Název orgán: Zadost.urad
   - Rozhodnutí ze dne: Zadost.datumVydani
+    datatype: date
   - Číslo jednací: Zadost.cj
   - note: |
       **Rozhodnutí zamítnutí odvolání:**
   - Název orgán: Odvolani.urad
   - Rozhodnutí ze dne: Odvolani.datumVydani
+    datatype: date
   - Datum doručení rozhodnutí: Odvolani.datumDoruceni
+    datatype: date
     help: |
       Úřad může přezkumné řízení zahájit  nejpozději jeden rok od právní účinnosti rozhodnutí o odvolání. Právní moci rozhodnutí nabývá právě doručením.
   - Číslo jednací: Odvolani.cj
@@ -127,7 +130,7 @@ fields:
   - Chcete přikládat přílohy: Podani.prilohy
     datatype: yesnoradio
   - note: |
-      Je praktické přiložit kopii napadených rozhodnutí a usnadníte tím posouzení podnětu. Nejde však o povinnost, úřad si je případně může vyžádat.
+      Je praktické přiložit kopii napadených rozhodnutí. Usnadníte tím posouzení podnětu. Nejde však o povinnost, úřad si je případně může vyžádat.
   - Seznam příloh: prilohy
     input type: area
     hint: |
