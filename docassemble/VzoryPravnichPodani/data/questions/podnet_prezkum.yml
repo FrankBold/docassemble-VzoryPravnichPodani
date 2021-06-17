@@ -1,0 +1,181 @@
+metadata:
+  title: Podnět z přezkumu
+  short title: podnet_prezkum
+  description: Podnět k zahájení přezkumného řízení.
+  authors:
+    - name: Michal Kuk
+      organization: Frank Bold Society
+  revision_date: 2021-06-17
+---
+features:
+  question help button: True
+---
+modules:
+  - .integrace
+  - .overovac
+  - .utility
+---
+objects:
+  - Podatel: Person.using(nazev="podatele")
+  - Adresat: Organization
+  - Podani: Thing
+  - Zadost: Thing
+  - Odvolani: Thing
+  - Komentar: DAFileCollection
+---
+mandatory: True
+code: |
+  nabidkaFBA = True
+  nazev = "Podnět k provedení přezkumného řízení"
+  if 'idFile' in url_args:
+    vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
+    typRizeni = url_args['typ']
+  final_fr
+---
+include:
+  - t_mail.yml
+  - objektPerson.yml
+  - final_screen.yml
+---
+ga id: typRizeni
+question: |
+  Druh řízení
+subquestion: |
+  Pro některá řízení máme připraven specifický obsah podnětu. Pokud Vámi vedené řízení není mezi uvedenými, vyberte možnost *jiné správní řízení*.
+fields:
+  - no label: typRizeni
+    input type: radio
+    choices:
+      Žádost o informace: info
+      Jiné správní řízení: obecne
+---
+# Otázky
+# Úřad, který příkaz vydal
+ga id: adresat
+question: |
+  Napadená rozhodnutí
+subquestion: |
+  Úřad pro ochranu osobních údajů může přezkoumat řízení o poskytnutí informací, ve kterých bylo poskytnutí odmítnuto a nadřízený orgán toto odmítnutí potvrdil. V podnětu je potřeba tato napadená rozhodnutí identifikovat.
+fields:
+  - note: |
+      **Rozhodnutí o odmínutí žádosti:**
+  - Název orgán: Zadost.urad
+  - Rozhodnutí ze dne: Zadost.datumVydani
+  - Číslo jednací: Zadost.cj
+  - note: |
+      **Rozhodnutí zamítnutí odvolání:**
+  - Název orgán: Odvolani.urad
+  - Rozhodnutí ze dne: Odvolani.datumVydani
+  - Datum doručení rozhodnutí: Odvolani.datumDoruceni
+    help: |
+      Úřad může přezkumné řízení zahájit  nejpozději jeden rok od právní účinnosti rozhodnutí o odvolání. Právní moci rozhodnutí nabývá právě doručením.
+  - Číslo jednací: Odvolani.cj
+  - note: |
+        [TARGET lhutaKontrola]
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: rozhodnuti_pozdeji
+    color: danger
+    icon: forward
+check in: kontrolaLhuty
+---
+scan for variables: False
+event: rozhodnuti_pozdeji
+code: |
+  Zadost.cj = "[Číslo jednací]"
+  Zadost.datumVydani = "[Datum doručení]"
+  Zadost.urad = "[Název orgánu]"
+  Odvolani.cj = "[Číslo jednací]"
+  Odvolani.datumVydani = "[Datum doručení]"
+  Odvolani.urad = "[Název orgánu]"
+  Odvolani.datumVydani = "[Datum odeslání]"
+---
+# Odůvodnění odvolání
+ga id: oduvodneni
+question: |
+  Odůvodnění rozporu se zákonem
+subquestion: |
+  K podnětu můžete přiložit odůvodnění v čem spatřujete nezákonnost postupu. Nejde nicméně o povinnost, úřad není odůvodněním vázán a musí v každém případě posoudit celé řízení.
+fields:
+  - Chcete uvádět odůvodnění?: oduvodneni
+    datatype: yesnoradio
+  - Odůvodnění: Podani.oduvodneni
+    datatype: area
+    show if: oduvodneni
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: oduvodneni_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: oduvodneni_pozdeji
+code: |
+  Podani.oduvodneni = "[Doplňte odůvodnění odvolání]."
+---
+# Prilohy
+ga id: zpusobOdeslani
+question: |
+  Odeslání odvolání
+fields:
+  - Jak budete odvolání odesílat?: Podani.forma
+    input type: radio
+    choices:
+      - Poštou / Předám osobně: posta
+      - Datovou schránkou: datovka
+#      - E-mailem (s ověřeným el. podpisem): email
+  - Chcete přikládat přílohy: Podani.prilohy
+    datatype: yesnoradio
+  - note: |
+      Je praktické přiložit kopii napadených rozhodnutí a usnadníte tím posouzení podnětu. Nejde však o povinnost, úřad si je případně může vyžádat.
+  - Seznam příloh: prilohy
+    input type: area
+    hint: |
+      Jednotlivé položky oddělte "enterem".
+    show if:
+      variable: Podani.prilohy
+      is: true
+---
+# Rozdělení příloh na seznam
+code: |
+  Podani.prilohySeznam = string_pole(prilohy)
+---
+# Odeslání souborů
+need: vzor
+id: souboryKeStazeni
+progress: 100
+question: |
+  Vaš vzor je připraven
+subquestion: |
+  Vzor vám zašleme na e-mailovou adresu.
+
+  % if user_has_privilege('admin'):
+  [Stáhnout](${ vzor.url_for() })
+  % endif
+fields:
+  - Váš e-mail: email
+    datatype: email
+  - Přihlásit k odběru novinek: novinky
+    datatype: yesno
+---
+# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
+event: odeslatEmail
+sets: vseHotovo
+code: |
+  vzor
+  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
+  if novinky:
+    ecomail = addEcomail(email, "12", "Podnět k přezkumu – 106")
+  if emailOdeslan:
+    vseHotovo = True
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+  else:
+    neodeslano
+---
+attachment:
+  name: Podnět k přezkumu 106
+  filename: Podnět
+  variable name: vzor
+  docx template file: Podnet_prezkum_106.docx
+  valid formats:
+    - docx
