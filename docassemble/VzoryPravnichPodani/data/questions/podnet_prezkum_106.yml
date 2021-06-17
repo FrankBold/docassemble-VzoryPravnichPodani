@@ -21,7 +21,6 @@ objects:
   - Podani: Thing
   - Zadost: Thing
   - Odvolani: Thing
-  - Komentar: DAFileCollection
 ---
 mandatory: True
 code: |
@@ -66,6 +65,8 @@ fields:
   - note: |
       **Rozhodnutí zamítnutí odvolání:**
   - Název orgán: Odvolani.urad
+    hint: |
+      V případě rozhodnutí o rozkladu půjde o stejný úřad.
   - Rozhodnutí ze dne: Odvolani.datumVydani
     datatype: date
   - Datum doručení rozhodnutí: Odvolani.datumDoruceni
@@ -166,7 +167,7 @@ event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
+  emailOdeslan = send_email(email, template=t_vzor_106_podnet, attachments=[vzor])
   if novinky:
     ecomail = addEcomail(email, "12", "Podnět k přezkumu – 106")
   if emailOdeslan:
