@@ -88,7 +88,7 @@ action buttons:
 scan for variables: False
 event: identita_pozdeji
 code: |
-  Podatel.forma = 'FO'
+  Podatel.forma = "FO"
   Podatel.name.text = "[Jméno a příjmení]"
   Podatel.birthday = "[Datum narození]"
   Podatel.address = "[Trvalé bydliště]"

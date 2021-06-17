@@ -153,6 +153,7 @@ fields:
     datatype: area
     hint: jednotlivé položky oddělte novým řádkem
   - Předpřipravené varianty: zdroj
+    input type: combobox
     choices:
       - O smlouvě: HS
       - Stavební povolení: stavba
@@ -195,6 +196,17 @@ help:
         * Informace získané od NATO nebo EU, které jsou v zájmu bezpečnosti státu, veřejné bezpečnosti nebo ochrany práv třetích osob chráněné zákonem stanoveným označením.
         * informace, které významně nebo přímo ohrožují účinnost bezpečnostního opatření stanoveného na základě zvláštního předpisu pro účel ochrany bezpečnosti osob, majetku a veřejného pořádku.
         * informace, jejichž poskytnutí významně nebo přímo ohrožuje výkon zahraniční služby při ochraně zájmu České republiky a jejích občanů v zahraničí.
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: obsah_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: obsah_pozdeji
+code: |
+  obsah = '[Obsah žádosti]'
+  zdroj = None
 ---
 # Typ objektu a adresa
 question: |
@@ -231,7 +243,7 @@ fields:
 # Způsob odeslání
 ga id: zpusobOdeslani
 question: |
-  Odeslání podnětu
+  Odeslání žádosti
 fields:
   - Jak budete podnět odesílat?: Podani.forma
     input type: radio
@@ -287,7 +299,7 @@ event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor_106, attachments=[vzor.docx, vzor.pdf, vzorPDF,DAStaticFile(filename='Zadost_o_informace_Komentar.pdf')])
+  emailOdeslan = send_email(email, template=t_vzor_106, attachments=[vzor.docx, vzor.pdf,DAStaticFile(filename='Zadost_o_informace_Komentar.pdf')])
   if novinky:
     ecomail = addEcomail(email, "12", "Zadost o informace")
   if emailOdeslan:
