@@ -63,6 +63,8 @@ question: |
   Kontaktní údaje úřadů
 subquestion: |
   Podání adresujete úřadu, která je nadřízený tomu nečinnému. Zároveň je zasíláno na vědomí nečinnému úřadu. Pokud si nejse jisti, kdo je nadřízeným orgánem můžete se podívat na portál [StátníSpráva.cz](https://www.statnisprava.cz/rstsp/redakce.nsf/i/home).
+
+  Číslo datové schránky můžete najít na dokumentu z úřadu, či v [seznamku držitelů datových schránek](https://www.mojedatovaschranka.cz/sds/). Ostatní údaje doplníme dle čísla schránky automaticky.
 fields:
   - Způsob zadání nečinného úřadu: rucne
     input type: radio
