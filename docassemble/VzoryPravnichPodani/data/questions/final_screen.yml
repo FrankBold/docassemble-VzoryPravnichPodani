@@ -1,7 +1,7 @@
 event: final_fr
 need: vseHotovo
 question: |
-  Úspěšně odesláno!
+  Úspěšně odesláno
 subquestion: |
   Dokumenty jsme odeslali na e-mail: **${ email }** Pokud je v e-mailu chyba, klikněte níže na *zpět* a zadejte adresu znovu.
 
@@ -22,7 +22,7 @@ action buttons:
 ---
 need: vseHotovo
 question: |
-  Úspěšně odesláno!
+  Úspěšně odesláno
 subquestion: |
   Dokumenty jsme odeslali na e-mail: **${ email }** Pokud je v e-mailu chyba, klikněte níže na *zpět* a zadejte adresu znovu.
 
