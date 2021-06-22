@@ -11,6 +11,7 @@ def addEcomail (email, id, vzor):
   "subscriber_data": {
     "email": "'''+ email +'''",
     "tags": [
+      "OBČAN 2.0",
       "'''+ vzor +'''",
       "Vzor"
     ]

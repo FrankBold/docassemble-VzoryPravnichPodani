@@ -220,7 +220,7 @@ code: |
   vzor
   emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odpor_proti_prikazu_Komentar.pdf')])
   if novinky:
-    ecomail = addEcomail(email, "12", "Odpor proti prikazu")
+    ecomail = addEcomail(email, "96", "Odpor proti prikazu")
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})

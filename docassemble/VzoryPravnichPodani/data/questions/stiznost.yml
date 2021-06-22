@@ -326,7 +326,7 @@ code: |
   vzor
   emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
   if novinky:
-    ecomail = addEcomail(email, "12", "Stiznost")
+    ecomail = addEcomail(email, "96", "Stiznost")
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})

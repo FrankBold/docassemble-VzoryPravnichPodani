@@ -312,7 +312,7 @@ code: |
   else:
     emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Necinnost_Zadost_Komentar.pdf')])
   if novinky:
-    ecomail = addEcomail(email, "12", "Nečinnost ve správním řízení")
+    ecomail = addEcomail(email, "96", "Nečinnost ve správním řízení")
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})

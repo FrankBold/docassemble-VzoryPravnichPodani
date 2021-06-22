@@ -163,7 +163,7 @@ code: |
   vzor
   emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
   if novinky:
-    ecomail = addEcomail(email, "12", "Podnet ke kontrole obce")
+    ecomail = addEcomail(email, "96", "Podnet ke kontrole obce")
   if emailOdeslan:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
