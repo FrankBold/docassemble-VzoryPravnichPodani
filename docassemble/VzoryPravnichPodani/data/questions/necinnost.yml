@@ -108,7 +108,6 @@ fields:
     show if:
       variable: nadrizeny_rucne
       is: False
-    show if: nadrizeny
 ---
 ga id: adresatRucne
 if: |
