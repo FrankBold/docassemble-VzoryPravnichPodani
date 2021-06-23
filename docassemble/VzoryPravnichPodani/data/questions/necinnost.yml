@@ -83,7 +83,7 @@ ga id: adresat
 question: |
   Kontaktní údaje úřadů
 subquestion: |
-  Podání adresujete úřadu, který je nadřízený tomu nečinnému. Zároveň je zasíláno na vědomí nečinnému úřadu. Pokud si nejste jisti, kdo je nadřízeným orgánem, můžete se podívat na portál [StátníSpráva.cz](https://www.statnisprava.cz/rstsp/redakce.nsf/i/home).
+  Podání adresujete úřadu, který je nadřízený tomu nečinnému. Zároveň je zasíláno na vědomí nečinnému úřadu. Pokud si nejste jisti, kdo je nadřízeným orgánem, můžete se podívat na portál [StátníSpráva.cz](https://www.statnisprava.cz/rstsp/redakce.nsf/i/home). Pokud není nadřízený orgán uveden, je možné, že daný úřad žádný nemá. V takovém případě adresujete podání jen jemu.
 
   Číslo datové schránky můžete najít na dokumentu z úřadu, či v [seznamu držitelů datových schránek](https://www.mojedatovaschranka.cz/sds/). Ostatní údaje doplníme dle čísla schránky automaticky.
 fields:
@@ -96,15 +96,19 @@ fields:
     show if:
       variable: rucne
       is: False
+  - Je nečinnému úřadu někdo nadřízen?: nadrizeny
+    datatype: yesnoradio
   - Způsob zadání nadřízeného úřadu: nadrizeny_rucne
     input type: radio
     choices:
         - Vyplním orgán ručně: True
         - Dle ID datové schránky: False
+    show if: nadrizeny
   - ID datové schránky: Adresat.nadrizeny.idds
     show if:
       variable: nadrizeny_rucne
       is: False
+    show if: nadrizeny
 ---
 ga id: adresatRucne
 if: |
