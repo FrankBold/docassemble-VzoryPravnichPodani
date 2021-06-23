@@ -1,4 +1,5 @@
 event: final_fr
+ga id: final_fr
 need: vseHotovo
 question: |
   Úspěšně odesláno
@@ -20,6 +21,7 @@ action buttons:
     action: https://frankbold.org
     color: light
 ---
+ga id: final_stats
 need: vseHotovo
 question: |
   Úspěšně odesláno

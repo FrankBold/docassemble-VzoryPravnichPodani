@@ -62,7 +62,7 @@ template: h_zahajeno
 subject: |
   Jak poznám, zda bylo řízení zahájeno?
 content: |
-  O zahájení řízení se dozvíte z oznámení o zahájení řízení. To vám obvykle dojde poštou. V některých případech (např. pokud má řízení více než 30 účastníků) doručuje se účastníkům na úřední desce, kterou najdete i na internetu. Pokud si nejste jisti, jestli řízení již bylo zahájeno, podejte na daný úřad [žádost o informace](https://frankbold.org/poradna/pravo-na-informace/pravo-na-informace/proces-ziskani-a-poskytnuti-informace/vzor/zadost-o-informace).
+  O zahájení řízení se dozvíte z oznámení o zahájení řízení. To vám obvykle dojde poštou. V některých případech (např. pokud má řízení více než 30 účastníků) se doručuje účastníkům na úřední desce, kterou najdete i na internetu. Pokud si nejste jisti, jestli řízení již bylo zahájeno, podejte na daný úřad [žádost o informace](https://frankbold.org/poradna/pravo-na-informace/pravo-na-informace/proces-ziskani-a-poskytnuti-informace/vzor/zadost-o-informace).
 ---
 template: h_ucastnik
 subject: |
@@ -198,12 +198,16 @@ if: |
   Podani.typ == 'zadost'
 question: |
   Popis řízení a nečinnosti.
+subquestion: |
+  Úřad je povinen vydat rozhodnutí bez zbytečného odkladu, resp. ve lhůtě, kterou stanoví zákon. Nejčastěji půjde o lhůtu 30 dnů od zahájení řízení. Úřad může lhůtu prodloužit, pokud je třeba nařídit ústní jednání nebo místní šetření nebo pokud se jedná o zvlášť složitý případ. Lhůta se také prodlužuje o dobu nutnou k vypracování znaleckého posudku.
 fields:
   - Datum zahájení řízení: Rizeni.datumZahajeni
     datatype: date
   - note: |
       ${ prog_disclose(h_datumZahajeni) }
-  - Číslo jednací: Rizeni.cisloJednaci
+  - Spisová značka řízení: Rizeni.cisloJednaci
+    help: |
+      Spisovou značku najdete na začátku oznámení o zahájení řízení nebo jiného dokumentu od úřadu pod zkratkou „sp. zn.“
   - Popis nečinnosti: Rizeni.necinnostPopis
     input type: area
     default: |
@@ -216,7 +220,7 @@ action buttons:
 ---
 template: h_datumZahajeni
 subject: |
-  Jak poznám, zda bylo řízení zahájeno?
+  Jak poznáte, tedy bylo řízení zahájeno?
 content: |
   Řízení je zahájeno okamžikem, kdy je žadateli doručeno oznámení o zahájení řízení. V některých případech (např. pokud má řízení více než 30 účastníků) se doručuje na úřední desce. V takovém případě se písemnost považuje za doručenou 15. den po vyvěšení na fyzické a zároveň elektronické úřední desce. Pokud jde o řízení, které úřad zahajuje z moci úřední, je řízení zahájeno dnem, kdy úřad zahájení řízení oznámí (doručí) účastníkovi, o jehož právech a povinnostech se v řízení rozhoduje (př. stavebník černé stavby).
 ---
@@ -234,10 +238,18 @@ if: |
 question: |
   Ať se již jedná o řízení, které měl úřad zahájit z úřední povinnosti, či na základě podaného návrhu, je důležité datum, od kterého je úřad nečinný.
 fields:
-  - Kdy se úřad o věci dozvěděl? : Rizeni.datumZahajeni
-    datatype: date
   - Podávali jste podnět k zahájení řízení?: Rizeni.podanPodnet
     datatype: yesnoradio
+  - Kdy jste podnět odesílali: Rizeni.datumOdeslani
+    datatype: date
+    show if: Rizeni.podanPodnet
+  - Kdy se úřad o věci dozvěděl? : Rizeni.datumZahajeni
+    datatype: date
+    show if:
+      variable: Rizeni.podanPodnet
+      is: False
+    help: |
+      Úřad má povinnost zahájit řízení z moci úřední do 30 dní ode dne, kdy se dozvěděl o skutečnostech, které zahájení řízení odůvodňují. O těchto skutečnostech se může dozvědět především ze svého předchozího zjištění nebo z podnětu k zahájení řízení (podle § 42 správního řádu).
   - Předmět řízení: Rizeni.predmet
     hint: |
       o odstranění černé stavby
@@ -259,7 +271,7 @@ question: |
   % if Podani.typ == 'podnet':
   Odeslání podnětu
   % else:
-  Odeslání návrhu
+  Odeslání žádosti
   % endif
 fields:
   - Jak budete podaní odesílat?: Podani.forma
@@ -268,7 +280,7 @@ fields:
       - Poštou / Předám osobně: posta
       - Datovou schránkou: datovka
 #      - E-mailem (s ověřeným el. podpisem): email
-  - Chcete přikládat přílohy: Podani.prilohy
+  - Chcete přikládat přílohy?: Podani.prilohy
     datatype: yesnoradio
   - Seznam příloh: prilohy
     input type: area
