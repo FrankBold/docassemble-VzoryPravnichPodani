@@ -28,12 +28,20 @@ objects:
   - Podani: Thing
   - Obec: Organization
   - Komentar: DAFileCollection
+  - userdata: DAStore
 ---
 mandatory: True
 code: |
   multi_user = True
   nabidkaFBA = False
   nazev = "Podnět k provedení kontroly obce"
+  if userdata.get("prefs"):
+    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
+    Podatel.address = userdata.get("prefs").address
+    Podatel.birthday = userdata.get("prefs").birthday
+    email = userdata.get("prefs").email
+    Podani.odpoved = userdata.get("prefs").odeslani
+    Podatel.idds = userdata.get("prefs").idds
   final_fr
 ---
 # Otázky

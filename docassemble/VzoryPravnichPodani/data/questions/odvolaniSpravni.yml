@@ -24,12 +24,20 @@ objects:
   - Podani: Thing
   - Rozhodnuti: Thing
   - Komentar: DAFileCollection
+  - userdata: DAStore
 ---
 mandatory: True
 code: |
   nabidkaFBA = True
   nazev = "Odvolání proti rozhodnutí"
   nadrizeny = False
+  if userdata.get("prefs"):
+    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
+    Podatel.address = userdata.get("prefs").address
+    Podatel.birthday = userdata.get("prefs").birthday
+    email = userdata.get("prefs").email
+    Podani.odpoved = userdata.get("prefs").odeslani
+    Podatel.idds = userdata.get("prefs").idds
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
     typRizeni = url_args['typ']
