@@ -174,7 +174,7 @@ code: |
     Adresat.name.text
   else:
     Adresat.name.text = vystup_urad['NazevOsoby']
-    if Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev']:
+    if vystup_urad['AdresaSidla']['UliceNazev']:
       if vystup_urad['AdresaSidla']['CisloOrientacni'] and vystup_urad['AdresaSidla']['CisloDomovni']:
         Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
       elif vystup_urad['AdresaSidla']['CisloDomovni']:
