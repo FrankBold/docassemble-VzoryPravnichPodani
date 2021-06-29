@@ -30,7 +30,7 @@ objects:
 ---
 mandatory: True
 code: |
-  nabidkaFBA = True
+  nabidkaFBA = False
   nazev = "Nečinnost ve správním řízení"
   if userdata.get("prefs"):
     Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
@@ -39,9 +39,9 @@ code: |
     email = userdata.get("prefs").email
     Podani.odpoved = userdata.get("prefs").odeslani
     Podatel.idds = userdata.get("prefs").idds
-  Podani.typ
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
+  Podani.typ
   final_fr
 ---
 include:
@@ -273,6 +273,7 @@ action buttons:
 scan for variables: False
 event: rizeni_podnet_pozdeji
 code: |
+  Rizeni.podanPodnet = False
   Rizeni.predmet = "[Předmět řízení]"
   Rizeni.datumZahajeni = "[Datum]"
 ---
@@ -324,23 +325,28 @@ fields:
     datatype: email
   - Přihlásit k odběru novinek: novinky
     datatype: yesno
+continue button field: zavazneOdeslat
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
-sets: vseHotovo
+sets: emailOdeslan
 code: |
   vzor
-  if Podani.typ == 'podnet':
+  if Podani.typ == 'podnet' and zavazneOdeslat:
     emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Necinnost_Podnet_Komentar.pdf')])
-  else:
+  elif Podani.typ == 'zadost' and zavazneOdeslat:
     emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Necinnost_Zadost_Komentar.pdf')])
-  if novinky:
-    ecomail = addEcomail(email, "96", "Nečinnost ve správním řízení")
-  if emailOdeslan:
-    vseHotovo = True
-    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
-  else:
-    neodeslano
+---
+sets: vseHotovo
+need: emailOdeslan
+code: |
+    if novinky:
+      ecomail = addEcomail(email, "96", "Nečinnost ve správním řízení")
+    if emailOdeslan:
+      vseHotovo = True
+      webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    else:
+      neodeslano
 ---
 attachment:
   name: Nečinnost ve správním řízení
