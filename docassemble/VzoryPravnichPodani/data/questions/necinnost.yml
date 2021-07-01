@@ -176,16 +176,16 @@ code: |
     Adresat.name.text = vystup_urad['NazevOsoby']
     if vystup_urad['AdresaSidla']['UliceNazev']:
       if vystup_urad['AdresaSidla']['CisloOrientacni'] and vystup_urad['AdresaSidla']['CisloDomovni']:
-        Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+        Adresat.ulice = str(vystup_urad['AdresaSidla']['UliceNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni']) +"/"+ str(vystup_urad['AdresaSidla']['CisloOrientacni'])
       elif vystup_urad['AdresaSidla']['CisloDomovni']:
-        Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+        Adresat.ulice = str(vystup_urad['AdresaSidla']['UliceNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni'])
       else:
-        Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev']
+        Adresat.ulice = str(vystup_urad['AdresaSidla']['UliceNazev'])
     else:
       if vystup_urad['AdresaSidla']['CisloDomovni']:
-        Adresat.ulice = vystup_urad['AdresaSidla']['ObecNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+        Adresat.ulice = str(vystup_urad['AdresaSidla']['ObecNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni'])
       else:
-        Adresat.ulice = vystup_urad['AdresaSidla']['ObecNazev']
+        Adresat.ulice = str(vystup_urad['AdresaSidla']['ObecNazev'])
     Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
     Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
     Adresat.idds = vystup_urad['ISDS']
@@ -203,16 +203,16 @@ code: |
     Adresat.nadrizeny.name.text = vystup_urad['NazevOsoby']
     if vystup_urad['AdresaSidla']['UliceNazev']:
       if vystup_urad['AdresaSidla']['CisloOrientacni'] and vystup_urad['AdresaSidla']['CisloDomovni']:
-        Adresat.nadrizeny.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+        Adresat.nadrizeny.ulice = str(vystup_urad['AdresaSidla']['UliceNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni']) +"/"+ str(vystup_urad['AdresaSidla']['CisloOrientacni'])
       elif vystup_urad['AdresaSidla']['CisloDomovni']:
-        Adresat.nadrizeny.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+        Adresat.nadrizeny.ulice = str(vystup_urad['AdresaSidla']['UliceNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni'])
       else:
-        Adresat.nadrizeny.ulice = vystup_urad['AdresaSidla']['UliceNazev']
+        Adresat.nadrizeny.ulice = str(vystup_urad['AdresaSidla']['UliceNazev'])
     else:
       if vystup_urad['AdresaSidla']['CisloDomovni']:
-        Adresat.nadrizeny.ulice = vystup_urad['AdresaSidla']['ObecNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+        Adresat.nadrizeny.ulice = str(vystup_urad['AdresaSidla']['ObecNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni'])
       else:
-        Adresat.nadrizeny.ulice = vystup_urad['AdresaSidla']['ObecNazev']
+        Adresat.nadrizeny.ulice = str(vystup_urad['AdresaSidla']['ObecNazev'])
     Adresat.nadrizeny.psc = vystup_urad['AdresaSidla']['PostaKod']
     Adresat.nadrizeny.obec = vystup_urad['AdresaSidla']['ObecNazev']
     Adresat.nadrizeny.idds = vystup_urad['ISDS']
