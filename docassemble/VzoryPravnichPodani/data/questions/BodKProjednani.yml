@@ -1,0 +1,128 @@
+metadata:
+  title: Bod k projednaní na obci
+  short title: bod_k_projednani
+  description: Žádost o zařazení bodu na jednání zastupitelstva či rady obce
+  authors:
+    - name: Michal Kuk
+      organization: Frank Bold Society
+  revision_date: 2021-08-12
+---
+features:
+  question help button: True
+  question back button: True
+  navigation back button: False
+---
+modules:
+  - .integrace
+  - .overovac
+  - .utility
+  - .pocetObyvatel
+---
+objects:
+  - Podatel: Person.using(nazev="podatele")
+  - Adresat: Organization
+  - Podani: Thing
+  - userdata: DAStore
+---
+mandatory: True
+code: |
+  nabidkaFBA = False
+  nazev = "Žádost o zařazení bodu na zasedání"
+  if userdata.get("prefs"):
+    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
+    Podatel.address = userdata.get("prefs").address
+    Podatel.birthday = userdata.get("prefs").birthday
+    email = userdata.get("prefs").email
+    Podani.odpoved = userdata.get("prefs").odeslani
+    Podatel.idds = userdata.get("prefs").idds
+  final_fr
+---
+include:
+  - t_mail.yml
+  - objektPerson.yml
+  - final_screen.yml
+---
+question: |
+  Vyberte z jakého okresu je Vámi zadaná obec
+fields:
+  - Okres: okres
+    datatype: radio
+    code: |
+      moznosti
+---
+event: nenalezeno
+question: |
+  Bohužel jsme nic nenašli, zkuste to znovu.
+buttons:
+  - Zkusit znovu: restart
+---
+sets: Podani.pocetPodpis
+code: |
+  vystup = pocetObyvatel(Adresat.obec)
+  if len(vystup) == 1:
+    Podani.pocetPodpis = round(int(vystup[0][2])*0.005)
+  elif len(vystup) == 0:
+    nenalezeno
+  elif len(vystup) > 1:
+    moznosti = []
+    for item in vystup:
+      moznosti.append(item[0])
+    for polozka in vystup:
+      if polozka[0] == okres:
+        Podani.pocetPodpis = round(int(polozka[2])*0.005)
+---
+# Otázky
+# Úřad, který příkaz vydal
+ga id: adresat
+question: |
+  Projednání záležitosti
+subquestion: |
+  Projednání záležitosti můžete požadovat buď po zastupitelstvu či radě obce. Záleží na tom, pod jaký z orgánů záležitost spadá.
+fields:
+  - Orgán obce: Adresat.organ
+    datatype: radio
+    choices:
+        - Zastupitelstvo obce: zastupitestvo
+        - Rada obce: rada
+  - Popis záležitosti kterou chcete projednat: Podani.obsah
+    input type: area
+---
+# Odeslání souborů
+need: vzor
+id: souboryKeStazeni
+progress: 100
+question: |
+  Vaš vzor je připraven
+subquestion: |
+  Vzor vám zašleme na e-mailovou adresu.
+
+  % if user_has_privilege('admin'):
+  [Stáhnout](${ vzor.url_for() })
+  % endif
+fields:
+  - Váš e-mail: email
+    datatype: email
+  - Přihlásit k odběru novinek: novinky
+    datatype: yesno
+---
+# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
+event: odeslatEmail
+sets: vseHotovo
+code: |
+  vzor
+  emailOdeslan = send_email(email, template=t_vzor_106_podnet, attachments=[vzor])
+  if novinky:
+    ecomail = addEcomail(email, "96", "Bod k zasedání")
+  if emailOdeslan:
+    vseHotovo = True
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+  else:
+    neodeslano
+---
+attachment:
+  name: Bod k zasedání
+  filename: Žádost
+  variable name: vzor
+  docx template file: BodKProjednani.docx
+  valid formats:
+    - docx
