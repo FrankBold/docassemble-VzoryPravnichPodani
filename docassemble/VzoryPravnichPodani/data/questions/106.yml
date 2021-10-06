@@ -53,6 +53,20 @@ code: |
       Podani.smlouvaDatum = url_args['smlouvaDatum']
     if 'smlouvaCislo' in url_args:
        Podani.smlouvaCislo = url_args['smlouvaCislo']
+  elif 'idSmlouvy' in url_args:
+    zdroj = "HS"
+    smlouvaData = hs_smlouva(url_args['idSmlouvy'])
+    vystup_urad = uradDleDatovky(smlouvaData['platce']['datovaSchranka'])
+    Adresat.name.text = vystup_urad['NazevOsoby']
+    if vystup_urad['AdresaSidla']['CisloOrientacni']:
+      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+    else:
+      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
+    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
+    Adresat.idds = vystup_urad['ISDS']
+    Podani.smlouvaCislo = smlouvaData['cisloSmlouvy']
+    Podani.smlouvaDatum = format_date(smlouvaData['datumUzavreni'], format='dd.MM.yyyy')
   else:
     zdroj
   novinky
