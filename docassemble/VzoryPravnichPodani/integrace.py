@@ -24,3 +24,9 @@ def addEcomail (email, id, vzor):
   r = requests.post('http://api2.ecomailapp.cz/lists/'+ id +'/subscribe', headers=header, data=values.encode('utf-8'))
 
   return
+
+def hs_smlouva(idSmlouvy):
+    header = {"Authorization": "Token "+get_config('HlidacStatuKey')}
+    url = "https://www.hlidacstatu.cz/Api/v2/Smlouvy/"+idSmlouvy
+    r = requests.get(url, headers=header)
+    return r.json()
