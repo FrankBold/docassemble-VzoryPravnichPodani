@@ -35,6 +35,8 @@ code: |
     email = userdata.get("prefs").email
     Podani.odpoved = userdata.get("prefs").odeslani
     Podatel.idds = userdata.get("prefs").idds
+  Adresat.organ
+  pocetPodpisu_Info
   final_fr
 ---
 include:
@@ -60,7 +62,8 @@ sets: Podani.pocetPodpis
 code: |
   vystup = pocetObyvatel(Adresat.obec)
   if len(vystup) == 1:
-    Podani.pocetPodpis = round(int(vystup[0][2])*0.005)
+    pocetPodpisu = round(int(vystup[0][2])*0.005)
+    Podani.pocetPodpis = range(1, pocetPodpisu)
   elif len(vystup) == 0:
     nenalezeno
   elif len(vystup) > 1:
@@ -69,11 +72,62 @@ code: |
       moznosti.append(item[0])
     for polozka in vystup:
       if polozka[0] == okres:
-        Podani.pocetPodpis = round(int(polozka[2])*0.005)
+        pocetPodpisu = round(int(polozka[2])*0.005)
+        Podani.pocetPodpis = range(1, pocetPodpisu)
+---
+ga id: adresat
+question: |
+  Obec, která má věc projednat
+subquestion: |
+  Žádost adresujete přímo dané obci, která má věc projednat.
+fields:
+  - Způsob zadání: rucne
+    input type: radio
+    choices:
+        - Vyplním ručně: True
+        - Dle ID datové schránky: False
+  - ID datové schránky: Adresat.idds
+    show if:
+      variable: rucne
+      is: False
+---
+ga id: adresatRucne
+if: |
+  rucne
+question: |
+  Adresa obecního úřadu
+subquestion: |
+  % if defined('hlaska'):
+  <div class="alert alert-warning">
+  Bohužel se nepodařilo údaje doplnit automaticky. Zadejte je prosím ručně.
+  </div>
+  % endif
+
+  Podle obce dopočítáme potřebný počet podpisů, dle počtu obyvatel. Žádost musí být podpořena pospisy alespoň 0,5 % obyvatel obce.
+fields:
+  - Ulice a čp: Adresat.ulice
+  - Obec: Adresat.obec
+  - PSČ: Adresat.psc
+---
+# Získání údajů o kraji
+if: |
+  rucne == False
+code: |
+  vystup_urad = uradDleDatovky(Adresat.idds)
+  if vystup_urad == "chyba":
+    rucne = True
+    hlaska = True
+    Adresat.name.text
+  else:
+    Adresat.name.text = vystup_urad['NazevOsoby']
+    Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
+    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
+    Adresat.idds = vystup_urad['ISDS']
 ---
 # Otázky
 # Úřad, který příkaz vydal
-ga id: adresat
+ga id: Předmět
 question: |
   Projednání záležitosti
 subquestion: |
@@ -86,6 +140,16 @@ fields:
         - Rada obce: rada
   - Popis záležitosti kterou chcete projednat: Podani.obsah
     input type: area
+---
+question: |
+  Počet podpisů
+subquestion: |
+  Vaší žádost musí podle [zákona o obcích](https://www.zakonyprolidi.cz/cs/2000-128#p16-2-f) podpořit alespoň 0,5 % obyvatel obce.
+
+  Podle údajů o počtu obyvatel k 1.1.2021 to pro obec ${ Adresat.obec }, znamená **${ pocetPodpisu } podpisů.**
+
+  Do vzoru jsme vám přidali potřebný počet podpisových řádků. Podpisy musíte získat před odesláním žádosti obci.
+continue button field: pocetPodpisu_Info
 ---
 # Odeslání souborů
 need: vzor
@@ -110,7 +174,7 @@ event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor_106_podnet, attachments=[vzor])
+  emailOdeslan = send_email(email, template=t_vzor_106, attachments=[vzor])
   if novinky:
     ecomail = addEcomail(email, "96", "Bod k zasedání")
   if emailOdeslan:

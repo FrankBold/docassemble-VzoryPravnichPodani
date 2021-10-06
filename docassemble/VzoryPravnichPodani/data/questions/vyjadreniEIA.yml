@@ -1,0 +1,182 @@
+metadata:
+  title: Vyjádření k řízení EIA
+  short title: vyjadreni_eia
+  description: Vyjádření z pozice veřejnosti k jednotlivým fázím procesu posuzování dopadů na životní prostředí.
+  authors:
+    - name: Michal Kuk
+      organization: Frank Bold Society
+  revision_date: 2021-09-02
+---
+features:
+  question help button: True
+  question back button: True
+  navigation back button: False
+---
+modules:
+  - .integrace
+  - .overovac
+  - .utility
+  - .eia
+---
+objects:
+  - Podatel: Person.using(nazev="podatele")
+  - Adresat: Organization
+  - Podani: Thing
+  - userdata: DAStore
+  - Zamer: DADict
+---
+code: |
+  krajske_urady = {"Krajský úřad Jihočeského kraje": "kdib3rr","Krajský úřad Jihomoravského kraje":"x2pbqzq","Krajský úřad Karlovarského kraje":"siqbxt2","Krajský úřad Kraje Vysočina":"ksab3eu","Krajský úřad Královéhradeckého kraje":"gcgbp3q","Krajský úřad Libereckého kraje":"c5kbvkw","Krajský úřad Moravskoslezského kraje":"8x6bxsd","Krajský úřad Olomouckého kraje":"qiabfmf","Krajský úřad Pardubického kraje":"z28bwu9","Krajský úřad Plzeňského kraje":"zzjbr3p","Krajský úřad Středočeského kraje":"keebyyf","Krajský úřad Ústeckého kraje":"t9zbsva","Krajský úřad Zlínského kraje":"scsbwku","Magistrát hlavního města Prahy":"48ia97h"}
+---
+mandatory: True
+code: |
+  nabidkaFBA = True
+  nazev = "Vyjádření k řízení EIA"
+  if userdata.get("prefs"):
+    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
+    Podatel.address = userdata.get("prefs").address
+    Podatel.birthday = userdata.get("prefs").birthday
+    email = userdata.get("prefs").email
+    Podani.odpoved = userdata.get("prefs").odeslani
+    Podatel.idds = userdata.get("prefs").idds
+  if 'idEIA' in url_args:
+    zamer_data = detailEIA(url_args['idEIA'])
+  else:
+    zamer_data = detailEIA(zamerId)
+  if not zamer_data:
+    nenalezeno
+  Zamer = zamer_data
+  if 'Krajský úřad' in Zamer['uvod']['urad']:
+    adresat_r = uradDleDatovky(krajske_urady[Zamer['uvod']['urad']])
+    Adresat.name.text = Zamer['uvod']['urad']
+    Adresat.ulice = adresat_r['AdresaSidla']['UliceNazev']
+    Adresat.psc = adresat_r['AdresaSidla']['PostaKod']
+    Adresat.obec = adresat_r['AdresaSidla']['ObecNazev']
+    Adresat.idds = adresat_r['ISDS']
+  else:
+    Adresat.name.text = 'MŽP'
+  final_fr
+---
+include:
+  - t_mail.yml
+  - objektPerson.yml
+  - final_screen.yml
+---
+ga id: idRizeni
+question: |
+  K jakému záměru se chcete vyjádřit?
+subquestion: |
+  Buď na [portálů Cenia](https://portal.cenia.cz/eiasea/view/eia100_cr?lang=cs) či na oznámení spojených se záměrem naleznete **Kód záměru**. Zadejte jej níže, doplníme podle něj potřebné údaje.
+fields:
+  - Kód záměru: zamerId
+---
+# Určení typu dotčené osoby.
+ga id: opraveneni
+question: |
+  Druh dotčené osoby
+subquestion: |
+  V závěru je dobré uvést z čeho vyplývá vaše oprávnění se k záměru vyjádřit. Rozlišujeme tři možnosti:
+
+  Můžete se vyjádřit za **spolek**. Podmínkou je, že spolek má mezi předměty činnosti ochranu životního prostředí nebo veřejného zdraví; existuje alespoň 3 roky nebo doloží alespoň 200 podpisů na podporu své účasti.
+
+  Jako **dotčená osoba** vystupujete
+fields:
+  - Vyjadřuji se jako: Podatel.typ
+    input type: checkbox
+    choices:
+        - Veřejnost: verejnost
+        - Dotčená osoba: dotcen
+        - Spolek: spolek
+---
+# Odůvodnění odvolání
+ga id: oduvodneni
+question: |
+  Obsah vyjádření
+subquestion: |
+  % if Zamer['uvod']['stav'] == 'Oznámení':
+    Ve vyjádření k oznámení se můžete vyjádřit především k tomu, zda podle vašeho názoru záměr může mít významné dopady na životní prostředí a zda by tedy mělo probíhat posuzování.
+  % else:
+    V domumentaci můžete upozornit na jakékoli nedostatky
+  % endif
+fields:
+  - Odůvodnění: Podani.oduvodneni
+    datatype: area
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: oduvodneni_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: oduvodneni_pozdeji
+code: |
+  Podani.oduvodneni = string_pole("[Doplňte odůvodnění].")
+---
+# Rozdělení příloh na seznam
+code: |
+  Podani.oduvodneni = string_pole(Podani.oduvodneni)
+---
+# Prilohy
+ga id: zpusobOdeslani
+question: |
+  Odeslání odvolání
+fields:
+  - Jak budete odvolání odesílat?: Podani.forma
+    input type: radio
+    choices:
+      - Poštou / Předám osobně: posta
+      - Datovou schránkou: datovka
+#      - E-mailem (s ověřeným el. podpisem): email
+  - Chcete přikládat přílohy: Podani.prilohy
+    datatype: yesnoradio
+  - Seznam příloh: prilohy
+    input type: area
+    hint: |
+      Jednotlivé položky oddělte "enterem".
+    show if:
+      variable: Podani.prilohy
+      is: true
+---
+# Rozdělení příloh na seznam
+code: |
+  Podani.prilohySeznam = string_pole(prilohy)
+---
+# Odeslání souborů
+need: vzor
+id: souboryKeStazeni
+progress: 100
+question: |
+  Vaš vzor je připraven
+subquestion: |
+  Vzor vám zašleme na e-mailovou adresu.
+
+  % if user_has_privilege('admin'):
+  [Stáhnout](${ vzor.url_for() })
+  % endif
+fields:
+  - Váš e-mail: email
+    datatype: email
+  - Přihlásit k odběru novinek: novinky
+    datatype: yesno
+---
+# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
+event: odeslatEmail
+sets: vseHotovo
+code: |
+  vzor
+  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
+  if novinky:
+    ecomail = addEcomail(email, "96", "Podnět k přezkumu – 106")
+  if emailOdeslan:
+    vseHotovo = True
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+  else:
+    neodeslano
+---
+attachment:
+  name: Vyjádření EIA
+  filename: Vyjádření_EIA
+  variable name: vzor
+  docx template file: vyjadreniEIA.docx
+  valid formats:
+    - docx
