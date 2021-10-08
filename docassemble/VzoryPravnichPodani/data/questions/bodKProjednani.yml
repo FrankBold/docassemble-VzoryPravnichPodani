@@ -63,7 +63,7 @@ code: |
   vystup = pocetObyvatel(Adresat.obec)
   if len(vystup) == 1:
     pocetPodpisu = round(int(vystup[0][2])*0.005)
-    Podani.pocetPodpis = range(1, pocetPodpisu)
+    Podani.pocetPodpis = range(1, pocetPodpisu+1)
   elif len(vystup) == 0:
     nenalezeno
   elif len(vystup) > 1:
@@ -73,7 +73,7 @@ code: |
     for polozka in vystup:
       if polozka[0] == okres:
         pocetPodpisu = round(int(polozka[2])*0.005)
-        Podani.pocetPodpis = range(1, pocetPodpisu)
+        Podani.pocetPodpis = range(1, pocetPodpisu+1)
 ---
 ga id: adresat
 question: |
@@ -120,7 +120,18 @@ code: |
     Adresat.name.text
   else:
     Adresat.name.text = vystup_urad['NazevOsoby']
-    Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+    if vystup_urad['AdresaSidla']['UliceNazev']:
+      if vystup_urad['AdresaSidla']['CisloOrientacni'] and vystup_urad['AdresaSidla']['CisloDomovni']:
+        Adresat.ulice = str(vystup_urad['AdresaSidla']['UliceNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni']) +"/"+ str(vystup_urad['AdresaSidla']['CisloOrientacni'])
+      elif vystup_urad['AdresaSidla']['CisloDomovni']:
+        Adresat.ulice = str(vystup_urad['AdresaSidla']['UliceNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni'])
+      else:
+        Adresat.ulice = str(vystup_urad['AdresaSidla']['UliceNazev'])
+    else:
+      if vystup_urad['AdresaSidla']['CisloDomovni']:
+        Adresat.ulice = str(vystup_urad['AdresaSidla']['ObecNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni'])
+      else:
+        Adresat.ulice = str(vystup_urad['AdresaSidla']['ObecNazev'])
     Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
     Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
     Adresat.idds = vystup_urad['ISDS']
@@ -174,7 +185,7 @@ event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor_106, attachments=[vzor])
+  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
   if novinky:
     ecomail = addEcomail(email, "96", "Bod k zasedání")
   if emailOdeslan:
