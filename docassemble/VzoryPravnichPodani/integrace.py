@@ -1,29 +1,39 @@
 import requests
 from docassemble.base.util import get_config
+import json
+
+ecomailKey = get_config('ecomailKey')
+
+def detailEcomail (email):
+    header = {'key': ecomailKey,'Content-Type': 'application/json'}
+    r = requests.get('https://api2.ecomailapp.cz/subscribers/'+email, headers=header)
+    return r.json()
 
 def addEcomail (email, id, vzor):
-  ecomailKey = get_config('ecomailKey')
+
 
   header = {'key': ecomailKey,'Content-Type': 'application/json'}
 
-  values = '''
-  {
-  "subscriber_data": {
-    "email": "'''+ email +'''",
-    "tags": [
-      "OBČAN 2.0",
-      "'''+ vzor +'''",
-      "Vzor"
-    ]
-  },
-  "trigger_autoresponders": true,
-  "update_existing": true,
-  "resubscribe": true
-  }
-  '''
-  r = requests.post('http://api2.ecomailapp.cz/lists/'+ id +'/subscribe', headers=header, data=values.encode('utf-8'))
+  contact = detailEcomail(email)
+  if "tags" in contact:
+    tagy = contact["subscriber"]["tags"]
+  else:
+    tagy = []
 
-  return
+  tagy.append("OBČAN 2.0")
+  tagy.append(str(vzor))
+  tagy.append("Vzor")
+
+  values = {}
+  values["subscriber_data"] = {}
+  values["subscriber_data"]["email"] = email
+  values["subscriber_data"]["tags"] = list(set(tagy))
+  values["trigger_autoresponders"] = True
+  values["update_existing"] = True
+  values["resubscribe"] = True
+
+  r = requests.post('http://api2.ecomailapp.cz/lists/'+ id +'/subscribe', headers=header, data=json.dumps(values))
+  return r.json()
 
 def hs_smlouva(idSmlouvy):
     header = {"Authorization": "Token "+get_config('HlidacStatuKey')}
