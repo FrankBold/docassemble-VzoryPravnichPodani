@@ -21,7 +21,6 @@ def addEcomail (email, id, vzor):
     tagy = []
 
   tagy.append("OBČAN 2.0")
-  tagy.append(str(vzor))
   tagy.append("Vzor")
 
   values = {}
