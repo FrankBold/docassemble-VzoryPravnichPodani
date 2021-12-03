@@ -339,16 +339,16 @@ fields:
     datatype: email
   - Přihlásit k odběru novinek: novinky
     datatype: yesno
-continue button field: zavazneOdeslat
+continue button field: potvrditOdeslani
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
 sets: emailOdeslan
 code: |
   vzor
-  if Podani.typ == 'podnet' and zavazneOdeslat:
+  if Podani.typ == 'podnet' and potvrditOdeslani:
     emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Necinnost_Podnet_Komentar.pdf')])
-  elif Podani.typ == 'zadost' and zavazneOdeslat:
+  elif Podani.typ == 'zadost' and potvrditOdeslani:
     emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Necinnost_Zadost_Komentar.pdf')])
 ---
 sets: vseHotovo

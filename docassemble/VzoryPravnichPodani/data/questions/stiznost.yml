@@ -215,14 +215,14 @@ ga id: duvodStiznosti
 question: |
   Důvod podání stížnosti
 subquestion: |
-  Vyberte proti jakému skutečnosti podáváte stížnost.
+  Vyberte proti jak skutečnosti podáváte stížnost.
 fields:
   - no label: Podani.duvod
     input type: radio
     choices:
       Nebyly poskytnuty všechny informace: neuplne
-      Povinný za žádost nereagoval: necinnost
-      Byl jsme vyzván k úhradě: uhrada
+      Povinný na žádost nereagoval: necinnost
+      Byl jsem vyzván k úhradě: uhrada
       Žádost byla vyřízena chybně: zpusobVyrizeni
 ---
 # Neposkytnuté informace pro účely neúplné odpovědi.
@@ -326,13 +326,15 @@ fields:
     datatype: email
   - Přihlásit k odběru novinek: novinky
     datatype: yesno
+continue button field: potvrditOdeslani
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
+  if potvrditOdeslani:
+    emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
   if novinky:
     ecomail = addEcomail(email, "96", "Stiznost")
   if emailOdeslan:

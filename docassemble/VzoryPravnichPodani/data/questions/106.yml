@@ -317,13 +317,15 @@ fields:
     datatype: yesno
   - Přihlásit k odběru novinek: novinky
     datatype: yesno
+continue button field: potvrditOdeslani
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor_106, attachments=[vzor.docx, vzor.pdf,DAStaticFile(filename='Zadost_o_informace_Komentar.pdf')])
+  if potvrditOdeslani:
+    emailOdeslan = send_email(email, template=t_vzor_106, attachments=[vzor.docx, vzor.pdf,DAStaticFile(filename='Zadost_o_informace_Komentar.pdf')])
   if novinky:
     ecomail = addEcomail(email, "96", "Zadost o informace")
   if emailOdeslan:

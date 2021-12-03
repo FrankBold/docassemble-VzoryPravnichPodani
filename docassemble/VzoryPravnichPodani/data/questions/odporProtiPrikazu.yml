@@ -220,13 +220,15 @@ fields:
     datatype: email
   - Přihlásit k odběru novinek: novinky
     datatype: yesno
+continue button field: potvrditOdeslani
 ---
 # Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
 event: odeslatEmail
 sets: vseHotovo
 code: |
   vzor
-  emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odpor_proti_prikazu_Komentar.pdf')])
+  if potvrditOdeslani:
+    emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odpor_proti_prikazu_Komentar.pdf')])
   if novinky:
     ecomail = addEcomail(email, "96", "Odpor proti prikazu")
   if emailOdeslan:
