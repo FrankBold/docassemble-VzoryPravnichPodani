@@ -143,6 +143,8 @@ question: |
   Projednání záležitosti
 subquestion: |
   Projednání záležitosti můžete požadovat buď po zastupitelstvu či radě obce. Záleží na tom, pod jaký z orgánů záležitost spadá.
+
+  Pokud nevíte pod který orgán daná věc spadá, může vám pomoci náš [Průvodce pravomocemi na obci](https://da.frankbold.org/interview?i=docassemble.FrankBold:pravomociObec.yml).
 fields:
   - Orgán obce: Adresat.organ
     datatype: radio
