@@ -1,0 +1,113 @@
+metadata:
+  title: Podnět
+  short title: podnet
+  description: podnet
+  authors:
+    - name: Michal Kuk
+      organization: Frank Bold Society
+  revision_date: 2020-09-09
+---
+include:
+  - setting.yml
+  - univerzal.yml
+  - t_mail.yml
+  - final_screen.yml
+  - sendgrid.yml
+---
+# Logika
+mandatory: True
+code:
+  Podatel
+  Adresat
+  odeslatEmail
+  final_fr
+---
+# Vlastní nastavení
+code: |
+  nabidkaFBA = False
+---
+# Otázky
+# Úřad, který příkaz vydal
+ga id: povinnySubjekt
+question: |
+  Od koho informace požadujete.
+subquestion: |
+  K poskytnutí informací podle zákona o svobodném přístupu k informací jsou povinny pouze tak uvedené povinné subjekty. Pokud si nejste jisti, zda ten po kom informace chcete je povinnen je poskytnout, podívejte se do naší [nápovědy](${ url_of('help') }).
+fields:
+  - Způsob zadání: rucne
+    input type: radio
+    choices:
+        - Vyplním ručně: True
+        - Dle ID datové schránky: False
+  - ID datové schránky: Adresat.idds
+    show if:
+      variable: rucne
+      is: False
+help:
+  label: Kdo je povinný orgán?
+  content: |
+      V souladu s § 2 informačního zákona jsou
+
+      * státní orgány,
+      * územní samosprávné celky a jejich orgány a
+      * veřejné instituce a dále
+      * subjekty, kterým zákon svěřil rozhodování o právech, právem chráněných zájmech nebo povinnostech fyzických nebo právnických osob v oblasti veřejné správy v rozsahu této jejich rozhodovací činnosti (pro zjednodušení dále jen „úřad“)
+
+      povinny poskytovat podle tohoto zákona informace vztahující se k jejich působnosti, a to na základě ústní nebo písemné žádosti fyzických a právnických osob.
+---
+# Předmět podnětu
+ga id:  predmetPodnetu
+question: |
+  Předmět podnětu
+fields:
+  - Předmět podnětu: Podani.predmet
+  - Popis problémového jednání: Podani.jednani
+    datatype: area
+  - Znáte konkrétní ustanovení zákona, které je porušováno?: Podani.ustanoveni
+    datatype: yesnoradio
+    default: false
+  - Porušované ustanovení: Podani.paragraf
+    hint: |
+      § ## zákona č. ###/#### Sb.
+    show if:
+      variable: Podani.ustanoveni
+      is: true
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: obsah_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: obsah_pozdeji
+code: |
+  Podani.predmet = "[Předmět podání]"
+  Podani.jednani = "[Popis jednání]"
+  Podani.ustanoveni = True
+  Podani.paragraf = "[Porušené ustanovení]"
+---
+# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
+event: odeslatEmail
+sets: vseHotovo
+code: |
+  vzor
+  if potvrditOdeslani:
+    emailOdeslan = odeslat_email(email, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
+  if novinky:
+    ecomail = addEcomail(email, "96", "Podnet ke kontrole obce")
+  if emailOdeslan:
+    vseHotovo = True
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+  else:
+    neodeslano
+---
+attachment:
+  name: Podnět
+  filename: Podnet
+  variable name: vzor
+  docx template file: body.docx
+  valid formats:
+    - docx
+  fields:
+    - nadpis: Podnět k čemukoli
+    - sablona: body.docx

@@ -1,0 +1,193 @@
+modules:
+  - .overovac
+---
+ga id: uzivatel
+generic object: Person
+question: |
+  Vaše indentifikační údaje v roli ${ x.nazev }
+fields:
+  - Typ osoby: x.forma
+    input type: radio
+    choices:
+      - Právnická osoba: PO
+      - Fyzická osoba: FO
+  - Jméno a příjmení: x.name.text
+    show if:
+      variable: x.forma
+      is: FO
+  - Trvalé bydliště: x.address
+    hint: Adresa
+    show if:
+      variable: x.forma
+      is: FO
+  - Datum narození: x.birthday
+    datatype: date
+    show if:
+      variable: x.forma
+      is: FO
+  - Název organizace: x.name.text
+    show if:
+      variable: x.forma
+      is: PO
+  - Sídlo: x.address
+    hint: Sídlo
+    show if:
+      variable: x.forma
+      is: PO
+  - IČO: x.ic
+    datatype: integer
+    minlength: 8
+    maxlength: 8
+    show if:
+      variable: x.forma
+      is: PO
+    hint: 12345678
+    note: |
+      <button id="doplnit" class="btn btn-primary">Doplnit údaje z OR</button>
+  - note: |
+      **Zástupce společnosti**
+    show if:
+      variable: x.forma
+      is: PO
+  - Vaše jméno: x.zastupceName
+    required: False
+    show if:
+      variable: x.forma
+      is: PO
+  - Vaše funkce v organizaci: x.zastupceFunkce
+    required: False
+    show if:
+      variable: x.forma
+      is: PO
+script: |
+  <script type="application/javascript" charset="utf-8">
+    $("#doplnit").click(function(){
+      action_call('doplnUdaje', {ico: val('x.ic')}, function(data){
+        if (typeof data.test.firma !== 'undefined') {
+        setField("x.name.text", data.test.firma);
+        setField("x.ic", data.test.ico);
+        setField("x.address", data.test.sidlo);
+        } else if (typeof data.test == 'object') {
+          action_perform('vyberFirmy')
+        } else {
+        flash(data.test, "danger")
+        }
+      });
+      return false;
+    });
+  </script>
+  <script src="https://api.mapy.cz/loader.js"></script>
+  <script src="/packagestatic/docassemble.VzoryPravnichPodani/loader.js"></script>
+  <script src="/packagestatic/docassemble.VzoryPravnichPodani/mapy_api.js"></script>
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: identita_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: identita_pozdeji
+code: |
+  Podatel.forma = "FO"
+  Podatel.name.text = "[Jméno a příjmení]"
+  Podatel.birthday = "[Datum narození]"
+  Podatel.address = "[Trvalé bydliště]"
+---
+event: vyberFirmy
+code: |
+  vystupNovy = overit("", zvolena_firma)
+  x.name.text = vystupNovy.firma
+  x.ic = vystupNovy.ico
+  x.address = vystupNovy.sidlo
+---
+event: doplnUdaje
+code: |
+  vystup = overitXml(action_argument('ico').strip('"'))
+  json_response(dict(test=vystup))
+---
+ga id: adresatRucne
+if: |
+  rucne
+question: |
+  Identifikační údaje orgánu
+subquestion: |
+  % if defined('hlaska'):
+  <div class="alert alert-warning">
+  Bohužel se nepodařilo údaje doplnit automaticky. Zadejte je prosím ručně.
+  </div>
+  % endif
+fields:
+  - Název orgánu: Adresat.name.text
+  - Oddělení: Adresat.oddeleni
+    required: False
+  - Ulice a čp: Adresat.ulice
+  - Obec: Adresat.obec
+  - PSČ: Adresat.psc
+  - ID DS: Adresat.idds
+    show if:
+      code: |
+        Podani.forma == 'datovka'
+---
+# Získání údajů o kraji
+if: |
+  rucne == False
+code: |
+  vystup_urad = uradDleDatovky(Adresat.idds)
+  if vystup_urad == "chyba":
+    rucne = True
+    hlaska = True
+    Adresat.name.text
+  else:
+    Adresat.name.text = vystup_urad['NazevOsoby']
+    if vystup_urad['AdresaSidla']['CisloOrientacni']:
+      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+    else:
+      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
+    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
+    Adresat.idds = vystup_urad['ISDS']
+---
+# Prilohy
+ga id: zpusobOdeslani
+question: |
+  Odeslání podnětu
+fields:
+  - Jak budete podnět odesílat?: Podani.forma
+    input type: radio
+    choices:
+      - Poštou: posta
+      - Datovou schránkou: datovka
+      - E-mailem (s ověřeným el. podpisem): email
+  - Chcete přikládat přílohy: Podani.prilohy
+    datatype: yesnoradio
+  - Seznam příloh: prilohy
+    datatype: area
+    hint: |
+      Jednotlivé položky oddělte "enterem".
+    show if:
+      variable: Podani.prilohy
+      is: true
+---
+# Rozdělení příloh na seznam
+code: |
+  Podani.prilohySeznam = string_pole(prilohy)
+---
+# Odeslání souborů
+need: vzor
+id: souboryKeStazeni
+progress: 100
+question: |
+  Vaš vzor je připraven
+subquestion: |
+  Vzor Vám společné s manuálem pošleme na e-mail.
+  *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
+
+  % if user_has_privilege('admin'):
+  [Stáhnout](${ vzor.url_for() })
+  % endif
+fields:
+  - Váš e-mail: email
+    datatype: email
+  - Přihlásit k odběru novinek: novinky
+    datatype: yesno
+continue button field: potvrditOdeslani
