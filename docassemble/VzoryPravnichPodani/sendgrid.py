@@ -5,7 +5,7 @@ import sendgrid
 import json
 
 
-def detailEcomail (email,nazev):
+def odeslat_email (email,nazev):
     sg = SendGridAPIClient(get_config('ecomailKey'))
     data = {
       "personalizations": [

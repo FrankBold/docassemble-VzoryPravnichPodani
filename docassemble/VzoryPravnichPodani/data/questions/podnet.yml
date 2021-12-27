@@ -92,12 +92,12 @@ sets: vseHotovo
 code: |
   vzor
   if potvrditOdeslani:
-    emailOdeslan = odeslat_email(email, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
+    emailOdeslan = odeslat_email(email, "Podnět k něčemu")
   if novinky:
     ecomail = addEcomail(email, "96", "Podnet ke kontrole obce")
   if emailOdeslan:
     vseHotovo = True
-    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+# webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
   else:
     neodeslano
 ---
