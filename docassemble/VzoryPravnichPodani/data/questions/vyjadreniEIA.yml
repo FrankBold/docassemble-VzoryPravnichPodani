@@ -139,7 +139,7 @@ code: |
     ecomail = addEcomail(email, "96", "Vyjádření EIA")
   if emailOdeslan.status_code == 200:
     vseHotovo = True
-    # webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
     final_fr
   else:
     neodeslano
