@@ -26,6 +26,7 @@ objects:
 ---
 mandatory: True
 code: |
+  reminder_show = False
   zpusoby_odeslani = {"posta":"Poštou", "datovka":"Datovou schránkou"}
   if userdata.get("prefs"):
     Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
