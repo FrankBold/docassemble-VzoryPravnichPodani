@@ -1,6 +1,5 @@
 event: final_fr
 ga id: final_fr
-need: vseHotovo
 question: |
   Úspěšně odesláno
 subquestion: |
@@ -22,7 +21,6 @@ action buttons:
     color: light
 ---
 ga id: final_stats
-need: vseHotovo
 question: |
   Úspěšně odesláno
 subquestion: |

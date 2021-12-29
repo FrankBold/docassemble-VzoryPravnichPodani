@@ -4,20 +4,29 @@ features:
   navigation back button: False
 ---
 modules:
+  - .objekty
   - .integrace
   - .overovac
   - .utility
-  - .sengrid
 ---
 objects:
   - Podatel: Person.using(nazev="podatele")
-  - Adresat: Organization
+  - Adresat: Organ
+  - Adresat.nadrizeny: Organ
+  - Obec: Organization
   - Podani: Thing
+  - Prikaz: Thing
+  - Zadost: Thing
+  - Rizeni: Thing
+  - Odvolani: Thing
+  - Rozhodnuti: Thing
+  - Zamer: DADict
   - Komentar: DAFileCollection
   - userdata: DAStore
 ---
 mandatory: True
 code: |
+  zpusoby_odeslani = {"posta":"Poštou", "datovka":"Datovou schránkou"}
   if userdata.get("prefs"):
     Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
     Podatel.address = userdata.get("prefs").address

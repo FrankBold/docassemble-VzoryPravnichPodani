@@ -7,45 +7,50 @@ metadata:
       organization: Frank Bold Society
   revision_date: 2021-09-02
 ---
-features:
-  question help button: True
-  question back button: True
-  navigation back button: False
----
 modules:
-  - .integrace
-  - .overovac
-  - .utility
   - .eia
 ---
-objects:
-  - Podatel: Person.using(nazev="podatele")
-  - Adresat: Organization
-  - Podani: Thing
-  - userdata: DAStore
-  - Zamer: DADict
+include:
+  - setting.yml
+  - univerzal.yml
+  - final_screen.yml
 ---
-code: |
-  krajske_urady = {"Krajský úřad Jihočeského kraje": "kdib3rr","Krajský úřad Jihomoravského kraje":"x2pbqzq","Krajský úřad Karlovarského kraje":"siqbxt2","Krajský úřad Kraje Vysočina":"ksab3eu","Krajský úřad Královéhradeckého kraje":"gcgbp3q","Krajský úřad Libereckého kraje":"c5kbvkw","Krajský úřad Moravskoslezského kraje":"8x6bxsd","Krajský úřad Olomouckého kraje":"qiabfmf","Krajský úřad Pardubického kraje":"z28bwu9","Krajský úřad Plzeňského kraje":"zzjbr3p","Krajský úřad Středočeského kraje":"keebyyf","Krajský úřad Ústeckého kraje":"t9zbsva","Krajský úřad Zlínského kraje":"scsbwku","Magistrát hlavního města Prahy":"48ia97h"}
----
+# Vlastní nastavení
 mandatory: True
 code: |
-  nabidkaFBA = True
-  nazev = "Vyjádření k řízení EIA"
-  if userdata.get("prefs"):
-    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
-    Podatel.address = userdata.get("prefs").address
-    Podatel.birthday = userdata.get("prefs").birthday
-    email = userdata.get("prefs").email
-    Podani.odpoved = userdata.get("prefs").odeslani
-    Podatel.idds = userdata.get("prefs").idds
+  nabidkaFBA = False
+  nazev_vzoru = "Vyjádření k řízení EIA"
+  krajske_urady = {"Krajský úřad Jihočeského kraje": "kdib3rr","Krajský úřad Jihomoravského kraje":"x2pbqzq","Krajský úřad Karlovarského kraje":"siqbxt2","Krajský úřad Kraje Vysočina":"ksab3eu","Krajský úřad Královéhradeckého kraje":"gcgbp3q","Krajský úřad Libereckého kraje":"c5kbvkw","Krajský úřad Moravskoslezského kraje":"8x6bxsd","Krajský úřad Olomouckého kraje":"qiabfmf","Krajský úřad Pardubického kraje":"z28bwu9","Krajský úřad Plzeňského kraje":"zzjbr3p","Krajský úřad Středočeského kraje":"keebyyf","Krajský úřad Ústeckého kraje":"t9zbsva","Krajský úřad Zlínského kraje":"scsbwku","Magistrát hlavního města Prahy":"48ia97h"}
+---
+# Zpracování URL args
+scan for variables: False
+mandatory: True
+code: |
   if 'idEIA' in url_args:
     zamer_data = detailEIA(url_args['idEIA'])
-  else:
-    zamer_data = detailEIA(zamerId)
+---
+# Logika
+mandatory: True
+code: |
+  zamer_data
+  if Zamer["uvod"]["stav"] not in ["Oznámení", "Dokumentace"]:
+    nelze
+  Adresat.name.text
+  vzor
+  if potvrditOdeslani and not defined("emailOdeslan"):
+    odeslat_top
+  zaznamy
+  final_fr
+---
+############################################ Otázky
+code: |
+  zamer_data = detailEIA(zamerId)
   if not zamer_data:
     nenalezeno
   Zamer = zamer_data
+---
+sets: Adresat.name.text
+code: |
   if 'Krajský úřad' in Zamer['uvod']['urad']:
     adresat_r = uradDleDatovky(krajske_urady[Zamer['uvod']['urad']])
     Adresat.name.text = Zamer['uvod']['urad']
@@ -54,13 +59,12 @@ code: |
     Adresat.obec = adresat_r['AdresaSidla']['ObecNazev']
     Adresat.idds = adresat_r['ISDS']
   else:
-    Adresat.name.text = 'MŽP'
-  final_fr
----
-include:
-  - t_mail.yml
-  - objektPerson.yml
-  - final_screen.yml
+    Adresat.name.text = "Ministerstvo životního prostředí"
+    Adresat.oddeleni = "Odbor posuzování vlivů na životní prostředí a integrované prevence"
+    Adresat.ulice = "Vršovická 1442/65"
+    Adresat.psc = "100 10"
+    Adresat.obec = "Praha 10"
+    Adresat.idds = "6bnaawp"
 ---
 ga id: idRizeni
 question: |
@@ -112,73 +116,48 @@ event: oduvodneni_pozdeji
 code: |
   Podani.oduvodneni = string_pole("[Doplňte odůvodnění].")
 ---
-# Rozdělení příloh na seznam
-code: |
-  Podani.oduvodneni = string_pole(Podani.oduvodneni)
----
-# Prilohy
-ga id: zpusobOdeslani
+event: nelze
 question: |
-  Odeslání odvolání
-fields:
-  - Jak budete odvolání odesílat?: Podani.forma
-    input type: radio
-    choices:
-      - Poštou / Předám osobně: posta
-      - Datovou schránkou: datovka
-#      - E-mailem (s ověřeným el. podpisem): email
-  - Chcete přikládat přílohy: Podani.prilohy
-    datatype: yesnoradio
-  - Seznam příloh: prilohy
-    input type: area
-    hint: |
-      Jednotlivé položky oddělte "enterem".
-    show if:
-      variable: Podani.prilohy
-      is: true
----
-# Rozdělení příloh na seznam
-code: |
-  Podani.prilohySeznam = string_pole(prilohy)
----
-# Odeslání souborů
-need: vzor
-id: souboryKeStazeni
-progress: 100
-question: |
-  Vaš vzor je připraven
+  K záměru se nyní nelze vyjádřit
 subquestion: |
-  Vzor vám zašleme na e-mailovou adresu.
+  Vyjádření lze podat pouze k oznámení záměru, či k dokumentaci.
 
-  % if user_has_privilege('admin'):
-  [Stáhnout](${ vzor.url_for() })
-  % endif
-fields:
-  - Váš e-mail: email
-    datatype: email
-  - Přihlásit k odběru novinek: novinky
-    datatype: yesno
-continue button field: potvrditOdeslani
+  Aktuálně je projekt ve fázi: **${ Zamer["uvod"]["stav"] }**
+
+  Podrobnější informace najdete v našem manuálu [Jak se zapojit do procesu EIA?](https://frankbold.org/poradna/zivotni-prostredi/zamery-ovlivnujici-zivotni-prostredi/eia/rada/jak-se-zapojit-do-procesu-eia)
 ---
-# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
-event: odeslatEmail
-sets: vseHotovo
+################################################ Odeslání
+event: odeslat_top
 code: |
-  vzor
-  if potvrditOdeslani:
-    emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
+  komentar = "https://frankbold.org/sites/default/files/vzory/Vyjadreni_EIA_Komentar.pdf"
+  vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
+  emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
+---
+event: zaznamy
+code: |
   if novinky:
-    ecomail = addEcomail(email, "96", "Podnět k přezkumu – 106")
-  if emailOdeslan:
+    ecomail = addEcomail(email, "96", "Vyjádření EIA")
+  if emailOdeslan.status_code == 200:
     vseHotovo = True
-    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    # webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    final_fr
   else:
     neodeslano
+---
+# Základní pole šablony
+code: |
+  sablona = "vyjadreniEIA.docx"
+  if Zamer["uvod"]["stav"] == "Dokumentace":
+    nadpis = "Vyjádření k dokumentaci „" + Zamer['uvod']['nazev'] + "“"
+  else:
+    nadpis = "Vyjádření k oznámení záměru „" + Zamer['uvod']['nazev'] + "“"
+reconsider: True
 ---
 attachment:
   name: Vyjádření EIA
   filename: Vyjádření_EIA
   variable name: vzor
-  docx template file: vyjadreniEIA.docx
+  update references: True
+  docx template file: template.docx
   valid formats:
     - docx

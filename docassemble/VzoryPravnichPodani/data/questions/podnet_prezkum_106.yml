@@ -7,45 +7,39 @@ metadata:
       organization: Frank Bold Society
   revision_date: 2021-06-17
 ---
-features:
-  question help button: True
-  question back button: True
-  navigation back button: False
+include:
+  - setting.yml
+  - univerzal.yml
+  - final_screen.yml
 ---
-modules:
-  - .integrace
-  - .overovac
-  - .utility
----
-objects:
-  - Podatel: Person.using(nazev="podatele")
-  - Adresat: Organization
-  - Podani: Thing
-  - Zadost: Thing
-  - Odvolani: Thing
-  - userdata: DAStore
----
+# Vlastní nastavení
 mandatory: True
 code: |
-  nabidkaFBA = True
-  nazev = "Podnět k provedení přezkumného řízení"
-  if userdata.get("prefs"):
-    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
-    Podatel.address = userdata.get("prefs").address
-    Podatel.birthday = userdata.get("prefs").birthday
-    email = userdata.get("prefs").email
-    Podani.odpoved = userdata.get("prefs").odeslani
-    Podatel.idds = userdata.get("prefs").idds
+  nabidkaFBA = False
+  nazev_vzoru = "Podnět k provedení přezkumného řízení"
+  Adresat.name.text = "Úřad pro ochranu osobních údajů"
+  Adresat.ulice = "Pplk. Sochora 27"
+  Adresat.psc = "170 00"
+  Adresat.obec = "Praha 7"
+  Adresat.idds = "qkbaa2n"
+---
+# URL Argumenty
+mandatory: True
+code: |
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
     typRizeni = url_args['typ']
+---
+# Logika
+mandatory: True
+code: |
+  vzor
+  if potvrditOdeslani and not defined("emailOdeslan"):
+    odeslat_top
+  zaznamy
   final_fr
 ---
-include:
-  - t_mail.yml
-  - objektPerson.yml
-  - final_screen.yml
----
+############################################ Otázky
 ga id: typRizeni
 question: |
   Druh řízení
@@ -58,7 +52,6 @@ fields:
       Žádost o informace: info
       Jiné správní řízení: obecne
 ---
-# Otázky
 # Úřad, který příkaz vydal
 ga id: adresat
 question: |
@@ -100,7 +93,7 @@ code: |
   Zadost.datumVydani = "[Datum doručení]"
   Zadost.urad = "[Název orgánu]"
   Odvolani.cj = "[Číslo jednací]"
-  Odvolani.datumVydani = "[Datum doručení]"
+  Odvolani.datumDoruceni = "[Datum doručení]"
   Odvolani.urad = "[Název orgánu]"
   Odvolani.datumVydani = "[Datum odeslání]"
 ---
@@ -127,64 +120,20 @@ event: oduvodneni_pozdeji
 code: |
   Podani.oduvodneni = "[Doplňte odůvodnění odvolání]."
 ---
-# Prilohy
-ga id: zpusobOdeslani
-question: |
-  Odeslání odvolání
-fields:
-  - Jak budete odvolání odesílat?: Podani.forma
-    input type: radio
-    choices:
-      - Poštou / Předám osobně: posta
-      - Datovou schránkou: datovka
-#      - E-mailem (s ověřeným el. podpisem): email
-  - Chcete přikládat přílohy: Podani.prilohy
-    datatype: yesnoradio
-  - note: |
-      Je praktické přiložit kopii napadených rozhodnutí. Usnadníte tím posouzení podnětu. Nejde však o povinnost, úřad si je případně může vyžádat.
-  - Seznam příloh: prilohy
-    input type: area
-    hint: |
-      Jednotlivé položky oddělte "enterem".
-    show if:
-      variable: Podani.prilohy
-      is: true
----
-# Rozdělení příloh na seznam
+################################################ Odeslání
+event: odeslat_top
 code: |
-  Podani.prilohySeznam = string_pole(prilohy)
+  vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
+  emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
 ---
-# Odeslání souborů
-need: vzor
-id: souboryKeStazeni
-progress: 100
-question: |
-  Vaš vzor je připraven
-subquestion: |
-  Vzor vám zašleme na e-mailovou adresu.
-
-  % if user_has_privilege('admin'):
-  [Stáhnout](${ vzor.url_for() })
-  % endif
-fields:
-  - Váš e-mail: email
-    datatype: email
-  - Přihlásit k odběru novinek: novinky
-    datatype: yesno
-continue button field: potvrditOdeslani
----
-# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
-event: odeslatEmail
-sets: vseHotovo
+event: zaznamy
 code: |
-  vzor
-  if potvrditOdeslani:
-    emailOdeslan = send_email(email, template=t_vzor_106_podnet, attachments=[vzor])
   if novinky:
-    ecomail = addEcomail(email, "96", "Podnět k přezkumu – 106")
-  if emailOdeslan:
+    ecomail = addEcomail(email, "96", "Podnet k přezkumu 106")
+  if emailOdeslan.status_code == 200:
     vseHotovo = True
-    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    # webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    final_fr
   else:
     neodeslano
 ---
@@ -192,6 +141,10 @@ attachment:
   name: Podnět k přezkumu 106
   filename: Podnět
   variable name: vzor
-  docx template file: Podnet_prezkum_106.docx
+  docx template file: template.docx
+  update references: True
   valid formats:
     - docx
+  fields:
+    - nadpis: Podnět k provedení přezkumného řízení podle § 16b zákona č. 106/1999 Sb. o svobodném přístupu k informacím
+    - sablona: Podnet_prezkum_106.docx

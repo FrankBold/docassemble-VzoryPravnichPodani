@@ -8,7 +8,7 @@ import xmltodict
 import datetime
 
 def overitUrad(dotaz, kriterium):
-  URL = 'https://api.apitalks.store/ovm?filter={"where":{"'+ dotaz +'":"'+ kriterium +'"}}'
+  URL = 'https://api.apitalks.store/ovm?filter={"where":{"'+ kriterium +'":"'+ dotaz +'"}}'
   headers = {'x-api-key': get_config('apitalksKey')}
   page = requests.get(URL, headers=headers)
   data = json.loads(page.text)

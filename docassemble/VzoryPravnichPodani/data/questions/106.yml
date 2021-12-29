@@ -12,31 +12,22 @@ features:
   question back button: True
   navigation back button: False
 ---
-modules:
-  - .integrace
-  - .overovac
-  - .utility
+include:
+  - setting.yml
+  - univerzal.yml
+  - final_screen.yml
 ---
-objects:
-  - Podatel: Person.using(nazev="podatele")
-  - Adresat: Organization
-  - Podani: Thing
-  - Komentar: DAFileCollection
-  - userdata: DAStore
----
+# Vlastní nastavení
 mandatory: True
 code: |
-  import random
-  multi_user = True
-  nabidkaFBA = True
-  if userdata.get("prefs"):
-    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
-    Podatel.address = userdata.get("prefs").address
-    Podatel.birthday = userdata.get("prefs").birthday
-    email = userdata.get("prefs").email
-    Podani.odpoved = userdata.get("prefs").odeslani
-    Podatel.idds = userdata.get("prefs").idds
-  nazev = "Žádost o informace"
+  nabidkaFBA = False
+  nazev_vzoru = "Žádost o informace"
+  reminder_show = True
+  zpusoby_odeslani["email"] = "E-mailem"
+---
+# Nastavení URL argumentů
+mandatory: True
+code: |
   if 'zdroj' in url_args:
     zdroj = url_args['zdroj']
     if 'urad' in url_args:
@@ -67,21 +58,17 @@ code: |
     Adresat.idds = vystup_urad['ISDS']
     Podani.smlouvaCislo = smlouvaData['cisloSmlouvy']
     Podani.smlouvaDatum = format_date(smlouvaData['datumUzavreni'], format='dd.MM.yyyy')
-  else:
-    zdroj
-  novinky
-  if random.random() < 0.5:
-    final_fr
-  else:
-    stats_tazatel
-    final_stats
 ---
-include:
-  - t_mail.yml
-  - objektPerson.yml
-  - final_screen.yml
+# Logika
+mandatory: True
+code: |
+  vzor
+  if potvrditOdeslani and not defined("emailOdeslan"):
+    odeslat_top
+  zaznamy
+  final_fr
 ---
-# Otázky
+############################################ Otázky
 # Úřad, který příkaz vydal
 ga id: povinnySubjekt
 question: |
@@ -109,53 +96,6 @@ help:
       * subjekty, kterým zákon svěřil rozhodování o právech, právem chráněných zájmech nebo povinnostech fyzických nebo právnických osob v oblasti veřejné správy v rozsahu této jejich rozhodovací činnosti (pro zjednodušení dále jen „úřad“)
 
       povinny poskytovat podle tohoto zákona informace vztahující se k jejich působnosti, a to na základě ústní nebo písemné žádosti fyzických a právnických osob.
----
-ga id: adresatRucne
-if: |
-  rucne
-question: |
-  Identifikační údaje orgánu
-subquestion: |
-  % if defined('hlaska'):
-  <div class="alert alert-warning">
-  Bohužel se nepodařilo údaje doplnit automaticky. Zadejte je prosím ručně.
-  </div>
-  % endif
-fields:
-  - Název orgánu: Adresat.name.text
-  - Oddělení: Adresat.oddeleni
-    required: False
-  - Ulice a čp: Adresat.ulice
-  - Obec: Adresat.obec
-  - PSČ: Adresat.psc
-  - ID DS: Adresat.idds
-    show if:
-      code: |
-        Podani.forma == 'datovka'
----
-# Získání údajů o kraji
-if: |
-  rucne == False
-code: |
-  import random
-  vystup_urad = uradDleDatovky(Adresat.idds)
-  if vystup_urad == "chyba":
-    rucne = True
-    hlaska = True
-    Adresat.name.text
-  else:
-    Adresat.name.text = vystup_urad['NazevOsoby']
-    if vystup_urad['AdresaSidla']['CisloOrientacni']:
-      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
-    else:
-      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
-    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
-    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
-    Adresat.idds = vystup_urad['ISDS']
-  if random.random() < 0.5:
-    final_fr
-  else:
-    final_stats
 ---
 # Předmět podnětu
 ga id:  smlouva
@@ -264,73 +204,26 @@ fields:
       variable: Podani.odpoved
       is: datovka
 ---
-# Způsob odeslání
-ga id: zpusobOdeslani
-question: |
-  Odeslání žádosti
-fields:
-  - Jak budete podnět odesílat?: Podani.forma
-    input type: radio
-    choices:
-      - Poštou: posta
-      - Datovou schránkou: datovka
-      - E-mailem: email
-  - Chcete přikládat přílohy: Podani.prilohy
-    datatype: yesnoradio
-  - Seznam příloh: prilohy
-    datatype: area
-    hint: |
-      Jednotlivé položky oddělte "enterem".
-    show if:
-      variable: Podani.prilohy
-      is: true
----
 # Rozdělení obsahu na jednotlivé položky. Samostatně, protože ne vždy to potřebujeme
 code: |
   Podani.obsah = string_pole(obsah)
 ---
-# Rozdělení příloh na seznam
+################################################ Odeslání
+event: odeslat_top
 code: |
-  Podani.prilohySeznam = string_pole(prilohy)
+  komentar = "https://frankbold.org/sites/default/files/vzory/Zadost_o_informace_Komentar.pdf"
+  odkaz_email = url_of('mailto:adresa@uradu.cz', subject='Žádost o informace', body=zadost_md.content)
+  vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
+  emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
 ---
-# Odeslání souborů
-need: vzor
-id: souboryKeStazeni
-progress: 100
-question: |
-  Vaš vzor je připraven
-subquestion: |
-  Vzor Vám společné s manuálem pošleme na e-mail.
-  *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
-
-  % if user_has_privilege('admin'):
-  [Stáhnout](${ vzor.url_for() })
-  % endif
-fields:
-  - Váš e-mail: email
-    datatype: email
-    default: |
-      % if defined('Podatel.email'):
-      ${ Podatel.email }
-      % endif
-  - Chci za 15 dní poslat e-mail s informacemi pro případ odmítnutí žádosti: reminder
-    datatype: yesno
-  - Přihlásit k odběru novinek: novinky
-    datatype: yesno
-continue button field: potvrditOdeslani
----
-# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
-event: odeslatEmail
-sets: vseHotovo
+event: zaznamy
 code: |
-  vzor
-  if potvrditOdeslani:
-    emailOdeslan = send_email(email, template=t_vzor_106, attachments=[vzor.docx, vzor.pdf,DAStaticFile(filename='Zadost_o_informace_Komentar.pdf')])
   if novinky:
-    ecomail = addEcomail(email, "96", "Zadost o informace")
-  if emailOdeslan:
+    ecomail = addEcomail(email, "96", "Žádost o informace")
+  if emailOdeslan.status_code == 200:
     vseHotovo = True
-    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    # webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    final_fr
   else:
     neodeslano
 ---
@@ -338,10 +231,12 @@ attachment:
   name: Žádost o informace
   filename: Zadost o informace
   variable name: vzor
-  docx template file: 106.docx
+  docx template file: template.docx
   valid formats:
     - docx
-    - pdf
+  fields:
+    - nadpis: Žádost o poskytnutí informací
+    - sablona: 106.docx
 ---
 template: zadost_md
 content file: 106.md

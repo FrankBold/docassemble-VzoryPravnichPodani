@@ -7,37 +7,21 @@ metadata:
       organization: Frank Bold Society
   revision_date: 2020-10-09
 ---
-features:
-  question help button: True
-  question back button: True
-  navigation back button: False
+include:
+  - setting.yml
+  - univerzal.yml
+  - final_screen.yml
 ---
-modules:
-  - .integrace
-  - .overovac
-  - .utility
----
-objects:
-  - Podatel: Person.using(nazev="podatele")
-  - Adresat: Organization
-  - Podani: Thing
-  - Zadost: Thing
-  - Rozhodnuti: Thing
-  - Komentar: DAFileCollection
-  - userdata: DAStore
----
+# Vlastní nastavení
 mandatory: True
 code: |
-  nabidkaFBA = True
-  nazev = "Stížnost"
-  if userdata.get("prefs"):
-    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
-    Podatel.address = userdata.get("prefs").address
-    Podatel.birthday = userdata.get("prefs").birthday
-    email = userdata.get("prefs").email
-    Podani.odpoved = userdata.get("prefs").odeslani
-    Podatel.idds = userdata.get("prefs").idds
+  nabidkaFBA = False
+  nazev_vzoru = "Stížnost na postup při vyřizování žádosti o informace."
   rozhodnutiExist = True
+---
+# Zpracování URL argumentů
+mandatory: True
+code: |
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
     typRizeni = url_args['typ']
@@ -49,14 +33,17 @@ code: |
         oduvodnit = True
         if "final_arg" in vychoziData:
           Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
+---
+# Logika
+mandatory: True
+code: |
+  vzor
+  if potvrditOdeslani and not defined("emailOdeslan"):
+    odeslat_top
+  zaznamy
   final_fr
 ---
-include:
-  - t_mail.yml
-  - objektPerson.yml
-  - final_screen.yml
----
-# Otázky
+############################################ Otázky
 # Úřad, který příkaz vydal
 ga id: adresat
 question: |
@@ -73,48 +60,6 @@ fields:
     show if:
       variable: rucne
       is: False
----
-ga id: adresatRucne
-if: |
-  rucne
-question: |
-  Identifikační údaje orgánu
-subquestion: |
-  % if defined('hlaska'):
-  <div class="alert alert-warning">
-  Bohužel se nepodařilo údaje doplnit automaticky. Zadejte je prosím ručně.
-  </div>
-  % endif
-fields:
-  - Název orgánu: Adresat.name.text
-  - Oddělení: Adresat.oddeleni
-    required: False
-  - Ulice a čp: Adresat.ulice
-  - Obec: Adresat.obec
-  - PSČ: Adresat.psc
-  - ID DS: Adresat.idds
-    show if:
-      code: |
-        Podani.forma == 'datovka'
----
-# Získání údajů o kraji
-if: |
-  rucne == False
-code: |
-  vystup_urad = uradDleDatovky(Adresat.idds)
-  if vystup_urad == "chyba":
-    rucne = True
-    hlaska = True
-    Adresat.name.text
-  else:
-    Adresat.name.text = vystup_urad['NazevOsoby']
-    if vystup_urad['AdresaSidla']['CisloOrientacni']:
-      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
-    else:
-      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
-    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
-    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
-    Adresat.idds = vystup_urad['ISDS']
 ---
 # Předmět stížnosti
 ga id:  rozhodnuti
@@ -277,69 +222,21 @@ code: |
   Podani.oduvodneni = "[Doplňte odůvodnění]."
   Rozhodnuti.castka = "[Částka v KČ]"
 ---
-# Prilohy
-ga id: zpusobOdeslani
-question: |
-  Odeslání stížnosti
-fields:
-  - Jak budete podnět odesílat?: Podani.forma
-    input type: radio
-    choices:
-      - Poštou / Osobně: posta
-      - Datovou schránkou: datovka
-#      - E-mailem (s ověřeným el. podpisem): email
-  - Chcete přikládat přílohy: Podani.prilohy
-    datatype: yesnoradio
-    default: |
-      % if Podani.duvod == 'necinnost':
-      True
-      % endif
-  - Seznam příloh: prilohy
-    datatype: area
-    default: |
-      % if Podani.duvod == 'necinnost':
-      Žádost o informace
-      % endif
-    show if:
-      variable: Podani.prilohy
-      is: true
----
-# Rozdělení příloh na seznam
+################################################ Odeslání
+event: odeslat_top
 code: |
-  Podani.prilohySeznam = string_pole(prilohy)
+  komentar = "https://frankbold.org/sites/default/files/vzory/Stiznost_na_postup_Komentar.pdf"
+  vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
+  emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
 ---
-# Odeslání souborů
-need: vzor
-id: souboryKeStazeni
-progress: 100
-question: |
-  Vaš vzor je připraven
-subquestion: |
-  Vzor Vám společné s manuálem pošleme na e-mail.
-  *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
-
-  % if user_has_privilege('admin'):
-  [Stáhnout](${ vzor.url_for() })
-  % endif
-fields:
-  - Váš e-mail: email
-    datatype: email
-  - Přihlásit k odběru novinek: novinky
-    datatype: yesno
-continue button field: potvrditOdeslani
----
-# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
-event: odeslatEmail
-sets: vseHotovo
+event: zaznamy
 code: |
-  vzor
-  if potvrditOdeslani:
-    emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
   if novinky:
-    ecomail = addEcomail(email, "96", "Stiznost")
-  if emailOdeslan:
+    ecomail = addEcomail(email, "96", "Stížnost")
+  if emailOdeslan.status_code == 200:
     vseHotovo = True
-    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    # webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    final_fr
   else:
     neodeslano
 ---
@@ -347,6 +244,10 @@ attachment:
   name: Stížnost
   filename: Stížnost
   variable name: vzor
-  docx template file: Stiznost.docx
+  update references: True
+  docx template file: template.docx
   valid formats:
     - docx
+  fields:
+    - nadpis: Stížnost na postup při vyřizování žádosti o informace.
+    - sablona: Stiznost.docx

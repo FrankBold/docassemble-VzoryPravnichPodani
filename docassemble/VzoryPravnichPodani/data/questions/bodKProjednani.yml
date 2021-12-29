@@ -7,43 +7,32 @@ metadata:
       organization: Frank Bold Society
   revision_date: 2021-08-12
 ---
-features:
-  question help button: True
-  question back button: True
-  navigation back button: False
----
 modules:
-  - .integrace
-  - .overovac
-  - .utility
   - .pocetObyvatel
 ---
-objects:
-  - Podatel: Person.using(nazev="podatele")
-  - Adresat: Organization
-  - Podani: Thing
-  - userdata: DAStore
+include:
+  - setting.yml
+  - univerzal.yml
+  - final_screen.yml
 ---
+# Vlastní nastavení
 mandatory: True
 code: |
   nabidkaFBA = False
-  nazev = "Žádost o zařazení bodu na zasedání"
-  if userdata.get("prefs"):
-    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
-    Podatel.address = userdata.get("prefs").address
-    Podatel.birthday = userdata.get("prefs").birthday
-    email = userdata.get("prefs").email
-    Podani.odpoved = userdata.get("prefs").odeslani
-    Podatel.idds = userdata.get("prefs").idds
+  nazev_vzoru = "Žádost o zařazení bodu na zasedání"
+---
+# Logika
+mandatory: True
+code: |
   Adresat.organ
   pocetPodpisu_Info
+  vzor
+  if potvrditOdeslani and not defined("emailOdeslan"):
+    odeslat_top
+  zaznamy
   final_fr
 ---
-include:
-  - t_mail.yml
-  - objektPerson.yml
-  - final_screen.yml
----
+############################################ Otázky
 question: |
   Vyberte z jakého okresu je Vámi zadaná obec
 fields:
@@ -91,53 +80,6 @@ fields:
       variable: rucne
       is: False
 ---
-ga id: adresatRucne
-if: |
-  rucne
-question: |
-  Adresa obecního úřadu
-subquestion: |
-  % if defined('hlaska'):
-  <div class="alert alert-warning">
-  Bohužel se nepodařilo údaje doplnit automaticky. Zadejte je prosím ručně.
-  </div>
-  % endif
-
-  Podle obce dopočítáme potřebný počet podpisů, dle počtu obyvatel. Žádost musí být podpořena pospisy alespoň 0,5 % obyvatel obce.
-fields:
-  - Ulice a čp: Adresat.ulice
-  - Obec: Adresat.obec
-  - PSČ: Adresat.psc
----
-# Získání údajů o kraji
-if: |
-  rucne == False
-code: |
-  vystup_urad = uradDleDatovky(Adresat.idds)
-  if vystup_urad == "chyba":
-    rucne = True
-    hlaska = True
-    Adresat.name.text
-  else:
-    Adresat.name.text = vystup_urad['NazevOsoby']
-    if vystup_urad['AdresaSidla']['UliceNazev']:
-      if vystup_urad['AdresaSidla']['CisloOrientacni'] and vystup_urad['AdresaSidla']['CisloDomovni']:
-        Adresat.ulice = str(vystup_urad['AdresaSidla']['UliceNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni']) +"/"+ str(vystup_urad['AdresaSidla']['CisloOrientacni'])
-      elif vystup_urad['AdresaSidla']['CisloDomovni']:
-        Adresat.ulice = str(vystup_urad['AdresaSidla']['UliceNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni'])
-      else:
-        Adresat.ulice = str(vystup_urad['AdresaSidla']['UliceNazev'])
-    else:
-      if vystup_urad['AdresaSidla']['CisloDomovni']:
-        Adresat.ulice = str(vystup_urad['AdresaSidla']['ObecNazev']) +" "+ str(vystup_urad['AdresaSidla']['CisloDomovni'])
-      else:
-        Adresat.ulice = str(vystup_urad['AdresaSidla']['ObecNazev'])
-    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
-    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
-    Adresat.idds = vystup_urad['ISDS']
----
-# Otázky
-# Úřad, který příkaz vydal
 ga id: Předmět
 question: |
   Projednání záležitosti
@@ -164,37 +106,20 @@ subquestion: |
   Do vzoru jsme vám přidali potřebný počet podpisových řádků. Podpisy musíte získat před odesláním žádosti obci.
 continue button field: pocetPodpisu_Info
 ---
-# Odeslání souborů
-need: vzor
-id: souboryKeStazeni
-progress: 100
-question: |
-  Vaš vzor je připraven
-subquestion: |
-  Vzor vám zašleme na e-mailovou adresu.
-
-  % if user_has_privilege('admin'):
-  [Stáhnout](${ vzor.url_for() })
-  % endif
-fields:
-  - Váš e-mail: email
-    datatype: email
-  - Přihlásit k odběru novinek: novinky
-    datatype: yesno
-continue button field: potvrditOdeslani
----
-# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
-event: odeslatEmail
-sets: vseHotovo
+################################################ Odeslání
+event: odeslat_top
 code: |
-  vzor
-  if potvrditOdeslani:
-    emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor])
+  vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
+  emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
+---
+event: zaznamy
+code: |
   if novinky:
     ecomail = addEcomail(email, "96", "Bod k zasedání")
-  if emailOdeslan:
+  if emailOdeslan.status_code == 200:
     vseHotovo = True
-    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    # webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    final_fr
   else:
     neodeslano
 ---
@@ -202,6 +127,7 @@ attachment:
   name: Bod k zasedání
   filename: Žádost
   variable name: vzor
+  update references: True
   docx template file: BodKProjednani.docx
   valid formats:
     - docx

@@ -39,3 +39,7 @@ def hs_smlouva(idSmlouvy):
     url = "https://www.hlidacstatu.cz/Api/v2/Smlouvy/"+idSmlouvy
     r = requests.get(url, headers=header)
     return r.json()
+
+def odeslat_sendgrid(webhook, data):
+  response = requests.post(webhook, data=data, headers={'Content-Type': 'application/json'})
+  return response

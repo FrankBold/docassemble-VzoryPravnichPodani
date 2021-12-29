@@ -105,11 +105,11 @@ code: |
   vystup = overitXml(action_argument('ico').strip('"'))
   json_response(dict(test=vystup))
 ---
-ga id: adresatRucne
+generic object: Organ
 if: |
   rucne
 question: |
-  Identifikační údaje orgánu
+  Identifikační údaje ${ x.nazev }
 subquestion: |
   % if defined('hlaska'):
   <div class="alert alert-warning">
@@ -117,35 +117,35 @@ subquestion: |
   </div>
   % endif
 fields:
-  - Název orgánu: Adresat.name.text
-  - Oddělení: Adresat.oddeleni
+  - Název orgánu: x.name.text
+  - Oddělení: x.oddeleni
     required: False
-  - Ulice a čp: Adresat.ulice
-  - Obec: Adresat.obec
-  - PSČ: Adresat.psc
-  - ID DS: Adresat.idds
+  - Ulice a čp: x.ulice
+  - Obec: x.obec
+  - PSČ: x.psc
+  - ID DS: x.idds
     show if:
       code: |
         Podani.forma == 'datovka'
 ---
-# Získání údajů o kraji
+generic object: Organ
 if: |
   rucne == False
 code: |
-  vystup_urad = uradDleDatovky(Adresat.idds)
+  vystup_urad = uradDleDatovky(x.idds)
   if vystup_urad == "chyba":
     rucne = True
     hlaska = True
-    Adresat.name.text
+    x.name.text
   else:
-    Adresat.name.text = vystup_urad['NazevOsoby']
+    x.name.text = vystup_urad['NazevOsoby']
     if vystup_urad['AdresaSidla']['CisloOrientacni']:
-      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+      x.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
     else:
-      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
-    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
-    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
-    Adresat.idds = vystup_urad['ISDS']
+      x.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+    x.psc = vystup_urad['AdresaSidla']['PostaKod']
+    x.obec = vystup_urad['AdresaSidla']['ObecNazev']
+    x.idds = vystup_urad['ISDS']
 ---
 # Prilohy
 ga id: zpusobOdeslani
@@ -154,10 +154,8 @@ question: |
 fields:
   - Jak budete podnět odesílat?: Podani.forma
     input type: radio
-    choices:
-      - Poštou: posta
-      - Datovou schránkou: datovka
-      - E-mailem (s ověřeným el. podpisem): email
+    code: |
+      zpusoby_odeslani
   - Chcete přikládat přílohy: Podani.prilohy
     datatype: yesnoradio
   - Seznam příloh: prilohy
@@ -188,6 +186,19 @@ subquestion: |
 fields:
   - Váš e-mail: email
     datatype: email
+  - Chci za 15 dní poslat e-mail s informacemi pro případ odmítnutí žádosti: reminder
+    datatype: yesno
+    show if:
+      code: |
+        reminder_show
   - Přihlásit k odběru novinek: novinky
     datatype: yesno
 continue button field: potvrditOdeslani
+---
+code: |
+  data_all = json.dumps(all_variables())
+---
+event: neodeslano
+question: Někde se stala chyba
+subquestion: |
+  Omlouváme se za problémy. Zkuste to prosím později.

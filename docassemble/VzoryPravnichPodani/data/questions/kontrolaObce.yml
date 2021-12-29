@@ -7,44 +7,31 @@ metadata:
       organization: Frank Bold Society
   revision_date: 2020-09-09
 ---
-features:
-  question help button: True
-  question back button: True
-  navigation back button: False
----
 include:
-  - t_mail.yml
-  - objektPerson.yml
+  - setting.yml
+  - univerzal.yml
   - final_screen.yml
 ---
-modules:
-  - .integrace
-  - .overovac
-  - .utility
----
-objects:
-  - Podatel: Person.using(nazev="podatele")
-  - Adresat: Organization
-  - Podani: Thing
-  - Obec: Organization
-  - Komentar: DAFileCollection
-  - userdata: DAStore
----
+# Vlastní nastavení
 mandatory: True
 code: |
-  multi_user = True
   nabidkaFBA = False
-  nazev = "Podnět k provedení kontroly obce"
-  if userdata.get("prefs"):
-    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
-    Podatel.address = userdata.get("prefs").address
-    Podatel.birthday = userdata.get("prefs").birthday
-    email = userdata.get("prefs").email
-    Podani.odpoved = userdata.get("prefs").odeslani
-    Podatel.idds = userdata.get("prefs").idds
+  nazev_vzoru = "Podnět k provedení kontroly obce"
+---
+# Logika
+mandatory: True
+code: |
+  if pusobnost == "samo" and not defined("Adresat.name.text"):
+    adresat_samo
+  elif pusobnost == "prenesena" and not defined("Adresat.name.text"):
+    adresat_prenesena
+  vzor
+  if potvrditOdeslani and not defined("emailOdeslan"):
+    odeslat_top
+  zaznamy
   final_fr
 ---
-# Otázky
+############################################ Otázky
 # Působnost předmětu kontroly
 ga id: kontrolniOrgan
 question: |
@@ -69,25 +56,40 @@ help:
   content: |
     ${ obsahClanku("263") }
 ---
+# U věci v rámci samostatné působnosti řeší kontrolu Ministerstvo vnitra
+event: adresat_samo
+code : |
+  Adresat.name.text = "Ministerstvo vnitra"
+  Adresat.oddeleni = "Odbor veřejné správy, dozoru a kontroly"
+  Adresat.ulice = "Náměstí Hrdinů 1634/3"
+  Adresat.psc = "140 21"
+  Adresat.obec = "Praha 4"
+  Adresat.idds = "6bnaawp"
+  Adresat.email = "posta@mvvcr.cz"
+---
 # IČO Krajů
 code: |
   icoKraju = {"70890650": "Jihočeský", "70888337": "Jihomoravský", "70891168": "Karlovarský", "70889546": "Královehradecký", "70891508": "Liberecký", "70890692": "Moravskoslezský", "60609460": "Olomoucký", "70892822": "Pardubický", "70890366": "Plzeňský", "00064581": "Praha", "70891095": "Středočeský", "70892156": "Ústecký", "70890749": "Vysočina", "70891320": "Zlínský"}
 ---
 # Získání údajů o kraji
+event: adresat_prenesena
 code: |
   vystup = overitUrad(kraj, "ICO")
   Adresat.name.text = vystup['Nazev'] +" - Krajský úřad"
-  if vystup_urad['AdresaSidla']['CisloOrientacni']:
-    Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+  if vystup['AdresaUradu']['CisloOrientacni']:
+    Adresat.ulice = vystup['AdresaUradu']['UliceNazev'] +" "+ vystup['AdresaUradu']['CisloDomovni'] +"/"+ vystup['AdresaUradu']['CisloOrientacni']
   else:
-    Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+    Adresat.ulice = vystup['AdresaUradu']['UliceNazev'] +" "+ vystup['AdresaUradu']['CisloDomovni']
   Adresat.psc = vystup['AdresaUradu']['PSC']
   Adresat.obec = vystup['AdresaUradu']['ObecNazev']
   Adresat.idds = vystup['IdDS']
-  if isinstance(vystup['Email']['Polozka'], list):
-    Adresat.email = vystup['Email']['Polozka'][0]['Email']
-  else:
-    Adresat.email = vystup['Email']['Polozka']['Email']
+  try:
+    if isinstance(vystup['Email']['Polozka'], list):
+      Adresat.email = vystup['Email']['Polozka'][0]['Email']
+    else:
+      Adresat.email = vystup['Email']['Polozka']['Email']
+  except:
+    Adresat.email = "[E-mail úřadu]"
 ---
 # Předmět podnětu
 ga id:  predmetPodnetu
@@ -120,63 +122,21 @@ code: |
   Podani.ustanoveni = True
   Podani.paragraf = "[Porušené ustanovení]"
 ---
-# Prilohy
-ga id: zpusobOdeslani
-question: |
-  Odeslání podnětu
-fields:
-  - Jak budete podnět odesílat?: Podani.forma
-    input type: radio
-    choices:
-      - Poštou: posta
-      - Datovou schránkou: datovka
-      - E-mailem (s ověřeným el. podpisem): email
-  - Chcete přikládat přílohy: Podani.prilohy
-    datatype: yesnoradio
-  - Seznam příloh: prilohy
-    datatype: area
-    hint: |
-      Jednotlivé položky oddělte "enterem".
-    show if:
-      variable: Podani.prilohy
-      is: true
----
-# Rozdělení příloh na seznam
+################################################ Odeslání
+event: odeslat_top
 code: |
-  Podani.prilohySeznam = string_pole(prilohy)
+  komentar = "https://frankbold.org/sites/default/files/vzory/Podnet_k_provedeni_kontroly_Komentar.pdf"
+  vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
+  emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
 ---
-# Odeslání souborů
-need: vzor
-id: souboryKeStazeni
-progress: 100
-question: |
-  Vaš vzor je připraven
-subquestion: |
-  Vzor Vám společné s manuálem pošleme na e-mail.
-  *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
-
-  % if user_has_privilege('admin'):
-  [Stáhnout](${ vzor.url_for() })
-  % endif
-fields:
-  - Váš e-mail: email
-    datatype: email
-  - Přihlásit k odběru novinek: novinky
-    datatype: yesno
-continue button field: potvrditOdeslani
----
-# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
-event: odeslatEmail
-sets: vseHotovo
+event: zaznamy
 code: |
-  vzor
-  if potvrditOdeslani:
-    emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Podnet_k_provedeni_kontroly_Komentar.pdf')])
   if novinky:
     ecomail = addEcomail(email, "96", "Podnet ke kontrole obce")
-  if emailOdeslan:
+  if emailOdeslan.status_code == 200:
     vseHotovo = True
-    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    # webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    final_fr
   else:
     neodeslano
 ---
@@ -184,6 +144,10 @@ attachment:
   name: Podnět k provedení kontroly obce
   filename: Podnet ke kontrole
   variable name: vzor
-  docx template file: PodnetKontolaObce.docx
+  update references: True
+  docx template file: template.docx
   valid formats:
     - docx
+  fields:
+    - nadpis: Podnět k provedení kontroly nad obcí ${ Obec.name.text }
+    - sablona: PodnetKontrolaObce.docx

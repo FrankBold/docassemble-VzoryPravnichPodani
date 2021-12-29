@@ -7,48 +7,35 @@ metadata:
       organization: Frank Bold Society
   revision_date: 2020-10-09
 ---
-features:
-  question help button: True
-  question back button: True
-  navigation back button: False
+include:
+  - setting.yml
+  - univerzal.yml
+  - final_screen.yml
 ---
-modules:
-  - .integrace
-  - .overovac
-  - .utility
----
-objects:
-  - Podatel: Person.using(nazev="podatele")
-  - Adresat: Organization
-  - Adresat.nadrizeny: Organization
-  - Podani: Thing
-  - Rozhodnuti: Thing
-  - Komentar: DAFileCollection
-  - userdata: DAStore
----
+# Vlastní nastavení
 mandatory: True
 code: |
-  nabidkaFBA = True
-  nazev = "Odvolání proti rozhodnutí"
-  nadrizeny = False
-  if userdata.get("prefs"):
-    Podatel.name.text = userdata.get("prefs").name+" "+userdata.get("prefs").surname
-    Podatel.address = userdata.get("prefs").address
-    Podatel.birthday = userdata.get("prefs").birthday
-    email = userdata.get("prefs").email
-    Podani.odpoved = userdata.get("prefs").odeslani
-    Podatel.idds = userdata.get("prefs").idds
+  nabidkaFBA = False
+  nazev_vzoru = "Odvolání ve správním řízení"
+---
+# URL argumenty
+mandatory: True
+code: |
   if 'idFile' in url_args:
     vychoziData = get_session_variables(url_args['idFile'], url_args['idSesn'])
     typRizeni = url_args['typ']
     Podani.oduvodneni = vychoziData["final_arg"]["oduvodneni"]
+---
+# Logika
+mandatory: True
+code: |
+  vzor
+  if potvrditOdeslani and not defined("emailOdeslan"):
+    odeslat_top
+  zaznamy
   final_fr
 ---
-include:
-  - t_mail.yml
-  - objektPerson.yml
-  - final_screen.yml
----
+############################################ Otázky
 ga id: typRizeni
 question: |
   Druh řízení
@@ -61,7 +48,6 @@ fields:
       Žádost o informace: info
       Jiné správní řízení: obecne
 ---
-# Otázky
 # Úřad, který příkaz vydal
 ga id: adresat
 question: |
@@ -88,48 +74,6 @@ fields:
 #    choices:
 #        - Vyplním orgán ručně: True
 #        - Dle ID datové schránky: False
----
-ga id: adresatRucne
-if: |
-  rucne
-question: |
-  Identifikační údaje orgánu
-subquestion: |
-  % if defined('hlaska'):
-  <div class="alert alert-warning">
-  Bohužel se nepodařilo údaje doplnit automaticky. Zadejte je prosím ručně.
-  </div>
-  % endif
-fields:
-  - Název orgánu: Adresat.name.text
-  - Oddělení: Adresat.oddeleni
-    required: False
-  - Ulice a čp: Adresat.ulice
-  - Obec: Adresat.obec
-  - PSČ: Adresat.psc
-  - ID DS: Adresat.idds
-    show if:
-      code: |
-        Podani.forma == 'datovka'
----
-# Získání údajů o kraji
-if: |
-  rucne == False
-code: |
-  vystup_urad = uradDleDatovky(Adresat.idds)
-  if vystup_urad == "chyba":
-    rucne = True
-    hlaska = True
-    Adresat.name.text
-  else:
-    Adresat.name.text = vystup_urad['NazevOsoby']
-    if vystup_urad['AdresaSidla']['CisloOrientacni']:
-      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
-    else:
-      Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
-    Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
-    Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
-    Adresat.idds = vystup_urad['ISDS']
 ---
 # Předmět Odvolání
 ga id:  rozhodnuti
@@ -248,62 +192,22 @@ code: |
     elif Podani.petitTyp == "vratit":
       Podani.petit = p_vratit.content
 ---
-# Prilohy
-ga id: zpusobOdeslani
-question: |
-  Odeslání odvolání
-fields:
-  - Jak budete odvolání odesílat?: Podani.forma
-    input type: radio
-    choices:
-      - Poštou / Předám osobně: posta
-      - Datovou schránkou: datovka
-#      - E-mailem (s ověřeným el. podpisem): email
-  - Chcete přikládat přílohy: Podani.prilohy
-    datatype: yesnoradio
-  - Seznam příloh: prilohy
-    input type: area
-    hint: |
-      Jednotlivé položky oddělte "enterem".
-    show if:
-      variable: Podani.prilohy
-      is: true
----
-# Rozdělení příloh na seznam
+################################################ Odeslání
+scan for variables: False
+event: odeslat_top
 code: |
-  Podani.prilohySeznam = string_pole(prilohy)
+  komentar = "https://frankbold.org/"
+  vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
+  emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
 ---
-# Odeslání souborů
-need: vzor
-id: souboryKeStazeni
-progress: 100
-question: |
-  Vaš vzor je připraven
-subquestion: |
-  Vzor Vám společné s manuálem k jeho kontrole pošleme na e-mail.
-
-  % if user_has_privilege('admin'):
-  [Stáhnout](${ vzor.url_for() })
-  % endif
-fields:
-  - Váš e-mail: email
-    datatype: email
-  - Přihlásit k odběru novinek: novinky
-    datatype: yesno
-continue button field: potvrditOdeslani
----
-# Odeslání e-mailu se vzorem. Zároveň přidání kontaktu k mailing listu v rámci Ecomailu.
-event: odeslatEmail
-sets: vseHotovo
+event: zaznamy
 code: |
-  vzor
-  if potvrditOdeslani:
-    emailOdeslan = send_email(email, template=t_vzor, attachments=[vzor,DAStaticFile(filename='Odvolani_proti_rozhodnuti_ve_spravnim_rizeni_Komentar.pdf')])
   if novinky:
-    ecomail = addEcomail(email, "96", "Odvolani proti spravnimu rozhodnuti")
-  if emailOdeslan:
+    ecomail = addEcomail(email, "96", "Odvolání ve správním řízení")
+  if emailOdeslan.status_code == 200:
     vseHotovo = True
-    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    # webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=data_all,headers={'Content-Type': 'application/json'})
+    final_fr
   else:
     neodeslano
 ---
@@ -314,6 +218,17 @@ attachment:
   docx template file: Odvolani.docx
   valid formats:
     - docx
+---
+attachment:
+  name: Odvolání proti správnímu rozhodnutí
+  filename: Odvolani
+  variable name: vzor
+  docx template file: template.docx
+  valid formats:
+    - docx
+  fields:
+    - nadpis: Odvolání proti rozhodnutí
+    - sablona: odvolani_new.docx
 ---
 template: p_zastavit
 content: |
