@@ -35,3 +35,4 @@ code: |
     email = userdata.get("prefs").email
     Podani.odpoved = userdata.get("prefs").odeslani
     Podatel.idds = userdata.get("prefs").idds
+  set_parts(footer='<a href="https://da.frankbold.org/interview?i=docassemble.FrankBold:feedback.yml&fdb" class="btn btn-outline-dark btn-darevisit btn-sm"><i class="far fa-comment"></i> Odeslat zpětnou vazbu</a>  <a href="https://da.frankbold.org/start/dotaz" class="btn btn-outline-dark btn-darevisit btn-sm"><i class="far fa-question-circle"></i> Mám dotaz do poradny</a>  <a href="https://frankbold.org/kontakt" class="btn btn-light btn-darevisit btn-sm">Kontakt</a>')
