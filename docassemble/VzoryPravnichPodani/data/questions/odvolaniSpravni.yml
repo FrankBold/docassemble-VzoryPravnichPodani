@@ -196,7 +196,7 @@ code: |
 scan for variables: False
 event: odeslat_top
 code: |
-  komentar = "https://frankbold.org/"
+  komentar = "https://frankbold.org/sites/default/files/vzory/Odvolani_proti_rozhodnuti_ve_spravnim_rizeni_Komentar.pdf"
   vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
   emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
 ---
@@ -212,14 +212,6 @@ code: |
     neodeslano
 ---
 attachment:
-  name: Odvolání pro správnímu rozhodnuti
-  filename: Odvolani
-  variable name: vzor
-  docx template file: Odvolani.docx
-  valid formats:
-    - docx
----
-attachment:
   name: Odvolání proti správnímu rozhodnutí
   filename: Odvolani
   variable name: vzor
@@ -228,7 +220,7 @@ attachment:
     - docx
   fields:
     - nadpis: Odvolání proti rozhodnutí
-    - sablona: odvolani_new.docx
+    - sablona: Odvolani.docx
 ---
 template: p_zastavit
 content: |
