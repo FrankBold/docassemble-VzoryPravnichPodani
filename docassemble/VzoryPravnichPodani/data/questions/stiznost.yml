@@ -16,7 +16,7 @@ include:
 mandatory: True
 code: |
   nabidkaFBA = False
-  nazev_vzoru = "Stížnost na postup při vyřizování žádosti o informace."
+  nazev_vzoru = "Stížnost na postup při vyřizování žádosti o informace"
   rozhodnutiExist = True
 ---
 # Zpracování URL argumentů
