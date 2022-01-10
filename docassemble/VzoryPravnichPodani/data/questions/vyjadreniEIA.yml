@@ -28,6 +28,9 @@ mandatory: True
 code: |
   if 'idEIA' in url_args:
     zamer_data = detailEIA(url_args['idEIA'])
+    if not zamer_data:
+      nenalezeno
+    Zamer = zamer_data
 ---
 # Logika
 mandatory: True
