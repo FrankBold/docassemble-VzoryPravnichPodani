@@ -139,10 +139,13 @@ code: |
     x.name.text
   else:
     x.name.text = vystup_urad['NazevOsoby']
-    if vystup_urad['AdresaSidla']['CisloOrientacni']:
-      x.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
-    else:
-      x.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+    try:
+      if vystup_urad['AdresaSidla']['CisloOrientacni']:
+        x.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+      else:
+        x.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+    except:
+        x.ulice = "č.p. "+ vystup_urad['AdresaSidla']['CisloDomovni']
     x.psc = vystup_urad['AdresaSidla']['PostaKod']
     x.obec = vystup_urad['AdresaSidla']['ObecNazev']
     x.idds = vystup_urad['ISDS']
