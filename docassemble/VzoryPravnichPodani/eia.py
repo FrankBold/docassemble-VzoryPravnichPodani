@@ -5,7 +5,7 @@ import re
 import json
 import locale
 
-obsah = [[["Kód záměru:","s","kod"],["Název záměru:","s","nazev"],["Znění novely zákona:","s","novela"],["Stav:","s","stav"],["Zařazení:","s","zarazeni"],["Umístění:","t","lokalita"],["Příslušný úřad:","s","urad"],["Datum a čas posledních úprav:","d","aktualizovano"]],[["Oznamovatel:","s","oznamovatel"],["IČ oznamovatele:","l","ic"],["Stanovisko dle §45i odst. 1 z. č. 114/1992 Sb.:","s","stanovisko"],["Vliv na soustavu Natura 2000:","s","natura"],["Datum zveřejnění informace o oznámení na úřední desce dotčeného kraje:","d","datum"],["Termín pro zaslání vyjádření:","d","vyjadreniTermin"],["Zpracovatel oznámení:","l","zpracovatel"],["Text oznámení záměru:","f","text"],["Informace o oznámení:","f","info"]],[["Datum zveřejnění závěrů zjišťovacího řízení na úřední desce dotčeného kraje:","d","zverejneno"],["Závěry zjišťovacího řízení:","f","zaver"],["Informace o závěru zjišťovacího řízení:","f","info"],["Vliv na soustavu Natura 2000:","s","natura"]],[["Zpracovatel dokumentace:","l","zpracovatel"],["Zpracovatel - soustava Natura 2000:","l","zpracovatelNatura"],["Datum zveřejnění informace o dokumentaci na úřední desce dotčeného kraje:","d","zverejneno"],["Termín pro zaslání vyjádření:","d","vyjadreniTermin"],["Text dokumentace:","f","text"],["Text přepracované/doplněné dokumentace:","f","doplneni"],["Informace o dokumentaci:","f","info"],["Vrácení dokumentace:","d","vraceno"]],[["Zpracovatel posudku:","l","zpracovatel"],["Posuzovatel - soustava Natura 2000:","l","zpracovatelNatura"],["Datum zveřejnění informace o posudku na úřední desce dotčeného kraje:","d","zverejneno"],["Termín pro zaslání vyjádření:","d","vyjadreniTermin"],["Text posudku:","f","text"],["Informace o posudku:","f","info"]],[["Datum zveřejnění informace o veřejném projednání na úřední desce dotčeného kraje:","d","zverejneno"],["Informace o místě a času konání 1. veřejného projednání:","f","info"],["Zápis z 1. veřejného projednání:","f","zapis"]],[["Datum zveřejnění stanoviska na úřední desce dotčeného kraje:","d","zverejneno"],["Stanovisko:","s","stanovisko"],["Významný negativní vliv na soustavu Natura 2000:","s","natura"],["Text stanoviska:","f","text"],["Prodloužení stanoviska:","f","prodlouzeno"]]]
+obsah = [[["Kód záměru:","s","kod"],["Název záměru:","s","nazev"],["Znění novely zákona:","s","novela"],["Stav:","s","stav"],["Zařazení:","a","zarazeni"],["Umístění:","t","lokalita"],["Příslušný úřad:","s","urad"],["Datum a čas posledních úprav:","d","aktualizovano"]],[["Oznamovatel:","s","oznamovatel"],["IČ oznamovatele:","l","ic"],["Stanovisko dle §45i odst. 1 z. č. 114/1992 Sb.:","s","stanovisko"],["Vliv na soustavu Natura 2000:","s","natura"],["Datum zveřejnění informace o oznámení na úřední desce dotčeného kraje:","d","datum"],["Termín pro zaslání vyjádření:","d","vyjadreniTermin"],["Zpracovatel oznámení:","l","zpracovatel"],["Text oznámení záměru:","f","text"],["Informace o oznámení:","f","info"]],[["Datum zveřejnění závěrů zjišťovacího řízení na úřední desce dotčeného kraje:","d","zverejneno"],["Závěry zjišťovacího řízení:","f","zaver"],["Informace o závěru zjišťovacího řízení:","f","info"],["Vliv na soustavu Natura 2000:","s","natura"]],[["Zpracovatel dokumentace:","l","zpracovatel"],["Zpracovatel - soustava Natura 2000:","l","zpracovatelNatura"],["Datum zveřejnění informace o dokumentaci na úřední desce dotčeného kraje:","d","zverejneno"],["Termín pro zaslání vyjádření:","d","vyjadreniTermin"],["Text dokumentace:","f","text"],["Text přepracované/doplněné dokumentace:","f","doplneni"],["Informace o dokumentaci:","f","info"],["Vrácení dokumentace:","f","vraceno"]],[["Zpracovatel posudku:","l","zpracovatel"],["Posuzovatel - soustava Natura 2000:","l","zpracovatelNatura"],["Datum zveřejnění informace o posudku na úřední desce dotčeného kraje:","d","zverejneno"],["Termín pro zaslání vyjádření:","d","vyjadreniTermin"],["Text posudku:","f","text"],["Informace o posudku:","f","info"]],[["Datum zveřejnění informace o veřejném projednání na úřední desce dotčeného kraje:","d","zverejneno"],["Informace o místě a času konání 1. veřejného projednání:","f","info"],["Zápis z 1. veřejného projednání:","f","zapis"]],[["Datum zveřejnění stanoviska na úřední desce dotčeného kraje:","d","zverejneno"],["Stanovisko:","s","stanovisko"],["Významný negativní vliv na soustavu Natura 2000:","s","natura"],["Text stanoviska:","f","text"],["Prodloužení stanoviska:","f","prodlouzeno"]]]
 
 kat = ["uvod","oznameni","zjistovaci rizeni", "dokumentace", "posudek", "projednani", "stanovisko"]
 
@@ -32,7 +32,7 @@ def detailEIA(kod):
                 vystup[kat[i]][sekce[2]] = next.text
             elif sekce[1] == "d": # Pokud jde o datum, převedeme ho do standardního formátu
                 if next.text:
-                    vystup[kat[i]][sekce[2]] = str(datetime.strptime(re.sub('CE(S)*T', '', subtd.next_sibling.next_sibling.text), '%a %b %d %H:%M:%S  %Y'))
+                    vystup[kat[i]][sekce[2]] = str(datetime.strptime(re.sub('CE(S)*T', '', subtd.next_sibling.next_sibling.text), '%a %b %d %H:%M:%S %Y').strftime("%d. %m. %Y"))
                 else:
                     vystup[kat[i]][sekce[2]] = None
             elif sekce[1] == "t": # Tabulku převedeme do dict.
@@ -53,14 +53,16 @@ def detailEIA(kod):
                     vystup[kat[i]][sekce[2]] = odkaz
                 else:
                     vystup[kat[i]][sekce[2]] = None
+            elif sekce[1] == "a": # Text s více položkami převedeme na pole
+                vystup[kat[i]][sekce[2]] = next.text.split(";")
             elif sekce[1] == "f": # Soubor převedeme do dict
                 soubor = []
                 if next.text and len(next.find_all("a")) == 1:
                     datum = next.text.split(" - ")[1]
                     if next.a['href'].startswith("http"):
-                        soubor.append({'label': next.text.split(" (")[0], 'link': next.a['href'], 'zverejneno': str(datetime.strptime(datum, '%d.%m.%Y %H:%M:%S'))})
+                        soubor.append({'label': next.text.split(" (")[0], 'link': next.a['href'], 'zverejneno': str(datetime.strptime(datum.strip(), '%d.%m.%Y %H:%M:%S'))})
                     else:
-                        soubor.append({'label': next.text.split(" (")[0], 'link': 'https://portal.cenia.cz'+next.a['href'], 'zverejneno': str(datetime.strptime(datum, '%d.%m.%Y %H:%M:%S'))})
+                        soubor.append({'label': next.text.split(" (")[0], 'link': 'https://portal.cenia.cz'+next.a['href'], 'zverejneno': str(datetime.strptime(datum.strip(), '%d.%m.%Y %H:%M:%S'))})
                     vystup[kat[i]][sekce[2]] = soubor
                 elif next.text and len(next.find_all("a")) > 1:
                     souborCast = re.sub('<\/*td.*?>', '', str(next))
