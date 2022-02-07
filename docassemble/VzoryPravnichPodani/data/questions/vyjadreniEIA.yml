@@ -47,10 +47,11 @@ code: |
 ---
 ############################################ Otázky
 code: |
-  zamer_data = detailEIA(zamerId.upper())
-  if not zamer_data:
+  try:
+    zamer_data = detailEIA(zamerId.upper())
+    Zamer = zamer_data
+  except:
     nenalezeno
-  Zamer = zamer_data
 ---
 sets: Adresat.name.text
 code: |
@@ -68,6 +69,12 @@ code: |
     Adresat.psc = "100 10"
     Adresat.obec = "Praha 10"
     Adresat.idds = "6bnaawp"
+---
+event: nenalezeno
+question: |
+  Záměr nenalezen
+subquestion: |
+  Zkontrolujte prosím zadaný kód záměru: **${ zamerId }** a zkuste jej zadat znovu.
 ---
 ga id: idRizeni
 question: |
