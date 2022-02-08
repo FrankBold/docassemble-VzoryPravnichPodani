@@ -1,0 +1,165 @@
+metadata:
+  title: Osvobození od poplatku
+  short title: osvobozeni
+  description: Oznámení o osvobození od poplatku za obecní systém odpadového hospodářství
+  authors:
+    - organization: Frank Bold Society
+  revision_date: 2022-02-08
+---
+features:
+  javascript:
+    - https://api.mapy.cz/loader.js
+    - loader.js
+---
+modules:
+  - .poplatekOdpad
+---
+include:
+  - setting.yml
+  - univerzal.yml
+  - final_screen.yml
+---
+objects:
+  - Obec: Thing
+  - Obec.pobyt: Thing.using(popis="máte trvalý pobyt")
+  - Obec.bydliste: Thing.using(popis="aktuálně bydlíte")
+  - Obec.pobyt.vyhlaska: DADict
+  - Obec.bydliste.vyhlaska: DADict
+---
+# Vlastní nastavení
+mandatory: True
+code: |
+  nabidkaFBA = False
+  nazev_vzoru = "Osvobození od poplatku"
+---
+# Zpracování URL args
+scan for variables: False
+mandatory: True
+code: |
+  if 'query' in url_args:
+    info = url_args["query"]
+    if 'obecPobyt' in info:
+      Obec.pobyt.obec = url_args['obecPobyt']
+      vystup_urad = uradDleDatovky(url_args['iddsPobyt'])
+      Adresat.name.text = vystup_urad['NazevOsoby']
+      try:
+        if vystup_urad['AdresaSidla']['CisloOrientacni']:
+          Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+        else:
+          Adresat.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
+      except:
+          Adresat.ulice = "č.p. "+ vystup_urad['AdresaSidla']['CisloDomovni']
+      Adresat.psc = vystup_urad['AdresaSidla']['PostaKod']
+      Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
+      Adresat.idds = vystup_urad['ISDS']
+
+    if 'obecBydliste' in url_args:
+      Obec.bydliste.obec = url_args['obecBydliste']
+
+    if 'bydlisteVyhlaska' in url_args:
+      Obec.bydliste.vyhlaska["Název"] = url_args['bydlisteVyhlaska']['Název']
+      Obec.bydliste.vyhlaska["Číslo"] = url_args['bydlisteVyhlaska']['Číslo']
+      Obec.bydliste.vyhlaska["Datum schválení"] = url_args['bydlisteVyhlaska']['Datum schválení']
+
+    if 'pobytVyhlaska' in url_args:
+      Obec.pobyt.vyhlaska["Název"] = url_args['pobytVyhlaska']['Název']
+      Obec.pobyt.vyhlaska["Číslo"] = url_args['pobytVyhlaska']['Číslo']
+      Obec.pobyt.vyhlaska["Datum schválení"] = url_args['pobytVyhlaska']['Datum schválení']
+---
+# Logika
+mandatory: True
+code: |
+  vzor
+  if potvrditOdeslani and not defined("emailOdeslan"):
+    odeslat_top
+  zaznamy
+  final_fr
+---
+############################################ Otázky
+question: |
+  Obec, ve které máte **trvalý pobyt**.
+subquestion: |
+  Oznámení zasíláte obci, u které jste poplatníkem z důvodu trvalého pobytu, ale ve které nebydlíte.
+fields:
+  - Obec: Obec.pobyt.obec
+  - Kraj: Obec.pobyt.kraj
+script: |
+  <script>var typ = "pobyt";</script>
+  <script src="${ url_of('mapy_api_obec.js')}"></script>
+---
+question: |
+  Obec, ve které **aktuálně bydlíte**.
+subquestion: |
+  Jedná se o obec, kde jste poplatníkem proto, že tam máte bydliště.
+fields:
+  - Obec: Obec.bydliste.obec
+  - Kraj: Obec.bydliste.kraj
+script: |
+  <script>var typ = "bydliste";</script>
+  <script src="${ url_of('mapy_api_obec.js')}"></script>
+---
+code: |
+  Obec.bydliste.info = najitObec(Obec.bydliste.obec, Obec.bydliste.kraj)
+---
+code: |
+  Obec.pobyt.info = najitObec(Obec.pobyt.obec, Obec.pobyt.kraj)
+---
+question: |
+  Obecně závazná vyhláška obce ${ Obec.pobyt.obec }
+subquestion: |
+  Obecně závaznou vyhlášku byste měli najít na internetu ve [Sbírce právních předpisů územních samosprávných celků a některých správních úřadů](https://sbirkapp.gov.cz/vyhledavani). Doporučujeme podívat se i na web obce, kde většina obcí své vyhlášky také zveřejňuje.
+fields:
+  - Název vyhlášky: Obec.pobyt.vyhlaska["Název"]
+  - Číslo vyhlášky: Obec.pobyt.vyhlaska["Číslo"]
+  - Datum schválení vyhlášky: Obec.pobyt.vyhlaska["Datum schválení"]
+    datatype: date
+---
+question: |
+  Obecně závazná vyhláška obce ${ Obec.bydliste.obec }
+subquestion: |
+  Obecně závaznou vyhlášku byste měli najít na internetu ve [Sbírce právních předpisů územních samosprávných celků a některých správních úřadů](https://sbirkapp.gov.cz/vyhledavani). Doporučujeme podívat se i na web obce, kde většina obcí své vyhlášky také zveřejňuje.
+fields:
+  - Název vyhlášky: Obec.bydliste.vyhlaska["Název"]
+  - Číslo vyhlášky: Obec.bydliste.vyhlaska["Číslo"]
+  - Datum schválení vyhlášky: Obec.bydliste.vyhlaska["Datum schválení"]
+    datatype: date
+---
+question: |
+  Doklad o bydlišti v obci ${ Obec.bydliste.obec }
+subquestion: |
+  To, že v obci ${ Obec.bydliste.obec } bydlíte, musíte doložit. Bydliště můžete doložit například nájemní smlouvu, kterou k oznámení přiložíte.
+fields:
+  - Doklad o bydlišti: prilohy
+    default: Nájemní smlouva
+---
+code: |
+  Podani.prilohySeznam = string_pole(prilohy)
+---
+################################################ Odeslání
+event: odeslat_top
+code: |
+  komentar = "https://frankbold.org/"
+  vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
+  emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
+---
+event: zaznamy
+code: |
+  if novinky:
+    ecomail = addEcomail(email, "96", "Osvobozeni odpad")
+  if emailOdeslan.status_code == 200:
+    vseHotovo = True
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    final_fr
+  else:
+    neodeslano
+---
+attachment:
+  name: Osvobozeni
+  filename: Osvobozeni od poplatku
+  variable name: vzor
+  docx template file: template.docx
+  valid formats:
+    - docx
+  fields:
+    - nadpis: Oznámení o osvobození od poplatku za obecní systém odpadového hospodářství
+    - sablona: OznameniOsvobozeniOdpad.docx
