@@ -64,7 +64,7 @@ def vyhlaskaText(id):
 def typPoplatku(text):
     text = text[:800]
     if "místním poplatku" not in text:
-        return [False,"Vyhláška se zřejmě nezabývá poplatkem za odpad."]
+        return [False,"Vyhláška se zřejmě nezabývá poplatkem za komunální odpad."]
     else:
         if "za odkládání komunálního odpadu" in text and "obecní systém odpadového hospodářství" in text:
             return [False,"Obojí..."]
