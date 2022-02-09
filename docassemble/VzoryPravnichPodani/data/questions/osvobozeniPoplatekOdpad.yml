@@ -80,7 +80,7 @@ code: |
 question: |
   Obec, ve které máte **trvalý pobyt**.
 subquestion: |
-  Oznámení zasíláte obci, u které jste poplatníkem z důvodu trvalého pobytu, ale ve které nebydlíte.
+  Oznámení zasíláte obci, u které jste poplatníkem poplatku za obecní systém odpadového hospodářství, jelikož jste tam hlášeni k trvalému pobytu, ale ve které nebydlíte.
 fields:
   - Obec: Obec.pobyt.obec
   - Kraj: Obec.pobyt.kraj
@@ -91,7 +91,7 @@ script: |
 question: |
   Obec, ve které **aktuálně bydlíte**.
 subquestion: |
-  Jedná se o obec, kde jste poplatníkem proto, že tam máte bydliště.
+  Jedná se o obec, kde jste poplatníkem poplatku za odkládání komunálního odpadu z nemovité věci proto, že tam máte bydliště.
 fields:
   - Obec: Obec.bydliste.obec
   - Kraj: Obec.bydliste.kraj
@@ -140,7 +140,7 @@ ga id: adresát
 question: |
   Adresa obecního úřadu obce ${ Obec.pobyt.obec }
 subquestion: |
-  Adresu můžete vyplnit buď ručně, či po zadání datové schránky obce ji načteme automaticky.
+  Adresu můžete vyplnit buď ručně, nebo ji po zadání datové schránky obce načteme automaticky.
 fields:
   - Způsob zadání: rucne
     input type: radio
