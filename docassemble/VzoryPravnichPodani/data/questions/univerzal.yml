@@ -1,6 +1,24 @@
 modules:
   - .overovac
 ---
+if: defined("povinnyPodatelFO")
+ga id: uzivatel
+generic object: Person
+question: |
+  Vaše indentifikační údaje v roli ${ x.nazev }
+fields:
+  - Jméno a příjmení: x.name.text
+  - Trvalé bydliště: x.address
+    hint: Adresa
+  - Datum narození: x.birthday
+    datatype: date
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: identita_pozdeji
+    color: danger
+    icon: forward
+---
+if: not defined("povinnyPodatelFO")
 ga id: uzivatel
 generic object: Person
 question: |

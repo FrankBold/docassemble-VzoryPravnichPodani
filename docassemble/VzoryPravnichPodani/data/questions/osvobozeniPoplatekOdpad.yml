@@ -31,6 +31,8 @@ code: |
   nazev_vzoru = "Osvobození od poplatku"
   Podani.prilohy = True
   prilohy = "Nájemní smlouva"
+  povinnyTypFO = True
+  Podatel.forma = "FO"
 ---
 # Zpracování URL args
 scan for variables: False
