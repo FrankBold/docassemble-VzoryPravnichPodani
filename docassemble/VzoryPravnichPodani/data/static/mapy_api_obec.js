@@ -23,7 +23,10 @@ var odpoved = function(geocoder) {
     var results = geocoder.getResults();
       for (let  i  = 0; i < results.items.length; i++) {
         if (results.items[i].type == "regi") {
+          if (typ == "není") {
+          setField("Obec.kraj", results.items[i].name)
+        } else {
           setField("Obec." + typ + ".kraj", results.items[i].name)
-        }
+        }}
   }
 }

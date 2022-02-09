@@ -1,6 +1,8 @@
 from docassemble.base.util import validation_error
 import requests
 from bs4 import BeautifulSoup
+import urllib
+import json
 
 def contains_spolek(x):
   x = x.lower()
@@ -24,3 +26,12 @@ def obsahClanku(id):
   soup = BeautifulSoup(page.content, 'html.parser')
   polozky = soup.find('div', class_='content')
   return polozky
+
+def query2dict(url):
+    for polozka in url:
+        print(polozka)
+        try:
+            url[polozka] = json.loads(urllib.parse.unquote_plus(url[polozka]).replace("'", '"'))
+        except:
+            continue
+    return url

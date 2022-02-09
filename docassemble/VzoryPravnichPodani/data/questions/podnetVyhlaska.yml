@@ -1,0 +1,144 @@
+metadata:
+  title: Podnět ke kontrole vyhlášky
+  short title: podnet
+  description: podnet
+  revision_date: 2021-09-09
+---
+features:
+  javascript:
+    - https://api.mapy.cz/loader.js
+    - loader.js
+---
+include:
+  - setting.yml
+  - univerzal.yml
+  - final_screen.yml
+---
+objects:
+  - Obec: Thing
+  - Obec.vyhlaska: Thing
+---
+# Vlastní nastavení
+mandatory: True
+code: |
+  nabidkaFBA = False
+  nazev_vzoru = "Podnět - Kontrola vyhlášky"
+---
+# Logika
+mandatory: True
+code: |
+  Adresat.typ
+  Prevyplnit
+  vzor
+  if potvrditOdeslani and not defined("emailOdeslan"):
+    odeslat_top
+  zaznamy
+  final_fr
+---
+############################################ Otázky
+question: |
+  Komu chcete podnět poslat?
+subquestion: |
+  Doporučujeme se nejprve obrátit na obec. Až v případě, že by obec nereagovala či odmítala nápravu zjednat, obrátit se na Ministerstvo vnitra.
+fiedls:
+  - no label: Adresat.typ
+    input type: radio
+    choices:
+      - Obci: obec
+      - Ministerstvu spravedlnosti: mv
+---
+event: Prevyplnit
+code: |
+  if Adresat.typ == "mv":
+    Adresat.name.text = "Ministerstvo vnitra"
+    Adresat.oddeleni = "Odbor veřejné správy, dozoru a kontroly"
+    Adresat.ulice = "Náměstí Hrdinů 1634/3"
+    Adresat.psc = "140 21"
+    Adresat.obec = "Praha 4"
+    Adresat.idds = "6bnaawp"
+    Podani.duvod = "obec v této vyhlášce o místním poplatku zavedla jiný druh poplatku, než umožňuje § 10d zákona č. 565/1990 Sb. o místních poplatcích."
+  else:
+    Podani.duvod = "obec v této vyhlášce o místním poplatku zavedla jiný druh poplatku, než umožňuje § 10d zákona č. 565/1990 Sb. o místních poplatcích."
+    Podani.pozadavek = "uvedenou obecně závaznou vyhlášku zrušila a novou vyhláškou zavedla poplatek za komunální odpad, který bude v souladu se zákonem č. 565/1990 Sb. o místních poplatcích."
+---
+question: |
+  O jakou vyhlášku se jedná?
+subquestion: |
+  Obecně závaznou vyhlášku byste měli najít na internetu ve [Sbírce právních předpisů územních samosprávných celků a některých správních úřadů](https://sbirkapp.gov.cz/vyhledavani). Doporučujeme podívat se i na web obce, kde většina obcí své vyhlášky také zveřejňuje.
+fields:
+  - Název vyhlášky: Obec.pobyt.vyhlaska.nazev
+  - Číslo vyhlášky: Obec.pobyt.vyhlaska.cislo
+  - Datum schválení vyhlášky: Obec.pobyt.vyhlaska.datum
+    datatype: date
+---
+# Úřad, který příkaz vydal
+question: |
+  Obec, která vyhlášku vydala.
+subquestion: |
+  Uveďte o jakou obec se jedná.
+fields:
+  - Obec: Obec.nazev
+  - Kraj: Obec.kraj
+script: |
+  <script>var typ = "není";</script>''
+  <script src="${ url_of('mapy_api_obec.js')}"></script>
+---
+# Předmět podnětu
+ga id:  predmetPodnetu
+question: |
+  Předmět podnětu
+fields:
+  - Předmět podnětu: Podani.predmet
+  - Popis problémového jednání: Podani.jednani
+    datatype: area
+  - Znáte konkrétní ustanovení zákona, které je porušováno?: Podani.ustanoveni
+    datatype: yesnoradio
+    default: false
+  - Porušované ustanovení: Podani.paragraf
+    hint: |
+      § ## zákona č. ###/#### Sb.
+    show if:
+      variable: Podani.ustanoveni
+      is: true
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: obsah_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: obsah_pozdeji
+code: |
+  Podani.predmet = "[Předmět podání]"
+  Podani.jednani = "[Popis jednání]"
+  Podani.ustanoveni = True
+  Podani.paragraf = "[Porušené ustanovení]"
+---
+################################################ Odeslání
+event: odeslat_top
+code: |
+  komentar = "https://frankbold.org/"
+  vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
+  emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
+---
+event: zaznamy
+code: |
+  if novinky:
+    ecomail = addEcomail(email, "96", "Podnet ke kontrole obce")
+  if emailOdeslan.status_code == 200:
+    vseHotovo = True
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    final_fr
+  else:
+    neodeslano
+---
+attachment:
+  name: Podnět
+  filename: Podnet
+  variable name: vzor
+  docx template file: template.docx
+  valid formats:
+    - docx
+  fields:
+    - nadpis: Podnět k prošetření obecně závazné vyhlášky ${ Obec.nazev }
+    - sablona: podnetVyhlaska.docx

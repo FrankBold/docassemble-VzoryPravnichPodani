@@ -16,30 +16,30 @@ modules:
 ---
 include:
   - setting.yml
-  - univerzal.yml
-  - final_screen.yml
 ---
 objects:
   - Obec: Thing
   - Obec.pobyt: Thing.using(popis="máte trvalý pobyt")
   - Obec.bydliste: Thing.using(popis="aktuálně bydlíte")
-  - Obec.pobyt.vyhlaska: DADict
-  - Obec.bydliste.vyhlaska: DADict
+  - Obec.pobyt.vyhlaska: Thing
+  - Obec.bydliste.vyhlaska: Thing
 ---
 # Vlastní nastavení
 mandatory: True
 code: |
   nabidkaFBA = False
   nazev_vzoru = "Osvobození od poplatku"
+  Podani.prilohy = True
+  prilohy = "Nájemní smlouva"
 ---
 # Zpracování URL args
 scan for variables: False
 mandatory: True
 code: |
-  if 'query' in url_args:
-    info = url_args["query"]
-    if 'obecPobyt' in info:
-      Obec.pobyt.obec = url_args['obecPobyt']
+  if 'obecPobyt' in url_args:
+    args = query2dict(url_args)
+    if 'obecPobyt' in args:
+      Obec.pobyt.obec = args['obecPobyt']
       vystup_urad = uradDleDatovky(url_args['iddsPobyt'])
       Adresat.name.text = vystup_urad['NazevOsoby']
       try:
@@ -53,18 +53,18 @@ code: |
       Adresat.obec = vystup_urad['AdresaSidla']['ObecNazev']
       Adresat.idds = vystup_urad['ISDS']
 
-    if 'obecBydliste' in url_args:
-      Obec.bydliste.obec = url_args['obecBydliste']
+    if 'obecBydliste' in args:
+      Obec.bydliste.obec = args['obecBydliste']
 
-    if 'bydlisteVyhlaska' in url_args:
-      Obec.bydliste.vyhlaska["Název"] = url_args['bydlisteVyhlaska']['Název']
-      Obec.bydliste.vyhlaska["Číslo"] = url_args['bydlisteVyhlaska']['Číslo']
-      Obec.bydliste.vyhlaska["Datum schválení"] = url_args['bydlisteVyhlaska']['Datum schválení']
+    if args['bydlisteVyhlaska'] != "Není":
+      Obec.bydliste.vyhlaska.nazev = args['bydlisteVyhlaska']['Název']
+      Obec.bydliste.vyhlaska.cislo = args['bydlisteVyhlaska']['Číslo']
+      Obec.bydliste.vyhlaska.datum = args['bydlisteVyhlaska']['Datum schválení']
 
-    if 'pobytVyhlaska' in url_args:
-      Obec.pobyt.vyhlaska["Název"] = url_args['pobytVyhlaska']['Název']
-      Obec.pobyt.vyhlaska["Číslo"] = url_args['pobytVyhlaska']['Číslo']
-      Obec.pobyt.vyhlaska["Datum schválení"] = url_args['pobytVyhlaska']['Datum schválení']
+    if url_args['pobytVyhlaska'] != "Není":
+      Obec.pobyt.vyhlaska.nazev = args['pobytVyhlaska']['Název']
+      Obec.pobyt.vyhlaska.cislo = args['pobytVyhlaska']['Číslo']
+      Obec.pobyt.vyhlaska.datum = args['pobytVyhlaska']['Datum schválení']
 ---
 # Logika
 mandatory: True
@@ -76,6 +76,7 @@ code: |
   final_fr
 ---
 ############################################ Otázky
+---
 question: |
   Obec, ve které máte **trvalý pobyt**.
 subquestion: |
@@ -95,7 +96,7 @@ fields:
   - Obec: Obec.bydliste.obec
   - Kraj: Obec.bydliste.kraj
 script: |
-  <script>var typ = "bydliste";</script>
+  <script>var typ = "bydliste";</script>''
   <script src="${ url_of('mapy_api_obec.js')}"></script>
 ---
 code: |
@@ -109,9 +110,9 @@ question: |
 subquestion: |
   Obecně závaznou vyhlášku byste měli najít na internetu ve [Sbírce právních předpisů územních samosprávných celků a některých správních úřadů](https://sbirkapp.gov.cz/vyhledavani). Doporučujeme podívat se i na web obce, kde většina obcí své vyhlášky také zveřejňuje.
 fields:
-  - Název vyhlášky: Obec.pobyt.vyhlaska["Název"]
-  - Číslo vyhlášky: Obec.pobyt.vyhlaska["Číslo"]
-  - Datum schválení vyhlášky: Obec.pobyt.vyhlaska["Datum schválení"]
+  - Název vyhlášky: Obec.pobyt.vyhlaska.nazev
+  - Číslo vyhlášky: Obec.pobyt.vyhlaska.cislo
+  - Datum schválení vyhlášky: Obec.pobyt.vyhlaska.datum
     datatype: date
 ---
 question: |
@@ -119,9 +120,9 @@ question: |
 subquestion: |
   Obecně závaznou vyhlášku byste měli najít na internetu ve [Sbírce právních předpisů územních samosprávných celků a některých správních úřadů](https://sbirkapp.gov.cz/vyhledavani). Doporučujeme podívat se i na web obce, kde většina obcí své vyhlášky také zveřejňuje.
 fields:
-  - Název vyhlášky: Obec.bydliste.vyhlaska["Název"]
-  - Číslo vyhlášky: Obec.bydliste.vyhlaska["Číslo"]
-  - Datum schválení vyhlášky: Obec.bydliste.vyhlaska["Datum schválení"]
+  - Název vyhlášky: Obec.bydliste.vyhlaska.nazev
+  - Číslo vyhlášky: Obec.bydliste.vyhlaska.cislo
+  - Datum schválení vyhlášky: Obec.bydliste.vyhlaska.datum
     datatype: date
 ---
 question: |
@@ -134,6 +135,22 @@ fields:
 ---
 code: |
   Podani.prilohySeznam = string_pole(prilohy)
+---
+ga id: adresát
+question: |
+  Adresa obecního úřadu obce ${ Obec.pobyt.obec }
+subquestion: |
+  Adresu můžete vyplnit buď ručně, či po zadání datové schránky obce ji načteme automaticky.
+fields:
+  - Způsob zadání: rucne
+    input type: radio
+    choices:
+        - Vyplním ručně: True
+        - Dle ID datové schránky: False
+  - ID datové schránky: Adresat.idds
+    show if:
+      variable: rucne
+      is: False
 ---
 ################################################ Odeslání
 event: odeslat_top
@@ -163,3 +180,7 @@ attachment:
   fields:
     - nadpis: Oznámení o osvobození od poplatku za obecní systém odpadového hospodářství
     - sablona: OznameniOsvobozeniOdpad.docx
+---
+include:
+  - univerzal.yml
+  - final_screen.yml
