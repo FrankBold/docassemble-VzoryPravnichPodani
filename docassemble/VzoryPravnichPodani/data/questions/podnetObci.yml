@@ -1,0 +1,120 @@
+metadata:
+  title: Podnět obci
+  short title: podnet
+  description: podnet
+  authors:
+    - name: Michal Kuk
+      organization: Frank Bold Society
+  revision_date: 2020-09-09
+---
+include:
+  - setting.yml
+  - univerzal.yml
+  - final_screen.yml
+---
+# Vlastní nastavení
+mandatory: True
+code: |
+  nabidkaFBA = False
+  nazev_vzoru = "Podnět obci"
+  Podani.prilohy = False
+---
+# Zpracování URL args
+scan for variables: False
+mandatory: True
+code: |
+  if 'odpad' in url_args:
+    args = query2dict(url_args)
+    Obec.nazev = args["obec"]
+    rucne = False
+    Adresat.idds = args["idds"]
+    Podani.jednani = "požaduje po obyvatelích platbu poplatku za komunální odpad, ačkoliv nevydala obecně závaznou vyhlášku, která by jí to umožňovala."
+    Podani.pozadavel = "Obec "+ Obec.nazev +" vydala obecně závaznou vyhlášku, kterou platbu za poplatek komunálního odpadu upraví."
+---
+# Logika
+mandatory: True
+code: |
+  vzor
+  if potvrditOdeslani and not defined("emailOdeslan"):
+    odeslat_top
+  zaznamy
+  final_fr
+---
+############################################ Otázky
+# Úřad, který příkaz vydal
+question: |
+  Jaké obci chcete podnět zaslat?
+subquestion: |
+  K poskytnutí informací podle zákona o svobodném přístupu k informací jsou povinny pouze tak uvedené povinné subjekty. Pokud si nejste jisti, zda ten po kom informace chcete je povinnen je poskytnout, podívejte se do naší [nápovědy](${ url_of('help') }).
+fields:
+  - Způsob zadání: rucne
+    input type: radio
+    choices:
+        - Vyplním ručně: True
+        - Dle ID datové schránky: False
+  - ID datové schránky: Adresat.idds
+    show if:
+      variable: rucne
+      is: False
+---
+# Předmět podnětu
+ga id:  predmetPodnetu
+question: |
+  Čeho se podnět týká?
+fields:
+  - Předmět podnětu: Podani.predmet
+  - Popis problémového jednání: Podani.jednani
+    datatype: area
+  - Co má obec udělat?: Podani.pozadavek
+    datatype: area
+  - Znáte konkrétní ustanovení zákona, které je porušováno?: Podani.ustanoveni
+    datatype: yesnoradio
+    default: false
+  - Porušované ustanovení: Podani.paragraf
+    hint: |
+      § ## zákona č. ###/#### Sb.
+    show if:
+      variable: Podani.ustanoveni
+      is: true
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: obsah_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: obsah_pozdeji
+code: |
+  Podani.predmet = "[Předmět podání]"
+  Podani.jednani = "[Popis jednání]"
+  Podani.ustanoveni = True
+  Podani.paragraf = "[Porušené ustanovení]"
+---
+################################################ Odeslání
+event: odeslat_top
+code: |
+  komentar = "https://frankbold.org/"
+  vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
+  emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
+---
+event: zaznamy
+code: |
+  if novinky:
+    ecomail = addEcomail(email, "96", "Podnet obci")
+  if emailOdeslan.status_code == 200:
+    vseHotovo = True
+    webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
+    final_fr
+  else:
+    neodeslano
+---
+attachment:
+  name: Podnět
+  filename: Podnet
+  variable name: vzor
+  docx template file: template.docx
+  valid formats:
+    - docx
+  fields:
+    - nadpis: Podnět k prověření postupu obce
+    - sablona: PodnetObci.docx

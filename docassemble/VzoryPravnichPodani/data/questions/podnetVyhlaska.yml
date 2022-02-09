@@ -9,6 +9,9 @@ features:
     - https://api.mapy.cz/loader.js
     - loader.js
 ---
+modules:
+  - .poplatekOdpad
+---
 include:
   - setting.yml
   - univerzal.yml
@@ -24,11 +27,31 @@ code: |
   nabidkaFBA = False
   nazev_vzoru = "Podnět - Kontrola vyhlášky"
 ---
+# Zpracování URL args
+scan for variables: False
+mandatory: True
+code: |
+  if 'typ' in url_args:
+    args = query2dict(url_args)
+    Adresat.typ = args['typ']
+
+    if 'obec' in args:
+      Obec.nazev = args['obec']
+      if args['typ'] == "obec":
+        Adresat.idds = args['idds']
+        Podatel.obcan = False if args['obcan'] == "False" else True
+
+    if args['vyhlaska'] != "Není":
+      Obec.vyhlaska.nazev = args['vyhlaska']['Název']
+      Obec.vyhlaska.cislo = args['vyhlaska']['Číslo']
+      Obec.vyhlaska.datum = args['vyhlaska']['Datum schválení']
+---
 # Logika
 mandatory: True
 code: |
   Adresat.typ
-  Prevyplnit
+  Obec.nazev
+  predvyplneno
   vzor
   if potvrditOdeslani and not defined("emailOdeslan"):
     odeslat_top
@@ -40,14 +63,14 @@ question: |
   Komu chcete podnět poslat?
 subquestion: |
   Doporučujeme se nejprve obrátit na obec. Až v případě, že by obec nereagovala či odmítala nápravu zjednat, obrátit se na Ministerstvo vnitra.
-fiedls:
+fields:
   - no label: Adresat.typ
     input type: radio
     choices:
       - Obci: obec
-      - Ministerstvu spravedlnosti: mv
+      - Ministerstvu vnitra: mv
 ---
-event: Prevyplnit
+sets: predvyplneno
 code: |
   if Adresat.typ == "mv":
     Adresat.name.text = "Ministerstvo vnitra"
@@ -60,15 +83,19 @@ code: |
   else:
     Podani.duvod = "obec v této vyhlášce o místním poplatku zavedla jiný druh poplatku, než umožňuje § 10d zákona č. 565/1990 Sb. o místních poplatcích."
     Podani.pozadavek = "uvedenou obecně závaznou vyhlášku zrušila a novou vyhláškou zavedla poplatek za komunální odpad, který bude v souladu se zákonem č. 565/1990 Sb. o místních poplatcích."
+    rucne = False
+    if not defined("Adresat.idds"):
+      Adresat.idds = najitObec(Obec.nazev, Obec.kraj)["datovaSchrankaID"]
+  predvyplneno = True
 ---
 question: |
   O jakou vyhlášku se jedná?
 subquestion: |
   Obecně závaznou vyhlášku byste měli najít na internetu ve [Sbírce právních předpisů územních samosprávných celků a některých správních úřadů](https://sbirkapp.gov.cz/vyhledavani). Doporučujeme podívat se i na web obce, kde většina obcí své vyhlášky také zveřejňuje.
 fields:
-  - Název vyhlášky: Obec.pobyt.vyhlaska.nazev
-  - Číslo vyhlášky: Obec.pobyt.vyhlaska.cislo
-  - Datum schválení vyhlášky: Obec.pobyt.vyhlaska.datum
+  - Název vyhlášky: Obec.vyhlaska.nazev
+  - Číslo vyhlášky: Obec.vyhlaska.cislo
+  - Datum schválení vyhlášky: Obec.vyhlaska.datum
     datatype: date
 ---
 # Úřad, který příkaz vydal
@@ -79,6 +106,11 @@ subquestion: |
 fields:
   - Obec: Obec.nazev
   - Kraj: Obec.kraj
+  - Máte v této obci trvalé bydliště?: Podatel.obcan
+    datatype: yesnoradio
+    show if:
+      code: |
+        Adresat.typ == "obec"
 script: |
   <script>var typ = "není";</script>''
   <script src="${ url_of('mapy_api_obec.js')}"></script>
@@ -124,7 +156,7 @@ code: |
 event: zaznamy
 code: |
   if novinky:
-    ecomail = addEcomail(email, "96", "Podnet ke kontrole obce")
+    ecomail = addEcomail(email, "96", "Podnet ke kontrole vyhlášky")
   if emailOdeslan.status_code == 200:
     vseHotovo = True
     webhook_data = requests.post('https://hook.integromat.com/ekpnq1umeahy5pl2baq6czmplr7lfbvt', data=json.dumps(all_variables()),headers={'Content-Type': 'application/json'})
@@ -141,4 +173,4 @@ attachment:
     - docx
   fields:
     - nadpis: Podnět k prošetření obecně závazné vyhlášky ${ Obec.nazev }
-    - sablona: podnetVyhlaska.docx
+    - sablona: PodnetVyhlaska.docx

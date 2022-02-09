@@ -18,6 +18,19 @@ code: |
   nabidkaFBA = False
   nazev_vzoru = "Podnět k provedení kontroly obce"
 ---
+# Zpracování URL args
+scan for variables: False
+mandatory: True
+code: |
+  if 'odpad' in url_args:
+    args = query2dict(url_args)
+    pusobnost = "samo"
+    Obec.name.text = args["obec"]
+    Podani.jednani = "Obec nevydala obecně závaznou vyhlášku, která by upravovala placení místního poplatku za komunální odpad, a přesto platbu poplatku vyžaduje."
+    Podani.ustanoveni = False
+    Podani.predmet = "to, jestli obec " + Obec.name.text + " vydala a řádně publikovala obecně závaznou vyhlášku, na základě které by mohla požadovat platbu poplatku za komunální odpad."
+    Podani.prilohy = False
+---
 # Logika
 mandatory: True
 code: |
