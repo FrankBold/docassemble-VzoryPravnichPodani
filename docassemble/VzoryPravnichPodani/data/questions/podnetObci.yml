@@ -31,7 +31,7 @@ code: |
     rucne = False
     Adresat.idds = args["idds"]
     Podani.jednani = "požaduje po obyvatelích platbu poplatku za komunální odpad, ačkoliv nevydala obecně závaznou vyhlášku, která by jí to umožňovala."
-    Podani.pozadavel = "Obec "+ Obec.nazev +" vydala obecně závaznou vyhlášku, kterou platbu za poplatek komunálního odpadu upraví."
+    Podani.pozadavek = "Obec "+ Obec.nazev +" vydala obecně závaznou vyhlášku, kterou platbu za poplatek komunálního odpadu upraví."
 ---
 # Logika
 mandatory: True
