@@ -63,7 +63,7 @@ code: |
 question: |
   Komu chcete podnět poslat?
 subquestion: |
-  Doporučujeme se nejprve obrátit na obec. Až v případě, že by obec nereagovala či odmítala nápravu zjednat, obrátit se na Ministerstvo vnitra.
+  Doporučujeme se nejprve obrátit na obec. Až v případě, že by obec nereagovala či odmítala nápravu zjednat, doporučujeme se obrátit na Ministerstvo vnitra.
 fields:
   - no label: Adresat.typ
     input type: radio
@@ -80,10 +80,10 @@ code: |
     Adresat.psc = "140 21"
     Adresat.obec = "Praha 4"
     Adresat.idds = "6bnaawp"
-    Podani.duvod = "obec v této vyhlášce o místním poplatku zavedla jiný druh poplatku, než umožňuje § 10d zákona č. 565/1990 Sb. o místních poplatcích."
+    Podani.duvod = "obec v této vyhlášce o místním poplatku za komunální odpad zavedla jiný druh poplatku, než umožňuje § 10d zákona č. 565/1990 Sb. o místních poplatcích."
   else:
-    Podani.duvod = "obec v této vyhlášce o místním poplatku zavedla jiný druh poplatku, než umožňuje § 10d zákona č. 565/1990 Sb. o místních poplatcích."
-    Podani.pozadavek = "uvedenou obecně závaznou vyhlášku zrušila a novou vyhláškou zavedla poplatek za komunální odpad, který bude v souladu se zákonem č. 565/1990 Sb. o místních poplatcích."
+    Podani.duvod = "obec v této vyhlášce o místním poplatku za komunální odpad zavedla jiný druh poplatku, než umožňuje § 10d zákona č. 565/1990 Sb. o místních poplatcích"
+    Podani.pozadavek = "uvedenou obecně závaznou vyhlášku zrušila a novou vyhláškou zavedla poplatek za komunální odpad, který bude v souladu se zákonem č. 565/1990 Sb. o místních poplatcích"
     rucne = False
     if not defined("Adresat.idds"):
       Adresat.idds = najitObec(Obec.nazev, Obec.kraj)["datovaSchrankaID"]
@@ -107,7 +107,7 @@ subquestion: |
 fields:
   - Obec: Obec.nazev
   - Kraj: Obec.kraj
-  - Máte v této obci trvalé pobyt?: Podatel.obcan
+  - Máte v této obci trvalý pobyt?: Podatel.obcan
     datatype: yesnoradio
     show if:
       code: |
