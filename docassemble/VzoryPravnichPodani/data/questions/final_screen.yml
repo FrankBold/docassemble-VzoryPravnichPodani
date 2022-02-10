@@ -17,7 +17,7 @@ action buttons:
     color: secondary
     icon: hand-holding-heart
   - label: Ukončit průvodce
-    action: https://frankbold.org
+    action: url_of('exit')
     color: light
 ---
 ga id: final_stats
@@ -48,7 +48,7 @@ fields:
 continue button label: Odeslat a ukončit
 action buttons:
   - label: Ukončit průvodce bez odeslání
-    action: https://frankbold.org
+    action: url_of('exit')
     color: light
 ---
 event: final_stats
