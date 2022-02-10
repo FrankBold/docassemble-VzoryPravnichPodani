@@ -8,7 +8,7 @@ question: |
   Vaše indentifikační údaje v roli ${ x.nazev }
 fields:
   - Jméno a příjmení: x.name.text
-  - Trvalé bydliště: x.address
+  - Trvalý pobyt: x.address
     hint: Adresa
   - Datum narození: x.birthday
     datatype: date
@@ -196,7 +196,7 @@ need: vzor
 id: souboryKeStazeni
 progress: 100
 question: |
-  Vaš vzor je připraven
+  Váš vzor je připraven.
 subquestion: |
   Vzor Vám společně s manuálem pošleme na e-mail.
   *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
