@@ -203,6 +203,8 @@ subquestion: |
 
   % if user_has_privilege('admin'):
   [Stáhnout](${ vzor.url_for() })
+
+  [Ukončit](${ url_of('exit') })
   % endif
 fields:
   - Váš e-mail: email
