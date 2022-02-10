@@ -3,6 +3,7 @@ metadata:
   short title: podnet
   description: podnet
   revision_date: 2021-09-09
+  temporary session: True
 ---
 features:
   javascript:
@@ -106,7 +107,7 @@ subquestion: |
 fields:
   - Obec: Obec.nazev
   - Kraj: Obec.kraj
-  - Máte v této obci trvalé bydliště?: Podatel.obcan
+  - Máte v této obci trvalé pobyt?: Podatel.obcan
     datatype: yesnoradio
     show if:
       code: |
@@ -149,7 +150,10 @@ code: |
 ################################################ Odeslání
 event: odeslat_top
 code: |
-  komentar = "https://frankbold.org/"
+  if Adresat.typ == "mv":
+    komentar = "https://frankbold.org/sites/default/files/vzory/Podnet_k_prosetreni_obecne_zavazne_vyhlasky_Komentar.pdf"
+  else:
+    komentar = "https://frankbold.org/sites/default/files/vzory/Podnet_na_obec_k_prosetreni_obecne_zavazne_vyhlasky_Komentar.pdf"
   vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
   emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
 ---
@@ -172,5 +176,5 @@ attachment:
   valid formats:
     - docx
   fields:
-    - nadpis: Podnět k prošetření obecně závazné vyhlášky ${ Obec.nazev }
+    - nadpis: Podnět k prošetření obecně závazné vyhlášky obce ${ Obec.nazev }
     - sablona: PodnetVyhlaska.docx

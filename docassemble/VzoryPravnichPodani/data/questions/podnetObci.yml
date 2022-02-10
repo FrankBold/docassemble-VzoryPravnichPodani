@@ -6,6 +6,7 @@ metadata:
     - name: Michal Kuk
       organization: Frank Bold Society
   revision_date: 2020-09-09
+  temporary session: True
 ---
 include:
   - setting.yml
@@ -26,6 +27,7 @@ code: |
   if 'odpad' in url_args:
     args = query2dict(url_args)
     Obec.nazev = args["obec"]
+    Adresat.nazev = "obecního úřadu"
     rucne = False
     Adresat.idds = args["idds"]
     Podani.jednani = "požaduje po obyvatelích platbu poplatku za komunální odpad, ačkoliv nevydala obecně závaznou vyhlášku, která by jí to umožňovala."
@@ -45,7 +47,6 @@ code: |
 question: |
   Jaké obci chcete podnět zaslat?
 subquestion: |
-  K poskytnutí informací podle zákona o svobodném přístupu k informací jsou povinny pouze tak uvedené povinné subjekty. Pokud si nejste jisti, zda ten po kom informace chcete je povinnen je poskytnout, podívejte se do naší [nápovědy](${ url_of('help') }).
 fields:
   - Způsob zadání: rucne
     input type: radio
@@ -93,7 +94,7 @@ code: |
 ################################################ Odeslání
 event: odeslat_top
 code: |
-  komentar = "https://frankbold.org/"
+  komentar = "https://frankbold.org/sites/default/files/vzory/Podnet_k_provereni_postupu_obce_Komentar.pdf"
   vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
   emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
 ---

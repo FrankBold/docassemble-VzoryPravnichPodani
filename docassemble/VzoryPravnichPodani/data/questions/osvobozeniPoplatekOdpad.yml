@@ -5,6 +5,7 @@ metadata:
   authors:
     - organization: Frank Bold Society
   revision_date: 2022-02-08
+  temporary session: True
 ---
 features:
   javascript:
@@ -29,6 +30,7 @@ mandatory: True
 code: |
   nabidkaFBA = False
   nazev_vzoru = "Osvobození od poplatku"
+  Adresat.nazev = "obecního úřadu"
   Podani.prilohy = True
   prilohy = "Nájemní smlouva"
   povinnyTypFO = True
@@ -157,7 +159,7 @@ fields:
 ################################################ Odeslání
 event: odeslat_top
 code: |
-  komentar = "https://frankbold.org/"
+  komentar = "https://frankbold.org/sites/default/files/vzory/Osvobozeni_od_poplatku_za_odpad_Komentar.pdf"
   vzor_data = vzor.docx.url_for(temporary=True, seconds=60)
   emailOdeslan = odeslat_sendgrid('https://hook.integromat.com/n9oxsvmzsoni24zhpwriv5urmu769flw', data_all)
 ---

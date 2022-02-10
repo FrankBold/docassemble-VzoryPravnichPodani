@@ -135,7 +135,7 @@ subquestion: |
   </div>
   % endif
 fields:
-  - Název orgánu: x.name.text
+  - Název ${ x.nazev }: x.name.text
   - Oddělení: x.oddeleni
     required: False
   - Ulice a čp: x.ulice
@@ -177,7 +177,7 @@ fields:
     input type: radio
     code: |
       zpusoby_odeslani
-  - Chcete přikládat přílohy: Podani.prilohy
+  - Chcete přikládat přílohy?: Podani.prilohy
     datatype: yesnoradio
   - Seznam příloh: prilohy
     datatype: area
@@ -198,7 +198,7 @@ progress: 100
 question: |
   Vaš vzor je připraven
 subquestion: |
-  Vzor Vám společné s manuálem pošleme na e-mail.
+  Vzor Vám společně s manuálem pošleme na e-mail.
   *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
 
   % if user_has_privilege('admin'):
