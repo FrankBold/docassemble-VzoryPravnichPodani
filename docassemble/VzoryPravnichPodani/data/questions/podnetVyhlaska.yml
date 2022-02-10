@@ -3,7 +3,6 @@ metadata:
   short title: podnet
   description: podnet
   revision_date: 2021-09-09
-  temporary session: True
 ---
 features:
   javascript:

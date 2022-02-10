@@ -5,7 +5,6 @@ metadata:
   authors:
     - organization: Frank Bold Society
   revision_date: 2022-02-08
-  temporary session: True
 ---
 features:
   javascript:
@@ -33,7 +32,7 @@ code: |
   Adresat.nazev = "obecního úřadu"
   Podani.prilohy = True
   prilohy = "Nájemní smlouva"
-  povinnyTypFO = True
+  povinnyPodatelFO = True
   Podatel.forma = "FO"
 ---
 # Zpracování URL args

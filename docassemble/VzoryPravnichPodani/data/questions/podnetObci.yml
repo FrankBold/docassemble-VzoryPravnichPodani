@@ -6,7 +6,6 @@ metadata:
     - name: Michal Kuk
       organization: Frank Bold Society
   revision_date: 2020-09-09
-  temporary session: True
 ---
 include:
   - setting.yml
@@ -27,9 +26,9 @@ code: |
   if 'odpad' in url_args:
     args = query2dict(url_args)
     Obec.nazev = args["obec"]
+    Adresat.idds = args["idds"]
     Adresat.nazev = "obecního úřadu"
     rucne = False
-    Adresat.idds = args["idds"]
     Podani.jednani = "požaduje po obyvatelích platbu poplatku za komunální odpad, ačkoliv nevydala obecně závaznou vyhlášku, která by jí to umožňovala."
     Podani.pozadavek = "Obec "+ Obec.nazev +" vydala obecně závaznou vyhlášku, kterou platbu za poplatek komunálního odpadu upraví."
 ---

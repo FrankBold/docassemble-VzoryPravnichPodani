@@ -8,7 +8,7 @@ question: |
   Vaše indentifikační údaje v roli ${ x.nazev }
 fields:
   - Jméno a příjmení: x.name.text
-  - Trvalé bydliště: x.address
+  - Trvalý pobyt: x.address
     hint: Adresa
   - Datum narození: x.birthday
     datatype: date
@@ -33,7 +33,7 @@ fields:
     show if:
       variable: x.forma
       is: FO
-  - Trvalé bydliště: x.address
+  - Trvalé pobyt: x.address
     hint: Adresa
     show if:
       variable: x.forma
