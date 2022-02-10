@@ -6,6 +6,7 @@ metadata:
     - name: Michal Kuk
       organization: Frank Bold Society
   revision_date: 2020-09-09
+  temporary session: True
 ---
 include:
   - setting.yml
