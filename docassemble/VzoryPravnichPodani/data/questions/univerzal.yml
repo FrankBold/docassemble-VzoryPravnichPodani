@@ -196,7 +196,7 @@ need: vzor
 id: souboryKeStazeni
 progress: 100
 question: |
-  Vaš vzor je připraven
+  Váš vzor je připraven.
 subquestion: |
   Vzor Vám společně s manuálem pošleme na e-mail.
   *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
