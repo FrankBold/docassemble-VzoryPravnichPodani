@@ -7,10 +7,21 @@ metadata:
       organization: Frank Bold Society
   revision_date: 2020-09-09
 ---
+features:
+  javascript:
+    - https://api.mapy.cz/loader.js
+    - loader.js
+---
+modules:
+  - .poplatekOdpad
+---
 include:
   - setting.yml
   - univerzal.yml
   - final_screen.yml
+---
+objects:
+  - Obec: Thing
 ---
 # Vlastní nastavení
 mandatory: True
@@ -29,12 +40,14 @@ code: |
     Adresat.idds = args["idds"]
     Adresat.nazev = "obecního úřadu"
     rucne = False
-    Podani.jednani = "požaduje po obyvatelích platbu poplatku za komunální odpad, ačkoliv nevydala obecně závaznou vyhlášku, která by jí to umožňovala."
+    Podani.jednani = "Obec požaduje po obyvatelích platbu poplatku za komunální odpad, ačkoliv nevydala obecně závaznou vyhlášku, která by jí to umožňovala."
     Podani.pozadavek = "Obec "+ Obec.nazev +" vydala obecně závaznou vyhlášku, kterou platbu za poplatek komunálního odpadu upraví."
 ---
 # Logika
 mandatory: True
 code: |
+  if not defined("args"):
+    doplneno
   vzor
   if potvrditOdeslani and not defined("emailOdeslan"):
     odeslat_top
@@ -43,6 +56,27 @@ code: |
 ---
 ############################################ Otázky
 # Úřad, který příkaz vydal
+question: |
+  Obec, která vyhlášku vydala.
+subquestion: |
+  Uveďte o jakou obec se jedná.
+fields:
+  - Obec: Obec.nazev
+  - Kraj: Obec.kraj
+    code: |
+      ['Hlavní město Praha', 'Zlínský kraj', 'Liberecký kraj', 'Moravskoslezský kraj', 'Jihočeský kraj', 'Středočeský kraj', 'Jihomoravský kraj', 'Plzeňský kraj', 'Olomoucký kraj', 'Kraja Vysočina', 'Ústecký kraj', 'Karlovarský kraj', 'Pardubický kraj', 'Královéhradecký kraj']
+script: |
+  <script>var typ = "není";</script>''
+  <script src="${ url_of('mapy_api_obec.js')}"></script>
+---
+code: |
+  pobytData = najitObec(Obec.nazev, Obec.kraj)
+  if pobytData:
+    Obec.info = pobytData
+    rucne = False
+    Adresat.idds = pobytData["datovaSchrankaID"]
+  doplneno = True
+---
 question: |
   Jaké obci chcete podnět zaslat?
 subquestion: |
@@ -62,20 +96,10 @@ ga id:  predmetPodnetu
 question: |
   Čeho se podnět týká?
 fields:
-  - Předmět podnětu: Podani.predmet
   - Popis problémového jednání: Podani.jednani
     datatype: area
   - Co má obec udělat?: Podani.pozadavek
     datatype: area
-  - Znáte konkrétní ustanovení zákona, které je porušováno?: Podani.ustanoveni
-    datatype: yesnoradio
-    default: false
-  - Porušované ustanovení: Podani.paragraf
-    hint: |
-      § ## zákona č. ###/#### Sb.
-    show if:
-      variable: Podani.ustanoveni
-      is: true
 action buttons:
   - label: Vyplním později v dokumentu
     action: obsah_pozdeji
@@ -85,10 +109,8 @@ action buttons:
 scan for variables: False
 event: obsah_pozdeji
 code: |
-  Podani.predmet = "[Předmět podání]"
   Podani.jednani = "[Popis jednání]"
-  Podani.ustanoveni = True
-  Podani.paragraf = "[Porušené ustanovení]"
+  Podani.pozadavek = "[Popis požadavku]"
 ---
 ################################################ Odeslání
 event: odeslat_top

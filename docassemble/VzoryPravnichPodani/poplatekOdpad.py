@@ -14,7 +14,7 @@ def najitObec(obec, kraj):
     with open(filename, encoding='utf-8') as d:
         data = json.load(d)
     for polozka in data["municipalities"]:
-        if obec == polozka["hezkyNazev"] and re.sub('(k|K)raj', '', kraj).strip() == re.sub('(k|K)raj', '', polozka["adresaUradu"]["kraj"]).strip():
+        if obec.lower() == polozka["hezkyNazev"].lower() and re.sub('(k|K)raj', '', kraj).strip().lower() == re.sub('(k|K)raj', '', polozka["adresaUradu"]["kraj"]).strip().lower():
             return(polozka)
     return(False)
 

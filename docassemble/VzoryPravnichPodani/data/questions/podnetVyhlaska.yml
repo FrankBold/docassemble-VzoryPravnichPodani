@@ -85,7 +85,11 @@ code: |
     Podani.pozadavek = "uvedenou obecně závaznou vyhlášku zrušila a novou vyhláškou zavedla poplatek za komunální odpad, který bude v souladu se zákonem č. 565/1990 Sb. o místních poplatcích"
     rucne = False
     if not defined("Adresat.idds"):
-      Adresat.idds = najitObec(Obec.nazev, Obec.kraj)["datovaSchrankaID"]
+      najitaObec = najitObec(Obec.nazev, Obec.kraj)
+      if najitaObec:
+        Adresat.idds = najitaObec["datovaSchrankaID"]
+      else:
+        Adresat.idds = obecIDDS
   predvyplneno = True
 ---
 question: |
@@ -106,6 +110,8 @@ subquestion: |
 fields:
   - Obec: Obec.nazev
   - Kraj: Obec.kraj
+    code: |
+      ['Hlavní město Praha', 'Zlínský kraj', 'Liberecký kraj', 'Moravskoslezský kraj', 'Jihočeský kraj', 'Středočeský kraj', 'Jihomoravský kraj', 'Plzeňský kraj', 'Olomoucký kraj', 'Kraja Vysočina', 'Ústecký kraj', 'Karlovarský kraj', 'Pardubický kraj', 'Královéhradecký kraj']
   - Máte v této obci trvalý pobyt?: Podatel.obcan
     datatype: yesnoradio
     show if:
@@ -114,6 +120,15 @@ fields:
 script: |
   <script>var typ = "není";</script>''
   <script src="${ url_of('mapy_api_obec.js')}"></script>
+---
+question: |
+    Bohužel se nám obec nepodařilo najít.
+subquestion: |
+  Vraťte se zpět a zkuste vyhledat obec znovu.
+
+  Případně uveďte identifikátor datové schránky obce, podle které ji poznáme spolehlivě. Identifikátor naleznete v [seznamu džitelů](https://www.mojedatovaschranka.cz/sds/search) a zpravidla i na webu obce mezi kontakty.
+fields:
+  - IDDS: obecIDDS
 ---
 # Předmět podnětu
 ga id:  predmetPodnetu

@@ -72,6 +72,9 @@ code: |
 # Logika
 mandatory: True
 code: |
+  Obec.pobyt.obec
+  if not define("args"):
+    doplneno
   vzor
   if potvrditOdeslani and not defined("emailOdeslan"):
     odeslat_top
@@ -87,6 +90,8 @@ subquestion: |
 fields:
   - Obec: Obec.pobyt.obec
   - Kraj: Obec.pobyt.kraj
+    code: |
+      ['Hlavní město Praha', 'Zlínský kraj', 'Liberecký kraj', 'Moravskoslezský kraj', 'Jihočeský kraj', 'Středočeský kraj', 'Jihomoravský kraj', 'Plzeňský kraj', 'Olomoucký kraj', 'Kraja Vysočina', 'Ústecký kraj', 'Karlovarský kraj', 'Pardubický kraj', 'Královéhradecký kraj']
 script: |
   <script>var typ = "pobyt";</script>
   <script src="${ url_of('mapy_api_obec.js')}"></script>
@@ -97,16 +102,20 @@ subquestion: |
   Jedná se o obec, kde jste poplatníkem poplatku za odkládání komunálního odpadu z nemovité věci proto, že tam máte bydliště.
 fields:
   - Obec: Obec.bydliste.obec
-  - Kraj: Obec.bydliste.kraj
+  - Kraj: Obec.pobyt.kraj
+    code: |
+      ['Hlavní město Praha', 'Zlínský kraj', 'Liberecký kraj', 'Moravskoslezský kraj', 'Jihočeský kraj', 'Středočeský kraj', 'Jihomoravský kraj', 'Plzeňský kraj', 'Olomoucký kraj', 'Kraja Vysočina', 'Ústecký kraj', 'Karlovarský kraj', 'Pardubický kraj', 'Královéhradecký kraj']
 script: |
   <script>var typ = "bydliste";</script>''
   <script src="${ url_of('mapy_api_obec.js')}"></script>
 ---
 code: |
-  Obec.bydliste.info = najitObec(Obec.bydliste.obec, Obec.bydliste.kraj)
----
-code: |
-  Obec.pobyt.info = najitObec(Obec.pobyt.obec, Obec.pobyt.kraj)
+  pobytData = najitObec(Obec.pobyt.obec, Obec.pobyt.kraj)
+  if pobytData:
+    Obec.pobyt.info = pobytData
+    rucne = False
+    Adresat.idds = pobytData["datovaSchrankaID"]
+  doplneno = True
 ---
 question: |
   Obecně závazná vyhláška obce ${ Obec.pobyt.obec }
