@@ -11,7 +11,7 @@ kat = ["uvod","oznameni","zjistovaci rizeni", "dokumentace", "posudek", "projedn
 
 export = []
 
-locale.setlocale(locale.LC_TIME, "en_GB")
+locale.setlocale(locale.LC_TIME, "en_US")
 
 def detailEIA(kod):
     vystup = {"uvod": {},"oznameni": {},"zjistovaci rizeni": {}, "dokumentace": {}, "posudek": {}, "projednani": {}, "stanovisko": {}}

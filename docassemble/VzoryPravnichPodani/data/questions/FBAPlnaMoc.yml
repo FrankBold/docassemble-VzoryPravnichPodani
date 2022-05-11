@@ -1,0 +1,195 @@
+metadata:
+  title: FBA – Plná moc
+  short title: podnet
+  description: podnet
+  authors:
+    - name: Michal Kuk
+      organization: Frank Bold Society
+  revision_date: 2020-09-09
+---
+features:
+  question help button: True
+  question back button: True
+  navigation back button: False
+---
+modules:
+  - .overovac
+---
+objects:
+  - Podatel: Person
+  - Adresat: Person
+---
+# Vlastní nastavení
+mandatory: True
+code: |
+  nazev_vzoru = "Podnět - Obecný"
+  Podatel.nadpis = "Zmocnitel"
+  Adresat.nadpis = "Zmocněnec"
+  Podatel.nazev = "zmocnitele"
+---
+# Logika
+mandatory: True
+code: |
+  spis
+  success_sending_email
+  odeslano
+---
+############################################ Otázky
+question: |
+  Jakou plnou moc potřebuješ?
+fields:
+  - Právní oblast: oblast
+    input type: radio
+    choices:
+      - Správní právo: sprava
+      - Občanské právo: civil
+  - Jakému advokátu?: zodp_advokat
+    choices:
+    - Pavel Černý
+    - Jirka Nezhyba
+  - Podpis v obci: obec
+    default: Brno
+---
+question: |
+  Obsah zmocnění
+fields:
+  - ve věci: vec
+    input type: area
+---
+sets: Adresat.name.text
+code: |
+  advokati = {"Pavel Černý":{"jmeno": "Mgr. Pavla Černého", "cak": "12813", "idds": "tgqhuep", "sidlo": "Údolní 33, 602 00 Brno"}, "Jirka Nezhyba": {"jmeno": "Mgr. Jiřího Nezhybu", "cak": "16406", "idds": "c856xp8", "sidlo": "Údolní 33, 602 00 Brno"}}
+  for advokat in advokati:
+    if advokat == zodp_advokat:
+      Adresat.name.text = advokati[advokat]["jmeno"]
+      Adresat.adresa = advokati[advokat]["sidlo"]
+      Adresat.cak = advokati[advokat]["cak"]
+      Adresat.idds = advokati[advokat]["idds"]
+---
+question: |
+  Indentifikační údaje klienta
+fields:
+  - Typ osoby: Podatel.forma
+    input type: radio
+    choices:
+      - Právnická osoba: PO
+      - Fyzická osoba: FO
+  - Jméno a příjmení: Podatel.name.text
+    show if:
+      variable: Podatel.forma
+      is: FO
+  - Trvalé pobyt: Podatel.address
+    hint: Adresa
+    show if:
+      variable: Podatel.forma
+      is: FO
+  - Datum narození: Podatel.birthday
+    datatype: date
+    show if:
+      variable: Podatel.forma
+      is: FO
+  - Název organizace: Podatel.name.text
+    show if:
+      variable: Podatel.forma
+      is: PO
+  - Sídlo: Podatel.address
+    hint: Sídlo
+    show if:
+      variable: Podatel.forma
+      is: PO
+  - IČO: Podatel.ic
+    datatype: integer
+    minlength: 8
+    maxlength: 8
+    show if:
+      variable: Podatel.forma
+      is: PO
+    hint: 12345678
+    note: |
+      <button id="doplnit" class="btn btn-primary">Doplnit údaje z OR</button>
+  - note: |
+      **Zástupce společnosti**
+    show if:
+      variable: Podatel.forma
+      is: PO
+  - Vaše jméno: Podatel.zastupceName
+    required: False
+    show if:
+      variable: Podatel.forma
+      is: PO
+  - Vaše funkce v organizaci: Podatel.zastupceFunkce
+    required: False
+    show if:
+      variable: Podatel.forma
+      is: PO
+script: |
+  <script type="application/javascript" charset="utf-8">
+    $("#doplnit").click(function(){
+      action_call('doplnUdaje', {ico: val('Podatel.ic')}, function(data){
+        if (typeof data.test.firma !== 'undefined') {
+        setField("Podatel.name.text", data.test.firma);
+        setField("Podatel.ic", data.test.ico);
+        setField("Podatel.address", data.test.sidlo);
+        } else if (typeof data.test == 'object') {
+          action_perform('vyberFirmy')
+        } else {
+        flash(data.test, "danger")
+        }
+      });
+      return false;
+    });
+  </script>
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: identita_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: identita_pozdeji
+code: |
+  Podatel.forma = "FO"
+  Podatel.name.text = "[Jméno a příjmení]"
+  Podatel.birthday = "[Datum narození]"
+  Podatel.address = "[Trvalé bydliště]"
+---
+event: vyberFirmy
+code: |
+  vystupNovy = overit("", zvolena_firma)
+  Podatel.name.text = vystupNovy.firma
+  Podatel.ic = vystupNovy.ico
+  Podatel.address = vystupNovy.sidlo
+---
+event: doplnUdaje
+code: |
+  vystup = overitXml(action_argument('ico').strip('"'))
+  json_response(dict(test=vystup))
+---
+question: Vzor je tu
+subquestion: |
+  [Stáhnout](${ vzor.url_for() })
+fields:
+  - Číslo spisu: spis
+continue button label: Odeslat do Praetoru
+action buttons:
+  - label: Zavřít
+    action: url_of('exit')
+    color: danger
+---
+################################################ Odeslání
+code: |
+  success_sending_email = send_email(to="praetoremail@frankbold.org ", body="Vzor z generátoru", subject=spis, attachments=[vzor])
+---
+event: odeslano
+question: |
+  Úspěšně odesláno
+---
+attachment:
+  name: Plná moc
+  filename: Plná moc
+  variable name: vzor
+  docx template file: fba_plna_moc.docx
+  valid formats:
+    - docx
+  fields:
+    - nadpis: Plná moc
