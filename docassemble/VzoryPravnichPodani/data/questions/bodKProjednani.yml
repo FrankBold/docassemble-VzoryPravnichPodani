@@ -34,7 +34,7 @@ code: |
 ---
 ############################################ Otázky
 question: |
-  Vyberte z jakého okresu je Vámi zadaná obec
+  Vyberte, z jakého okresu je Vámi zadaná obec.
 fields:
   - Okres: okres
     datatype: radio
@@ -86,24 +86,24 @@ question: |
 subquestion: |
   Projednání záležitosti můžete požadovat buď po zastupitelstvu či radě obce. Záleží na tom, pod jaký z orgánů záležitost spadá.
 
-  Pokud nevíte pod který orgán daná věc spadá, může vám pomoci náš [Průvodce pravomocemi na obci](https://da.frankbold.org/interview?i=docassemble.FrankBold:pravomociObec.yml).
+  Pokud nevíte, pod který orgán daná věc spadá, může vám pomoci náš [Průvodce pravomocemi na obci](https://da.frankbold.org/interview?i=docassemble.FrankBold:pravomociObec.yml).
 fields:
   - Orgán obce: Adresat.organ
     datatype: radio
     choices:
         - Zastupitelstvo obce: zastupitestvo
         - Rada obce: rada
-  - Popis záležitosti kterou chcete projednat: Podani.obsah
+    Popis záležitosti, kterou chcete projednat: Podani.obsah
     input type: area
 ---
 question: |
   Počet podpisů
 subquestion: |
-  Vaší žádost musí podle [zákona o obcích](https://www.zakonyprolidi.cz/cs/2000-128#p16-2-f) podpořit alespoň 0,5 % obyvatel obce.
+  Vaši žádost musí podle [zákona o obcích](https://www.zakonyprolidi.cz/cs/2000-128#p16-2-f) podpořit alespoň 0,5 % obyvatel obce.
 
-  Podle údajů o počtu obyvatel k 1.1.2021 to pro obec ${ Adresat.obec }, znamená **${ pocetPodpisu } podpisů.**
+  Podle údajů o počtu obyvatel k 1.1.2022 to pro obec ${ Adresat.obec }, znamená **${ pocetPodpisu } podpisů.**
 
-  Do vzoru jsme vám přidali potřebný počet podpisových řádků. Podpisy musíte získat před odesláním žádosti obci.
+  Do vzoru jsme vám přidali potřebný počet podpisových řádků. Podpisy musíte získat před tím, než žádost obci odešlete.
 continue button field: pocetPodpisu_Info
 ---
 ################################################ Odeslání
