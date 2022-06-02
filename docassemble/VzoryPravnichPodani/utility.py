@@ -3,6 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 import urllib
 import json
+import re
+from docassemble.base.util import path_and_mimetype
 
 def contains_spolek(x):
   x = x.lower()
@@ -35,3 +37,13 @@ def query2dict(url):
         except:
             continue
     return url
+
+(obce_filename, obce_mimetype) = path_and_mimetype('data/static/obce.json')
+
+def najitObec(obec, kraj):
+    with open(obce_filename, encoding='utf-8') as d:
+        data = json.load(d)
+    for polozka in data["municipalities"]:
+        if obec.lower() == polozka["hezkyNazev"].lower() and re.sub('(k|K)raj', '', kraj).strip().lower() == re.sub('(k|K)raj', '', polozka["adresaUradu"]["kraj"]).strip().lower():
+            return(polozka)
+    return(False)

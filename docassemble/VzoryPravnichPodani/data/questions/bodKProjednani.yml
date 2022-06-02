@@ -7,6 +7,11 @@ metadata:
       organization: Frank Bold Society
   revision_date: 2021-08-12
 ---
+features:
+  javascript:
+    - https://api.mapy.cz/loader.js
+    - loader.js
+---
 modules:
   - .pocetObyvatel
 ---
@@ -21,10 +26,18 @@ code: |
   nabidkaFBA = False
   nazev_vzoru = "Žádost o zařazení bodu na zasedání"
 ---
+# Zpracování URL args
+scan for variables: False
+mandatory: True
+code: |
+  if 'idds' in url_args:
+    Adresat.idds = url_args['idds']
+---
 # Logika
 mandatory: True
 code: |
   Adresat.organ
+  Podani.obsah
   pocetPodpisu_Info
   vzor
   if potvrditOdeslani and not defined("emailOdeslan"):
@@ -33,36 +46,11 @@ code: |
   final_fr
 ---
 ############################################ Otázky
-question: |
-  Vyberte, z jakého okresu je Vámi zadaná obec.
-fields:
-  - Okres: okres
-    datatype: radio
-    code: |
-      moznosti
----
 event: nenalezeno
 question: |
   Bohužel jsme nic nenašli, zkuste to znovu.
 buttons:
   - Zkusit znovu: restart
----
-sets: Podani.pocetPodpis
-code: |
-  vystup = pocetObyvatel(Adresat.obec)
-  if len(vystup) == 1:
-    pocetPodpisu = round(int(vystup[0][2])*0.005)
-    Podani.pocetPodpis = range(1, pocetPodpisu+1)
-  elif len(vystup) == 0:
-    nenalezeno
-  elif len(vystup) > 1:
-    moznosti = []
-    for item in vystup:
-      moznosti.append(item[0])
-    for polozka in vystup:
-      if polozka[0] == okres:
-        pocetPodpisu = round(int(polozka[2])*0.005)
-        Podani.pocetPodpis = range(1, pocetPodpisu+1)
 ---
 ga id: adresat
 question: |
@@ -82,17 +70,40 @@ fields:
 ---
 ga id: Předmět
 question: |
-  Projednání záležitosti
+  Kdo má věc projednat?
 subquestion: |
   Projednání záležitosti můžete požadovat buď po zastupitelstvu či radě obce. Záleží na tom, pod jaký z orgánů záležitost spadá.
 
   Pokud nevíte, pod který orgán daná věc spadá, může vám pomoci náš [Průvodce pravomocemi na obci](https://da.frankbold.org/interview?i=docassemble.FrankBold:pravomociObec.yml).
 fields:
+  - Obec: Obec.nazev
+  - Kraj: Obec.kraj
+    code: |
+      ['Hlavní město Praha', 'Zlínský kraj', 'Liberecký kraj', 'Moravskoslezský kraj', 'Jihočeský kraj', 'Středočeský kraj', 'Jihomoravský kraj', 'Plzeňský kraj', 'Olomoucký kraj', 'Kraja Vysočina', 'Ústecký kraj', 'Karlovarský kraj', 'Pardubický kraj', 'Královéhradecký kraj']
   - Orgán obce: Adresat.organ
     datatype: radio
     choices:
         - Zastupitelstvo obce: zastupitestvo
         - Rada obce: rada
+script: |
+  <script>var typ = "není";</script>''
+  <script src="${ url_of('mapy_api_obec.js')}"></script>
+---
+sets: Podani.pocetPodpis
+code: |
+  obecData = najitObec(Obec.nazev, Obec.kraj)
+  if obecData:
+    rucne = False
+    Adresat.idds = obecData["datovaSchrankaID"]
+    pocetPodpisu = round(int(obecData['pocetObyvatel'])*0.005)
+    Podani.pocetPodpis = range(1, pocetPodpisu+1)
+  doplneno = True
+---
+question: |
+  Bod k projednání
+subquestion: |
+  Popište jakou záležitost má orgán obce projednat.
+fields:
     Popis záležitosti, kterou chcete projednat: Podani.obsah
     input type: area
 ---
