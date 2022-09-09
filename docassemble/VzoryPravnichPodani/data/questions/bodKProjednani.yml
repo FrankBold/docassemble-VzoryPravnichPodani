@@ -142,3 +142,5 @@ attachment:
   docx template file: BodKProjednani.docx
   valid formats:
     - docx
+    - pdf
+- pdf

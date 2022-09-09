@@ -218,6 +218,8 @@ attachment:
   docx template file: template.docx
   valid formats:
     - docx
+    - pdf
+- pdf
   fields:
     - nadpis: Odvolání proti rozhodnutí
     - sablona: Odvolani.docx

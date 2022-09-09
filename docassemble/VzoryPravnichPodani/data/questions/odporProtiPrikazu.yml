@@ -147,6 +147,8 @@ attachment:
   docx template file: template.docx
   valid formats:
     - docx
+    - pdf
+- pdf
   fields:
     - nadpis: Odpor proti příkazu, čj. ${ Prikaz.cj }
     - sablona: OdporProtiPrikazu.docx

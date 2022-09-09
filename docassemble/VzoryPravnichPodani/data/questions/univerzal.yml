@@ -145,6 +145,20 @@ fields:
     show if:
       code: |
         Podani.forma == 'datovka'
+action buttons:
+  - label: Vyplním později v dokumentu
+    action: organ_pozdeji
+    color: danger
+    icon: forward
+---
+scan for variables: False
+event: organ_pozdeji
+code: |
+  Adresat.name.text = "[Název]"
+  Adresat.ulice = "[Ulice a čp.]"
+  Adresat.obec = "[Obec]"
+  Adresat.psc = "[PSČ]"
+  Adresat.idds = "[IDDS]"
 ---
 generic object: Organ
 if: |
@@ -201,6 +215,8 @@ subquestion: |
   Vzor Vám společně s manuálem pošleme na e-mail.
   *E-mail nepřihlašujeme automaticky k žádnému newsletteru.*
 
+  ${ nahled_modal }
+
   % if user_has_privilege('admin'):
   [Stáhnout](${ vzor.url_for() })
 
@@ -225,3 +241,25 @@ event: neodeslano
 question: Někde se stala chyba
 subquestion: |
   Omlouváme se za problémy. Zkuste to prosím později.
+---
+template: nahled_modal
+content: |
+  <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Náhled dokumentu <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Náhled dokumentu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavřít"></button>
+        </div>
+        <div class="modal-body">
+           <img src="${ vzor.pdf.url_for(page=1, size='screen') }" class="img-thumbnail shadow" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zavřít</button>
+        </div>
+      </div>
+    </div>
+  </div>

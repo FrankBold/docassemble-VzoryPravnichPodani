@@ -189,6 +189,8 @@ attachment:
   docx template file: template.docx
   valid formats:
     - docx
+    - pdf
+- pdf
   fields:
     - nadpis: Podnět k prošetření obecně závazné vyhlášky obce ${ Obec.nazev }
     - sablona: PodnetVyhlaska.docx

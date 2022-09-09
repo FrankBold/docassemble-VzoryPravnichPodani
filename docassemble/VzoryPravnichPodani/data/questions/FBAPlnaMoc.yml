@@ -191,5 +191,7 @@ attachment:
   docx template file: fba_plna_moc.docx
   valid formats:
     - docx
+    - pdf
+- pdf
   fields:
     - nadpis: Plná moc

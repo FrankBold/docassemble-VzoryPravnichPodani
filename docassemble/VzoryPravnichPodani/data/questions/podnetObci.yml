@@ -137,6 +137,8 @@ attachment:
   docx template file: template.docx
   valid formats:
     - docx
+    - pdf
+- pdf
   fields:
     - nadpis: Podnět k prověření postupu obce
     - sablona: PodnetObci.docx
