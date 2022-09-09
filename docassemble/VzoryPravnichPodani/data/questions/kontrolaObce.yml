@@ -162,7 +162,6 @@ attachment:
   valid formats:
     - docx
     - pdf
-- pdf
   fields:
     - nadpis: Podnět k provedení kontroly nad obcí ${ Obec.name.text }
     - sablona: PodnetKontrolaObce.docx

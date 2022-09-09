@@ -207,7 +207,6 @@ attachment:
   valid formats:
     - docx
     - pdf
-- pdf
   fields:
     - nadpis: Podnět k zahájení řízení o uložení opatření proti nečinnosti z moci úřední ve smyslu § 80 zákona č. 500/2004 Sb., správního řádu
     - sablona: Necinnost.docx
