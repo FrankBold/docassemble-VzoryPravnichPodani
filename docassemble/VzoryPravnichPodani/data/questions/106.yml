@@ -235,7 +235,6 @@ attachment:
   valid formats:
     - docx
     - pdf
-- pdf
   fields:
     - nadpis: Žádost o poskytnutí informací
     - sablona: 106.docx

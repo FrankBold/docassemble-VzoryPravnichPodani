@@ -113,7 +113,6 @@ attachment:
   valid formats:
     - docx
     - pdf
-- pdf
   fields:
     - nadpis: Podnět k čemukoli
     - sablona: body.docx

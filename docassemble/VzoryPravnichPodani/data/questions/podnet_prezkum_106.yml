@@ -146,7 +146,6 @@ attachment:
   valid formats:
     - docx
     - pdf
-- pdf
   fields:
     - nadpis: Podnět k provedení přezkumného řízení podle § 16b zákona č. 106/1999 Sb. o svobodném přístupu k informacím
     - sablona: Podnet_prezkum_106.docx

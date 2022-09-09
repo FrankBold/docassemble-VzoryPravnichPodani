@@ -219,7 +219,6 @@ attachment:
   valid formats:
     - docx
     - pdf
-- pdf
   fields:
     - nadpis: Odvolání proti rozhodnutí
     - sablona: Odvolani.docx

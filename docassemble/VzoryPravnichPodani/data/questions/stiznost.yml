@@ -249,7 +249,6 @@ attachment:
   valid formats:
     - docx
     - pdf
-- pdf
   fields:
     - nadpis: Stížnost na postup při vyřizování žádosti o informace.
     - sablona: Stiznost.docx
