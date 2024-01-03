@@ -27,6 +27,52 @@ def uradDleDatovky(idds):
     except:
       return "chyba"
 
+def overitJson(ico = None, firma = None):
+    # Use the same URL as in the 'overit' function
+    URL = 'https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/vyhledat'
+    
+    # Parameters are now sent as JSON in the body of the request
+    call = {
+        'start': 0, 
+        'pocet': 10, 
+    }
+
+    if ico:
+        call['ico'] = [ico]
+
+    if firma:
+        call['obchodniJmeno'] = firma
+
+    payload = json.dumps(call)
+
+    # Specify the content type as JSON
+    headers = {'Content-Type': 'application/json'}
+
+    # Make a POST request
+    response = requests.post(URL, data=payload, headers=headers)
+    data = response.json()
+
+
+    try:
+      if data["pocetCelkem"] == 0:
+          return "Nic jsme nenalezli."
+      
+      elif data["pocetCelkem"] == 1:
+          info = {
+            "firma": data["ekonomickeSubjekty"][0]["obchodniJmeno"],
+            "ico": data["ekonomickeSubjekty"][0]["ico"],
+            "sildo": data["ekonomickeSubjekty"][0]["sidlo"]["textovaAdresa"]
+          }
+      
+          return info
+
+      else:
+          return "Někde se stala chyba"
+        
+
+    except:
+       return "Někde se stala chyba."
+
 def overitXml(ico):
   URL = 'https://wwwinfo.mfcr.cz/cgi-bin/ares/darv_std.cgi'
   params = {'ico': ico}

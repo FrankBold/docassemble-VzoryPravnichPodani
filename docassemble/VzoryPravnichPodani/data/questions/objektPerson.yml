@@ -102,5 +102,5 @@ code: |
 ---
 event: doplnUdaje
 code: |
-  vystup = overitXml(action_argument('ico').strip('"'))
+  vystup = overitJson(ico=action_argument('ico').strip('"'))
   json_response(dict(test=vystup))
