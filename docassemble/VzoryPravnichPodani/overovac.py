@@ -61,7 +61,7 @@ def overitJson(ico = None, firma = None):
           info = {
             "firma": data["ekonomickeSubjekty"][0]["obchodniJmeno"],
             "ico": data["ekonomickeSubjekty"][0]["ico"],
-            "sildo": data["ekonomickeSubjekty"][0]["sidlo"]["textovaAdresa"]
+            "sidlo": data["ekonomickeSubjekty"][0]["sidlo"]["textovaAdresa"]
           }
       
           return info
