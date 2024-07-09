@@ -166,21 +166,25 @@ if: |
 code: |
   vystup_urad = uradDleDatovky(x.idds)
   if vystup_urad == "chyba":
-    rucne = True
-    hlaska = True
-    x.name.text
+      rucne = True
+      hlaska = True
+      x.name.text
   else:
-    x.name.text = vystup_urad['NazevOsoby']
-    try:
-      if vystup_urad['AdresaSidla']['CisloOrientacni']:
-        x.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni'] +"/"+ vystup_urad['AdresaSidla']['CisloOrientacni']
+      x.name.text = vystup_urad.get('NazevOsoby', '')
+
+      adresa_sídla = vystup_urad.get('AdresaSidla', {})
+      ulice = adresa_sídla.get('UliceNazev', '')
+      cislo_domovni = adresa_sídla.get('CisloDomovni', '')
+      cislo_orientacni = adresa_sídla.get('CisloOrientacni')
+
+      if cislo_orientacni:
+          x.ulice = f"{ulice} {cislo_domovni}/{cislo_orientacni}"
       else:
-        x.ulice = vystup_urad['AdresaSidla']['UliceNazev'] +" "+ vystup_urad['AdresaSidla']['CisloDomovni']
-    except:
-        x.ulice = "č.p. "+ vystup_urad['AdresaSidla']['CisloDomovni']
-    x.psc = vystup_urad['AdresaSidla']['PostaKod']
-    x.obec = vystup_urad['AdresaSidla']['ObecNazev']
-    x.idds = vystup_urad['ISDS']
+          x.ulice = f"{ulice} {cislo_domovni}" if ulice and cislo_domovni else f"č.p. {cislo_domovni}"
+
+      x.psc = adresa_sídla.get('PostaKod', '')
+      x.obec = adresa_sídla.get('ObecNazev', '')
+      x.idds = vystup_urad.get('ISDS', '')
 ---
 # Prilohy
 ga id: zpusobOdeslani
